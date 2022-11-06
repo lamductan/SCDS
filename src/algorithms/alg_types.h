@@ -1,8 +1,0 @@
-#ifndef SCDS_ALGORITHMS_ALG_TYPES_H_
-#define SCDS_ALGORITHMS_ALG_TYPES_H_
-
-enum AlgType {
-    DUMMY_ALG
-};
-
-#endif //SCDS_ALGORITHMS_ALG_TYPES_H_

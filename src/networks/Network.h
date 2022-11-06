@@ -9,9 +9,10 @@
 #include <omnetpp.h>
 
 #include "common.h"
-#include "algorithms/ialg.h"
 
 using namespace omnetpp;
+
+class NetworkAlg;
 
 /**
  * Builds a network dynamically, with the topology coming from a
@@ -38,7 +39,7 @@ public:
     int n_nodes;
     int n_nodes_completed_in_current_round;
     
-    IAlg *alg;
+    NetworkAlg *alg;
 
     virtual ~Network();
 };

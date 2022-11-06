@@ -3,34 +3,18 @@
 
 #include <omnetpp.h>
 
-#include "algorithms/ialg.h"
-#include "networks/Network.h"
+#include "algorithms/ialg_node.h"
 #include "node/Node.h"
 
 using namespace omnetpp;
 
-class DummyAlgNetwork : public IAlg
+
+class DummyAlg : public IAlgNode
 {
-protected:
-    Network *network;
-
 public:
-    DummyAlgNetwork(Network *network);
-    void start() override;
-    void handle_message(cMessage *msg) override;
-    virtual ~DummyAlgNetwork();
-};
-
-
-class DummyAlgNode : public IAlg
-{
-protected:
-    Node *node;
-public:
-    DummyAlgNode(Node *node);
-    void start() override;
-    void handle_message(cMessage *msg) override;
-    virtual ~DummyAlgNode();
+    DummyAlg(Node *node, const char *alg_name);
+    virtual void process_round() override;
+    virtual ~DummyAlg();
 };
 
 #endif //SCDS_ALGORITHMS_DUMMY_ALG_H_

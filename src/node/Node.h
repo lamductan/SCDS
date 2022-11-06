@@ -6,9 +6,10 @@
 #include <omnetpp.h>
 
 #include "common.h"
-#include "algorithms/ialg.h"
 
 using namespace omnetpp;
+
+class IAlgNode;
 
 class Node : public IModule
 {
@@ -20,8 +21,10 @@ protected:
     virtual void handleMessage(cMessage *msg) override;
 
 public:
+    int id;
+    int n_nodes;
     cGate *networkWirelessIn;
-    IAlg *alg;
+    IAlgNode *alg;
     virtual ~Node();
 };
 

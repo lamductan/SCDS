@@ -1,11 +1,11 @@
 #include "common.h"
 #include "networks/Network.h"
-#include "algorithms/alg_factory.h"
+#include "algorithms/network_alg.h"
 #include "messages/messages.h"
 
 void Network::initialize()
 {
-    alg = AlgFactory::create_alg(this, DUMMY_ALG);
+    alg = new NetworkAlg(this, par("algorithm"));
     setDisplayString("p=0,0");
     scheduleAt(0, new cMessage("Initialize the network!", SELF_INITIALIZE_MESSAGE));
 }
@@ -15,7 +15,7 @@ void Network::handleMessage(cMessage *msg)
     EV << msg << '\n';
     if (msg->isSelfMessage() && msg->getKind() == SELF_INITIALIZE_MESSAGE) {
         buildNetwork(getParentModule());
-        scheduleAt(0.5, new cMessage("Start Rounds", START_ROUND_MESSAGE));
+        scheduleAt(1, new cMessage("Start Rounds", START_ROUND_MESSAGE));
     } else {
         alg->handle_message(msg);
     }
@@ -80,6 +80,8 @@ void Network::buildNetwork(cModule *parent)
         parX.setIntValue(x);
         cPar &parY = mod->par("y");
         parY.setIntValue(y);
+        cPar &parNNodes = mod->par("n_nodes");
+        parNNodes.setIntValue(n);
         nodeid2mod[nodeid] = mod;
 
         // read params from the ini file, etc
@@ -99,7 +101,7 @@ void Network::buildNetwork(cModule *parent)
         // get fields from tokens
         int srcnodeid = atoi(tokens[0].c_str());
         int destnodeid = atoi(tokens[1].c_str());
-        EV << "Edge " << srcnodeid << ' ' << destnodeid << '\n';
+        //EV << "Edge " << srcnodeid << ' ' << destnodeid << '\n';
 
         if (nodeid2mod.find(srcnodeid) == nodeid2mod.end())
             throw cRuntimeError("wrong line in connections file: node with id=%d not found", srcnodeid);
@@ -130,27 +132,6 @@ void Network::buildNetwork(cModule *parent)
  */
 simtime_t Network::get_next_transmission_time() {
     return ROUND_TIME * ceil(simTime()/ROUND_TIME);
-}
-
-/**
- * @brief 
- * 
- */
-void Network::send_synchrozied_message() {
-    EV << "Network::send_synchrozied_message()\n";
-    SynchronizedMessage *synchronized_message = new SynchronizedMessage("synchronized", SYNCHRONIZED_MESSAGE);
-    synchronized_message->setSenderId(-1);
-    synchronized_message->setRoundId(current_round_id);
-    current_round_id += 1;
-    synchronized_message->setSynchronizedMessageType(SYNCHRONIZED_START_ROUND);
-    EV << "root msg: " << synchronized_message->getKind() << "\n";
-    for(cGate *gate : nodesWirelessIn) {
-        cMessage *msg = synchronized_message->dup();
-        sendDirect(msg, gate);
-        EV << "node " << gate->getOwner()->getName() << ' ' << msg->getKind() << '\n';
-    }
-    delete synchronized_message;
-    //n_nodes_completed_in_current_round = 0;
 }
 
 Network::~Network() {

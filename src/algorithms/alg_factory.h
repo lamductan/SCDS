@@ -9,10 +9,12 @@
 class AlgFactory
 {
 public:
-    static IAlg *create_alg(IModule *module, AlgType alg_type) {
-        if (alg_type == DUMMY_ALG) {
-            if (module->getModuleType() == NETWORK_TYPE) return new DummyAlgNetwork(dynamic_cast<Network *>(module));
-            else return new DummyAlgNode(dynamic_cast<Node *>(module));
+    static IAlgNode *create_alg(Node *node, const char* alg_name) {
+        if (strcmp(alg_name, "dummy") == 0) {
+            return new DummyAlg(node, alg_name);
+        } else {
+            EV << "Algorithm: " << alg_name << '\n';
+            return new DummyAlg(node, alg_name);
         }
         return nullptr;
     }

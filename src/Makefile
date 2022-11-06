@@ -33,7 +33,14 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/algorithms/dummy_alg.o $O/messages/neighbor_discovery_message.o $O/messages/synchronized_message.o $O/networks/Network.o $O/node/Node.o
+OBJS = \
+    $O/algorithms/dummy_alg.o \
+    $O/algorithms/ialg_node.o \
+    $O/algorithms/network_alg.o \
+    $O/messages/neighbor_discovery_message.o \
+    $O/messages/synchronized_message.o \
+    $O/networks/Network.o \
+    $O/node/Node.o
 
 # Message files
 MSGFILES =

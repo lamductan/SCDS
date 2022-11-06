@@ -3,18 +3,16 @@
 
 void Node::initialize()
 {
-    alg = AlgFactory::create_alg(this, DUMMY_ALG);
+    id = par("id").intValue();
+    n_nodes = par("n_nodes");
+    alg = AlgFactory::create_alg(this, par("algorithm").stringValue());
     networkWirelessIn = getParentModule()->getSubmodule("builder")->gate("wirelessIn");
 }
 
 void Node::handleMessage(cMessage *msg)
 {
     EV << "Node::handleMessage(cMessage *msg)\n";
-    if (msg->isSelfMessage()) {
-        EV << "self message \n";
-    } else {
-        alg->handle_message(msg);
-    }
+    alg->handle_message(msg);
     delete msg;
 }
 
