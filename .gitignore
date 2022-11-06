@@ -1,0 +1,10 @@
+.*
+!**/.gitignore
+
+out
+clang-release
+command_1.txt
+commands.txt
+**/Makefile
+scds
+**/results
