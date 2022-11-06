@@ -1,7 +1,7 @@
 #!/bin/bash
 This=scds
 
-rm ${This}
+rm ${This} 2> /dev/null
 cd src && opp_makemake -f --deep -o ${This} -O .. -I.
 make
 mv ${This} .. 2> /dev/null
