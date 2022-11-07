@@ -11,9 +11,8 @@ void Node::initialize()
 
 void Node::handleMessage(cMessage *msg)
 {
-    EV << "Node::handleMessage(cMessage *msg)\n";
+    EV << "Node::handleMessage(cMessage *msg)" << msg->getKind() << "\n";
     alg->handle_message(msg);
-    delete msg;
 }
 
 Node::~Node() {

@@ -13,7 +13,7 @@ class DummyAlg : public IAlgNode
 {
 public:
     DummyAlg(Node *node, const char *alg_name);
-    virtual void process_round() override;
+    virtual cMessage * process_message_queue() override;
     virtual ~DummyAlg();
 };
 

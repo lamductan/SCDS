@@ -9,7 +9,7 @@ class IAlg
 {
 public:
     int n_nodes;
-    int current_round_id = 0;
+    int current_round_id = 1;
     int max_num_rounds;
     
     virtual void init(int n_nodes, const char *alg_name) {
@@ -19,7 +19,7 @@ public:
         } else if (strncmp(alg_name, "CDS", 3) == 0) {
             max_num_rounds = 10*n_nodes*log(n_nodes);
         } else {
-            max_num_rounds = 2;
+            max_num_rounds = 3;
         }
     }
 

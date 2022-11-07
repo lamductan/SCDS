@@ -5,10 +5,11 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
-#include <unordered_set>
+#include <unordered_map>
 #include <omnetpp.h>
 
 #include "common.h"
+#include "node/Node.h"
 
 using namespace omnetpp;
 
@@ -30,17 +31,18 @@ protected:
     virtual void handleMessage(cMessage *msg) override;
     
 public:
-    std::vector<cGate *> nodesWirelessIn;
-    std::unordered_set<int> terminated;
-    
-    void send_synchrozied_message();
-    simtime_t get_next_transmission_time();
-    
     int n_nodes;
-    int n_nodes_completed_in_current_round;
-    
+    std::unordered_map<int, Node *> nodes;
+    std::vector<cGate *> nodesWirelessIn;
+    const char *network_file;
+    const char *alg_name;
     NetworkAlg *alg;
-
+    
+    std::vector<int> get_selected_nodes();
+    int get_total_awake_rounds();
+    int get_finished_rounds();
+    void log_result();
+    virtual void finish() override;
     virtual ~Network();
 };
 
