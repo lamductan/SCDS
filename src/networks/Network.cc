@@ -13,7 +13,6 @@ void Network::initialize()
 {
     network_file = par("networkFile").stringValue();
     alg_name = par("algorithm").stringValue();
-    alg = new NetworkAlg(this, alg_name);
     setDisplayString("p=0,0");
     scheduleAt(0, new cMessage("Initialize the network!", SELF_INITIALIZE_MESSAGE));
 }
@@ -130,6 +129,7 @@ void Network::buildNetwork(cModule *parent)
     // initialization will simply skip already-initialized modules instead of causing error
     EV << "Done buildNetwork " << parent->getName() << '\n';
     networkFile.close();
+    alg = new NetworkAlg(this, alg_name);
     parent->callInitialize();
 }
 
@@ -152,20 +152,18 @@ int Network::get_total_awake_rounds() {
     return total_awake_rounds;
 }
 
-int Network::get_finished_rounds() {
-    return -1;
-}
-
-std::string join_path(const std::vector<std::string> &tokens) {
-    std::string path = "";
-    for(int i = 0; i < tokens.size() - 1; ++i)
-        path += tokens[i] + "/";
-    path += tokens.back();
-    return path;
+int Network::get_finished_round() {
+    int finished_round = -1;
+    for(auto it : nodes) {
+        Node *node = it.second;
+        finished_round = std::max(finished_round, node->alg->last_communication_round);
+    }
+    return finished_round;
 }
 
 void Network::log_result() {
     int total_awake_rounds = get_total_awake_rounds();
+    int finished_round = get_finished_round();
     std::vector<int> selected_nodes = get_selected_nodes();
 
     std::vector<std::string> tokens = cStringTokenizer(network_file, "/").asVector();
@@ -182,10 +180,10 @@ void Network::log_result() {
     
     std::fstream f(log_path.c_str(), std::ios::out);
     f << n_nodes << ' ' << total_awake_rounds << ' ' << ceil(1.0*total_awake_rounds/n_nodes) 
-      << ' ' << selected_nodes.size() << "\n";
+      << ' ' << finished_round << ' ' << selected_nodes.size() << "\n";
     for(auto it : nodes) {
         Node *node = it.second;
-        f << node->alg->n_awake_rounds << '\n';
+        f << node->alg->n_awake_rounds << ' ' << node->alg->last_communication_round << '\n';
     }
     f << '\n';
     for(int selected_node : selected_nodes) f << selected_node << '\n';
@@ -197,6 +195,7 @@ void Network::finish() {
     log_result();
     IChecker *checker = CheckerFactory::create_checker(this);
     EV << "Check result = " << checker->check();
+    delete checker;
 }
 
 Network::~Network() {

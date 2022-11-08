@@ -12,7 +12,7 @@ using namespace omnetpp;
 class DummyAlg : public IAlgNode
 {
 public:
-    DummyAlg(Node *node, const char *alg_name);
+    DummyAlg(Node *node);
     virtual cMessage * process_message_queue() override;
     virtual ~DummyAlg();
 };

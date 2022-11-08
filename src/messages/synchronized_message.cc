@@ -2,17 +2,20 @@
 
 SynchronizedMessage::SynchronizedMessage(const char* name, short kind) : cMessage(name, kind) {}
 
+void SynchronizedMessage::copyInformation(
+        int sender_id, int round_id, SynchronizedMessageType synchronized_message_type) {
+    this->sender_id = sender_id;
+    this->round_id = round_id;
+    this->synchronized_message_type = synchronized_message_type;
+}
+
 SynchronizedMessage::SynchronizedMessage(const SynchronizedMessage& other) : cMessage((cMessage) other) {
-    sender_id = other.sender_id;
-    round_id = other.round_id;
-    synchronized_message_type = other.synchronized_message_type;
+    copyInformation(other.sender_id, other.round_id, other.synchronized_message_type);
 }
 
 SynchronizedMessage& SynchronizedMessage::operator=(const SynchronizedMessage& other) {
     cMessage::operator=(other);
-    sender_id = other.sender_id;
-    round_id = other.round_id;
-    synchronized_message_type = other.synchronized_message_type;
+    copyInformation(other.sender_id, other.round_id, other.synchronized_message_type);
     return *this;
 }
 

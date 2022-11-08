@@ -5,8 +5,10 @@ void Node::initialize()
 {
     id = par("id").intValue();
     n_nodes = par("n_nodes");
+    EV << "Node::initialize() -- " << "n_nodes = " << n_nodes << ' ' 
+       << "par(\"algorithm\").stringValue()" << par("algorithm").stringValue() << '\n';
     alg = AlgFactory::create_alg(this, par("algorithm").stringValue());
-    networkWirelessIn = getParentModule()->getSubmodule("builder")->gate("wirelessIn");
+    networkWirelessIn = getParentModule()->getSubmodule("net")->gate("wirelessIn");
 }
 
 void Node::handleMessage(cMessage *msg)

@@ -12,6 +12,7 @@ public:
 
 protected:
     int sender_id;
+    void copyInformation(int sender_id);
 
 public:
     NeighborDiscoveryMessage(const char *name=nullptr, short kind=NEIGHBOR_DISCOVERY_MESSAGE);

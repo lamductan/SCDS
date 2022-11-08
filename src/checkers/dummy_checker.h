@@ -7,6 +7,7 @@ class DummyChecker : public IChecker {
 public:
     DummyChecker(Network *network) : IChecker(network) {}
     virtual bool check() { return true; }
+    virtual ~DummyChecker() {}
 };
 
 #endif //SCDS_CHECKERS_CHECKER_DUMMY_H_

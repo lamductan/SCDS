@@ -11,10 +11,11 @@ class AlgFactory
 public:
     static IAlgNode *create_alg(Node *node, const char* alg_name) {
         if (strcmp(alg_name, "dummy") == 0) {
-            return new DummyAlg(node, alg_name);
-        } else {
-            EV << "Algorithm: " << alg_name << '\n';
-            return new DummyAlg(node, alg_name);
+            EV << "Create DummyAlg instance\n";
+            return new DummyAlg(node);
+        } else if (strcmp(alg_name, "MIS-Luby") == 0) {
+            EV << "Create LubyMISAlg instance\n";
+            return new LubyMISAlg(node);
         }
         return nullptr;
     }

@@ -1,9 +1,16 @@
 #include <string.h>
 #include <sys/stat.h>
-#include <string>
 #include <stdexcept>
 
 #include "utils/utils.h"
+
+std::string join_path(const std::vector<std::string> &tokens) {
+    std::string path = "";
+    for(int i = 0; i < tokens.size() - 1; ++i)
+        path += tokens[i] + "/";
+    path += tokens.back();
+    return path;
+}
 
 void splitFileName(const char *pathname, std::string& dir, std::string& fnameonly) {
     if (!pathname || !*pathname) {

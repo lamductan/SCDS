@@ -20,6 +20,8 @@ protected:
     int round_id;
     SynchronizedMessageType synchronized_message_type;
 
+    void copyInformation(int sender_id, int round_id, SynchronizedMessageType synchronized_message_type);
+
 public:
     SynchronizedMessage(const char *name=nullptr, short kind=SYNCHRONIZED_MESSAGE);
     SynchronizedMessage(const SynchronizedMessage& other);

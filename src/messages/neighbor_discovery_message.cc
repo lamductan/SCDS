@@ -2,13 +2,17 @@
 
 NeighborDiscoveryMessage::NeighborDiscoveryMessage(const char* name, short kind) : cMessage(name, kind) {}
 
+void NeighborDiscoveryMessage::copyInformation(int sender_id) {
+    this->sender_id = sender_id;
+}
+
 NeighborDiscoveryMessage::NeighborDiscoveryMessage(const NeighborDiscoveryMessage& other) : cMessage((cMessage) other) {
-    sender_id = other.sender_id;
+    copyInformation(other.sender_id);
 }
 
 NeighborDiscoveryMessage& NeighborDiscoveryMessage::operator=(const NeighborDiscoveryMessage& other) {
     cMessage::operator=(other);
-    sender_id = other.sender_id;
+    copyInformation(other.sender_id);
     return *this;
 }
 

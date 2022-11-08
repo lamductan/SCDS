@@ -4,9 +4,12 @@ IChecker * CheckerFactory::create_checker(Network *network) {
     const char *alg_name = network->alg_name;
     if (strcmp(alg_name, "dummy") == 0) {
         return new DummyChecker(network);
-    } else {
+    } else if (strncmp(alg_name, "MIS", 3) == 0) {
         EV << "Algorithm: " << alg_name << '\n';
-        return new DummyChecker(network);
+        return new MISChecker(network);
+    } else if (strncmp(alg_name, "CDS", 3) == 0) {
+        EV << "Algorithm: " << alg_name << '\n';
+        return new CDSChecker(network);
     }
     return nullptr;
 }

@@ -4,7 +4,22 @@
 NetworkAlg::NetworkAlg(Network *network, const char *alg_name) {
     this->network = network;
     this->n_nodes = this->network->n_nodes;
-    IAlg::init(n_nodes, alg_name);
+    this->alg_name = alg_name;
+    set_alg_type();
+    set_max_num_rounds(n_nodes);
+}
+
+void NetworkAlg::set_alg_type() {
+    if (strncmp(alg_name, "MIS", 3) == 0) {
+        alg_type = MIS_ALG;
+    } else if (strncmp(alg_name, "CDS", 3) == 0) {
+        alg_type = CDS_ALG;
+    } else {
+        alg_type = DUMMY_ALG;
+    }
+    EV << "NetworkAlg::set_alg_type: " << "alg_name = " << alg_name << ", alg_type = " << alg_type
+       << ", strncmp(alg_name, \"MIS\", 3) = " << strncmp(alg_name, "MIS", 3) 
+       << "n_nodes = " << n_nodes << '\n';
 }
 
 void NetworkAlg::handle_message(cMessage *msg) {

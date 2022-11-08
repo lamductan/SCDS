@@ -3,16 +3,23 @@
 
 using namespace omnetpp;
 
-IAlgNode::IAlgNode(Node *node, const char *alg_name) {
+void IAlgNode::init(Node *node) {
     this->node = node;
     this->n_nodes = node->n_nodes;
-    init(this->n_nodes, alg_name);
-    alg_stage = INITIAL_STAGE;
-    selected = true; // Must be override to false by derived classes
+    set_alg_type();
+    set_max_num_rounds(this->n_nodes);
+    current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
+    previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
+}
+
+IAlgNode::IAlgNode() {}
+
+IAlgNode::IAlgNode(Node *node) {
+    init(node);
 }
 
 bool IAlgNode::is_selected() {
-    return selected;
+    return true;
 }
 
 bool IAlgNode::is_awake() {
@@ -42,21 +49,21 @@ void IAlgNode::start_round(cMessage *msg) {
 void IAlgNode::process_round() {
     if (!is_awake()) return;
     ++n_awake_rounds;
-    alg_stage = stage_transition();
+    stage_transition();
     cMessage *new_message = process_message_queue();
     clear_message_queue();
     if (new_message != nullptr) send_new_message(new_message);
 }
 
-IAlgNode::AlgStage IAlgNode::stage_transition() {
-    if (alg_stage == INITIAL_STAGE) {
-        return NEIGHBOR_DISCOVERY_STAGE;
-    } else if (alg_stage == NEIGHBOR_DISCOVERY_STAGE && current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) {
-        return NEIGHBOR_DISCOVERY_STAGE;
-    } else if (alg_stage == NEIGHBOR_DISCOVERY_STAGE && current_round_id > LAST_NEIGHBOR_DISCOVERY_ROUND) {
-        return MIS_STAGE;
+void IAlgNode::stage_transition() {
+    previous_round_alg_stage = current_round_alg_stage;
+    if (current_round_alg_stage == BaseAlgStage::INITIAL_STAGE) {
+        current_round_alg_stage = BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE;
+    } else if (current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) {
+        current_round_alg_stage = BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE;
+    } else {
+        current_round_alg_stage = BaseAlgStage::END_STAGE;
     }
-    return FINAL_STAGE;
 }
 
 void IAlgNode::clear_message_queue() {
@@ -65,19 +72,21 @@ void IAlgNode::clear_message_queue() {
 }
 
 cMessage * IAlgNode::process_message_queue() {
-    EV << "\tprocess_message_queue()\n";
+    EV << "\t" << "IAlgNode::process_message_queue()\n";
     //EV << "\t\talg_stage = " << alg_stage << ", " << "current_round_id = " << current_round_id << "\n";
-    if (alg_stage == NEIGHBOR_DISCOVERY_STAGE && current_round_id == 1) {
+    if (current_round_alg_stage == BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE && current_round_id == 1) {
         NeighborDiscoveryMessage *neighbor_discovery_message = new NeighborDiscoveryMessage("neighbor_discovery");
         neighbor_discovery_message->setSenderId(node->id);
         return neighbor_discovery_message;
-    } else if (alg_stage == NEIGHBOR_DISCOVERY_STAGE && current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) {
+    } else if (current_round_alg_stage == BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE 
+            && current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) {
         //EV << "\t\t" << "message_queue.size() = " << message_queue.size() << '\n';
         for(cMessage *msg : message_queue) {
             NeighborDiscoveryMessage *neighbor_discovery_message = dynamic_cast<NeighborDiscoveryMessage *>(msg);
             int neighbor_id = neighbor_discovery_message->getSenderId();
             cGate *neighbor_gate = neighbor_discovery_message->getArrivalGate();
             all_neighbors.push_back(neighbor_id);
+            all_neighbors_set.insert(neighbor_id);
             neighbor_gates[neighbor_id] = neighbor_gate;
             //EV << "\t\t" << "neighbor " << neighbor_id << ": gate " << neighbor_gate->getName() << "\n";
         }

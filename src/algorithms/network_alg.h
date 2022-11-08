@@ -9,10 +9,11 @@ using namespace omnetpp;
 class NetworkAlg : public IAlg {
 public:
     Network *network;
-    int n_completed_round_nodes = 0;
+    const char *alg_name;
+    virtual void set_alg_type() override;
 
     NetworkAlg(Network *network, const char *alg_name);
-    void handle_message(cMessage *mgs);
+    void handle_message(cMessage *mgs) override;
     void send_synchronized_message();
 
     virtual ~NetworkAlg() {}

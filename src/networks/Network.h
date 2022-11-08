@@ -40,7 +40,7 @@ public:
     
     std::vector<int> get_selected_nodes();
     int get_total_awake_rounds();
-    int get_finished_rounds();
+    int get_finished_round();
     void log_result();
     virtual void finish() override;
     virtual ~Network();

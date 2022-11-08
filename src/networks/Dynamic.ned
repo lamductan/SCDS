@@ -6,6 +6,6 @@ import Network;
 network Dynamic
 {
     submodules:
-        builder: Network {
+        net: Network {
         }
 }
