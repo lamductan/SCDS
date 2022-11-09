@@ -6,5 +6,6 @@
 #include "algorithms/dummy_alg.h"
 
 #include "algorithms/mis/Luby_mis/Luby_MIS.h"
+#include "algorithms/mis/KW08_mis/KW08_MIS.h"
 
 #endif //SCDS_ALGORITHMS_ALGS_H_

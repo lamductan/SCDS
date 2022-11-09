@@ -9,13 +9,16 @@
 class AlgFactory
 {
 public:
-    static IAlgNode *create_alg(Node *node, const char* alg_name) {
+    static IAlgNode *create_alg(Node *node, const char* alg_name, int starting_round=1) {
         if (strcmp(alg_name, "dummy") == 0) {
             EV << "Create DummyAlg instance\n";
-            return new DummyAlg(node);
+            return new DummyAlg(node, starting_round);
         } else if (strcmp(alg_name, "MIS-Luby") == 0) {
             EV << "Create LubyMISAlg instance\n";
-            return new LubyMISAlg(node);
+            return new LubyMISAlg(node, starting_round);
+        } else if (strcmp(alg_name, "MIS-KW08") == 0) {
+            EV << "Create KW08MISAlg instance\n";
+            return new KW08MISAlg(node, starting_round);
         }
         return nullptr;
     }

@@ -3,6 +3,7 @@
 
 #include "algorithms/ialg.h"
 #include "networks/Network.h"
+#include "messages/synchronized_message.h"
 
 using namespace omnetpp;
 
@@ -14,7 +15,7 @@ public:
 
     NetworkAlg(Network *network, const char *alg_name);
     void handle_message(cMessage *mgs) override;
-    void send_synchronized_message();
+    void send_synchronized_message(SynchronizedMessageType synchronized_message_type=SYNCHRONIZED_START_ROUND);
 
     virtual ~NetworkAlg() {}
 };

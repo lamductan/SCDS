@@ -8,9 +8,9 @@ class MISChecker : public IChecker {
 public:
     MISChecker(Network *network);
 
-    virtual bool check();
-    virtual bool check_cover();
-    virtual bool check_independent();
+    virtual bool check(bool is_final_check=true);
+    virtual bool check_cover(bool is_final_check);
+    virtual bool check_independent(bool is_final_check);
 
     virtual ~MISChecker();
 };

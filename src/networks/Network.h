@@ -42,6 +42,7 @@ public:
     int get_total_awake_rounds();
     int get_finished_round();
     void log_result();
+    bool check(bool is_final_check=true);
     virtual void finish() override;
     virtual ~Network();
 };

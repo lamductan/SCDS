@@ -3,7 +3,8 @@
 
 using namespace omnetpp;
 
-void IAlgNode::init(Node *node) {
+void IAlgNode::init(Node *node, int starting_round) {
+    this->starting_round = starting_round;
     this->node = node;
     this->n_nodes = node->n_nodes;
     set_alg_type();
@@ -14,8 +15,8 @@ void IAlgNode::init(Node *node) {
 
 IAlgNode::IAlgNode() {}
 
-IAlgNode::IAlgNode(Node *node) {
-    init(node);
+IAlgNode::IAlgNode(Node *node, int starting_round) {
+    init(node, starting_round);
 }
 
 bool IAlgNode::is_selected() {
@@ -26,11 +27,20 @@ bool IAlgNode::is_awake() {
     return true;
 }
 
+bool IAlgNode::is_decided() {
+    return false;
+}
+
 void IAlgNode::handle_message(cMessage *msg) {
-    EV << "DummyAlgNode::handle_message(msg)\n";
     if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
-        start_round(msg);
-        process_round();
+        SynchronizedMessage *synchronized_message = dynamic_cast<SynchronizedMessage *>(msg);
+        if (synchronized_message->getSynchronizedMessageType() == SYNCHRONIZED_START_ROUND) {
+            start_round(msg);
+            process_round();
+        } else {
+            clear_message_queue();
+            delete msg;
+        }
     } else {
         listen_new_message(msg);
     }
@@ -41,8 +51,8 @@ void IAlgNode::start_round(cMessage *msg) {
     int sender_id = synchronized_message->getSenderId();
     assert(sender_id == -1);
     current_round_id = synchronized_message->getRoundId();
-    EV << "node" << node->id 
-       << " received synchronized message of round " << current_round_id << "\n";
+    //EV << "node" << node->id 
+    //   << " received synchronized message of round " << current_round_id << "\n";
     delete msg;
 }
 
@@ -72,7 +82,6 @@ void IAlgNode::clear_message_queue() {
 }
 
 cMessage * IAlgNode::process_message_queue() {
-    EV << "\t" << "IAlgNode::process_message_queue()\n";
     //EV << "\t\talg_stage = " << alg_stage << ", " << "current_round_id = " << current_round_id << "\n";
     if (current_round_alg_stage == BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE && current_round_id == 1) {
         NeighborDiscoveryMessage *neighbor_discovery_message = new NeighborDiscoveryMessage("neighbor_discovery");
@@ -95,16 +104,17 @@ cMessage * IAlgNode::process_message_queue() {
     return nullptr;
 }
 
-void IAlgNode::send_new_message(cMessage *msg) {
+void IAlgNode::send_new_message(cMessage *msg, double delay) {
     int n_neighbors = node->gateSize("port");
-    EV << "\tsend_new_message " << current_round_id << '\n';
     for(int i = 0; i < n_neighbors; ++i) {
-        node->sendDelayed(msg->dup(), 0.5, "port$o", i);
+        node->sendDelayed(msg->dup(), delay, "port$o", i);
     }
     delete msg;
 }
 
 void IAlgNode::listen_new_message(cMessage *msg) {
-    if (!is_awake()) delete msg;
-    message_queue.push_back(msg);
+    if (!is_awake() || is_decided()) delete msg;
+    else message_queue.push_back(msg);
 }
+
+int IAlgNode::count_n_rounds() { return LAST_NEIGHBOR_DISCOVERY_ROUND; }

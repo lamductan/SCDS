@@ -1,6 +1,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <stdexcept>
+#include <math.h>
+#include <bitset>
 
 #include "utils/utils.h"
 
@@ -50,7 +52,6 @@ bool fileExists(const char *pathname) {
     return stat(pathname, &statbuf) == 0;
 }
 
-
 void mkPath(const char *pathname)
 {
     if (!fileExists(pathname)) {
@@ -65,4 +66,29 @@ void mkPath(const char *pathname)
             throw std::runtime_error(error_msg);
         }
     }
+}
+
+int log_2(int n) {
+    return ceil(log(n)/log(2));
+}
+
+int log_star(int n) {
+    if (n <= 2) return 0;
+    return log_star(log_2(n)) + 1;
+}
+
+int find_highest_greater_bit(int r_v, int r_u) {
+    if (r_v <= r_u) return 0;
+    std::bitset<MAX_NUM_BITS> y_v(r_v);
+    std::bitset<MAX_NUM_BITS> y_u(r_u);
+    for(int k = MAX_NUM_BITS - 1; k >= 0; --k) {
+        if (y_v[k] > y_u[k]) return k;
+    }
+    return 0;
+}
+
+std::ostream &print_binary(int x, std::ostream& os) {
+    std::bitset<MAX_NUM_BITS> bs_x(x);
+    os << bs_x.to_string();
+    return os;
 }

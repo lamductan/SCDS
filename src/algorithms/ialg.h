@@ -5,6 +5,8 @@
 
 using namespace omnetpp;
 
+#define LAST_NEIGHBOR_DISCOVERY_ROUND 2
+
 enum AlgType {
     DUMMY_ALG,
     MIS_ALG,
@@ -17,6 +19,7 @@ public:
     int n_nodes;
     int current_round_id = 1;
     int max_num_rounds;
+    int starting_round = 1;
     AlgType alg_type;
 
     virtual void set_alg_type();

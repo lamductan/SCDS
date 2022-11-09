@@ -3,8 +3,8 @@
 
 void LubyMISAlg::set_alg_type() { EV << "LubyMIS::set_alg_type()\n"; alg_type = MIS_ALG; }
 
-LubyMISAlg::LubyMISAlg(Node *node) {
-    init(node);
+LubyMISAlg::LubyMISAlg(Node *node, int starting_round) {
+    init(node, starting_round);
 }
 
 void LubyMISAlg::stage_transition() {
@@ -18,18 +18,22 @@ void LubyMISAlg::stage_transition() {
 }
 
 bool LubyMISAlg::is_marked_round() {
-    return (current_round_id % 2 == 1);
+    return ((current_round_id - starting_round) % 2 == 0);
+}
+
+void LubyMISAlg::record_last_communication_round() {
+    if (previous_status == UNDECIDED && status != UNDECIDED) {
+        last_communication_round = current_round_id - 1;
+    }
 }
 
 cMessage *LubyMISAlg::process_message_queue() {
     EV << "\t" << "LubyMISAlg::process_message_queue()\n";
-    if (previous_status == UNDECIDED && status != UNDECIDED) {
-        last_communication_round = current_round_id - 1;
-    }
+    record_last_communication_round();
 
     previous_status = status;
 
-    if (status != UNDECIDED) {
+    if (is_decided()) {
         EV << "\t\t" << "Status is " << status << " decided at round " << last_communication_round << "\n";
         return nullptr;
     }
@@ -101,4 +105,8 @@ cMessage *LubyMISAlg::process_message_queue() {
 
 bool LubyMISAlg::is_selected() {
     return (status == IN_MIS);
+}
+
+bool LubyMISAlg::is_decided() {
+    return (status != UNDECIDED);
 }

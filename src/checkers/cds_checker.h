@@ -6,9 +6,9 @@
 class CDSChecker : public IChecker {
 public:
     CDSChecker(Network *network);
-    virtual bool check();
-    virtual bool check_cover();
-    virtual bool check_connected();
+    virtual bool check(bool is_final_check=true);
+    virtual bool check_cover(bool is_final_check);
+    virtual bool check_connected(bool is_final_check);
     virtual ~CDSChecker();
 };
 

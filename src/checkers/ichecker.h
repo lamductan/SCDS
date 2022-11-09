@@ -8,7 +8,7 @@ public:
     std::vector<int> selected_nodes;
     Network *network;
     IChecker(Network *network) : network(network) {}
-    virtual bool check() = 0;
+    virtual bool check(bool is_final_check=true) = 0;
     virtual ~IChecker() {}
 };
 

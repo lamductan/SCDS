@@ -24,6 +24,12 @@ void NetworkAlg::set_alg_type() {
 
 void NetworkAlg::handle_message(cMessage *msg) {
     if (msg->isSelfMessage() && msg->getKind() == START_ROUND_MESSAGE) {
+        if (network->check(false)) {
+            EV << "Got all selected nodes. Finish here.\n";
+            send_synchronized_message(SYNCHRONIZED_FINISH);
+            delete msg;
+            return;
+        }
         if (current_round_id == max_num_rounds) {
             EV << "NetworkAlg::handle_message() -- FINISH at Round " << current_round_id << "\n";
         } else {
@@ -40,13 +46,12 @@ void NetworkAlg::handle_message(cMessage *msg) {
  * @brief 
  * 
  */
-void NetworkAlg::send_synchronized_message() {
-    EV << "NetworkAlg::send_synchronized_message()\n";
+void NetworkAlg::send_synchronized_message(SynchronizedMessageType synchronized_message_type) {
+    EV << "NetworkAlg::send_synchronized_message(), type = " << synchronized_message_type << '\n';
     SynchronizedMessage *synchronized_message = new SynchronizedMessage("synchronized");
     synchronized_message->setSenderId(-1);
     synchronized_message->setRoundId(current_round_id);
-    synchronized_message->setSynchronizedMessageType(SYNCHRONIZED_START_ROUND);
-    EV << "root msg: " << synchronized_message->getKind() << "\n";
+    synchronized_message->setSynchronizedMessageType(synchronized_message_type);
     for(cGate *gate : network->nodesWirelessIn) {
         cMessage *msg = synchronized_message->dup();
         network->sendDirect(msg, gate);

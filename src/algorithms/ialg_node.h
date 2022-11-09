@@ -31,9 +31,6 @@ public:
 
 class IAlgNode : public IAlg
 {
-protected:
-    static const int LAST_NEIGHBOR_DISCOVERY_ROUND = 2;
-
 public:
     Node *node;
 
@@ -44,9 +41,9 @@ public:
     int current_round_alg_stage;
     int previous_round_alg_stage;
 
-    void init(Node *node);
+    void init(Node *node, int starting_round);
     IAlgNode();
-    IAlgNode(Node *node);
+    IAlgNode(Node *node, int starting_round=1);
     
     int n_awake_rounds = 0;
     int n_sleep_rounds = 0;
@@ -55,15 +52,18 @@ public:
     virtual bool is_selected(); //should be overriden
 
     virtual bool is_awake(); //should be overriden
+    virtual bool is_decided(); //should be overriden
     
     virtual void handle_message(cMessage *msg) override; //should NOT be overriden
     virtual void start_round(cMessage *msg); //should NOT be overriden
-    virtual void process_round(); //may be overriden
+    virtual void process_round(); //may be overriden, but UNLIKELY
     virtual void stage_transition(); //should be overriden
     virtual cMessage *process_message_queue();  //should be overriden
     virtual void clear_message_queue(); //should NOT be overriden
-    virtual void send_new_message(cMessage *msg); //should NOT be overriden
+    virtual void send_new_message(cMessage *msg, double delay=0.5); //should NOT be overriden
     virtual void listen_new_message(cMessage *msg); //should NOT be overriden
+
+    virtual int count_n_rounds();
 
     virtual ~IAlgNode() {}
 };

@@ -16,18 +16,17 @@ protected:
     bool marked = false;
     NodeStatus status = UNDECIDED;
     int degree;
-
     NodeStatus previous_status = UNDECIDED;
-
-    cMessage *create_Luby_mis_message();
     bool is_marked_round();
 
 public:
     virtual void set_alg_type() override;
-    LubyMISAlg(Node *node);
+    LubyMISAlg(Node *node, int starting_round=1);
     virtual void stage_transition() override;
     virtual cMessage *process_message_queue() override;
     virtual bool is_selected() override;
+    void record_last_communication_round();
+    virtual bool is_decided() override;
 };
 
 #endif //SCDS_ALGORITHMS_MIS_LUBY_MIS_H_

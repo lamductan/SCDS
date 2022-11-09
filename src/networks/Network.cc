@@ -8,6 +8,7 @@
 #include "algorithms/network_alg.h"
 #include "algorithms/ialg_node.h"
 #include "checkers/checker_factory.h"
+#include "algorithms/algs.h"
 
 void Network::initialize()
 {
@@ -161,6 +162,13 @@ int Network::get_finished_round() {
     return finished_round;
 }
 
+bool Network::check(bool is_final_check) {
+    IChecker *checker = CheckerFactory::create_checker(this);
+    bool result = checker->check(is_final_check);
+    delete checker;
+    return result;
+}
+
 void Network::log_result() {
     int total_awake_rounds = get_total_awake_rounds();
     int finished_round = get_finished_round();
@@ -183,11 +191,14 @@ void Network::log_result() {
       << ' ' << finished_round << ' ' << selected_nodes.size() << "\n";
     for(auto it : nodes) {
         Node *node = it.second;
-        f << node->alg->n_awake_rounds << ' ' << node->alg->last_communication_round << '\n';
+        f << it.first << ' ' << node->alg->n_awake_rounds << ' ' << node->alg->last_communication_round << '\n';
     }
     f << '\n';
+    
     for(int selected_node : selected_nodes) f << selected_node << '\n';
-
+    IChecker *checker = CheckerFactory::create_checker(this);
+    f << "Check result = " << checker->check() << '\n';
+    delete checker;
     f.close();
 }
 

@@ -6,7 +6,7 @@
 
 using namespace omnetpp;
 
-DummyAlg::DummyAlg(Node *node) : IAlgNode(node) {}
+DummyAlg::DummyAlg(Node *node, int starting_round) : IAlgNode(node, starting_round) {}
 
 cMessage * DummyAlg::process_message_queue() {
     if (current_round_id <= 2) {

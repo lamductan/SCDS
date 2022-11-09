@@ -8,7 +8,7 @@ using namespace omnetpp;
 
 enum SynchronizedMessageType {
     SYNCHRONIZED_START_ROUND,
-    SYNCHRONIZED_COMPLETE
+    SYNCHRONIZED_FINISH
 };
 
 class SynchronizedMessage : public cMessage {
