@@ -12,6 +12,6 @@ void IAlg::set_max_num_rounds(int n_nodes) {
         max_num_rounds = 3;
     }
     max_num_rounds += starting_round;
-    //max_num_rounds = 12; //TODO: remove
+    //max_num_rounds = 2; //FOR DEBUG PURPOSE ONLY
     EV << "alg_type = " << alg_type << ", max_num_rounds = " << max_num_rounds << '\n';
 }

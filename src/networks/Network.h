@@ -25,7 +25,6 @@ public:
     ModuleType getModuleType() const override { return NETWORK_TYPE; }
 
 protected:
-    void connect(cGate *src, cGate *dest);
     void buildNetwork(cModule *parent);
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;

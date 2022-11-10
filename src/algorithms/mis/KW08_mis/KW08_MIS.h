@@ -35,8 +35,8 @@ private:
     static const int N_STAGES = 2;
     
     void init_alg_variables();
-    void reset_stage_if_needed();
-    void reset_phase_if_needed();
+    bool reset_stage_if_needed();
+    bool reset_phase_if_needed();
 
     int n_competitions_per_phase;
     int n_rounds_per_phase;
@@ -59,6 +59,9 @@ private:
     cMessage *process_message_queue_for_exchange_r_round();
     cMessage *process_message_queue_for_exchange_state_1_round();
     cMessage *process_message_queue_for_exchange_state_2_round();
+
+    void set_need_to_send_to_competitor_neighbors();
+    void set_need_to_send_to_undecided_neighbors();
 
 public:
     KW08NodeStatus status = KW08_COMPETITOR;

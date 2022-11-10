@@ -15,7 +15,7 @@ bool MISChecker::check_cover(bool is_final_check) {
     std::unordered_map<int, bool> covered;
     for(int selected_node_id : selected_nodes) {
         covered[selected_node_id] = true;
-        for(int neighbor_id : network->nodes[selected_node_id]->alg->all_neighbors) {
+        for(int neighbor_id : network->nodes[selected_node_id]->all_neighbors) {
             covered[neighbor_id] = true;
         }
     }
@@ -38,7 +38,7 @@ bool MISChecker::check_cover(bool is_final_check) {
         EV << "Failed cover check MIS-KW08:\n";
         for(int failed_cover_check_node : failed_cover_check_nodes) {
             EV << "\t" << failed_cover_check_node << ' ' << get_node_status(failed_cover_check_node) << '\n';
-            for(int neighbor_id : network->nodes[failed_cover_check_node]->alg->all_neighbors) {
+            for(int neighbor_id : network->nodes[failed_cover_check_node]->all_neighbors) {
                 EV << "\t\t" << neighbor_id << ' ' << get_node_status(neighbor_id) << '\n';
             }
         }
@@ -51,7 +51,7 @@ bool MISChecker::check_independent(bool is_final_check) {
     EV << "Checking INDEPENDENT...\n";
     std::unordered_set<int> selected_nodes_set(selected_nodes.begin(), selected_nodes.end());
     for(int selected_node_id : selected_nodes) {
-        for(int neighbor_id : network->nodes[selected_node_id]->alg->all_neighbors) {
+        for(int neighbor_id : network->nodes[selected_node_id]->all_neighbors) {
             if (selected_nodes_set.count(neighbor_id) > 0) {
                 if (is_final_check) 
                     EV_ERROR << "\t" << "Both " << selected_node_id << " and " << neighbor_id

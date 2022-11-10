@@ -30,10 +30,12 @@ void Network::handleMessage(cMessage *msg)
     }
 }
 
+/*
 void Network::connect(cGate *src, cGate *dest)
 {
     src->connectTo(dest);
 }
+*/
 
 /**
  * @brief 
@@ -115,16 +117,16 @@ void Network::buildNetwork(cModule *parent)
         if (nodes.find(destnodeid) == nodes.end())
             throw cRuntimeError("wrong line in connections file: node with id=%d not found", destnodeid);
 
-        cModule *srcmod = nodes[srcnodeid];
-        cModule *destmod = nodes[destnodeid];
+        Node *srcnode = nodes[srcnodeid];
+        Node *destnode = nodes[destnodeid];
 
         cGate *srcIn, *srcOut, *destIn, *destOut;
-        srcmod->getOrCreateFirstUnconnectedGatePair("port", false, true, srcIn, srcOut);
-        destmod->getOrCreateFirstUnconnectedGatePair("port", false, true, destIn, destOut);
+        srcnode->getOrCreateFirstUnconnectedGatePair("port", false, true, srcIn, srcOut);
+        destnode->getOrCreateFirstUnconnectedGatePair("port", false, true, destIn, destOut);
 
         // connect
-        connect(srcOut, destIn);
-        connect(destOut, srcIn);
+        srcnode->connect(srcOut, destIn, destnodeid);
+        destnode->connect(destOut, srcIn, srcnodeid);
     }
 
     // initialization will simply skip already-initialized modules instead of causing error

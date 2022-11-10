@@ -2,7 +2,7 @@
 #define SCDS_ALGORITHMS_IALG_NODE_H_
 
 #include <vector>
-#include <unordered_map>
+#include <unordered_set>
 #include <omnetpp.h>
 
 #include "algorithms/ialg.h"
@@ -33,13 +33,10 @@ class IAlgNode : public IAlg
 {
 public:
     Node *node;
-
-    std::vector<int> all_neighbors;
-    std::unordered_set<int> all_neighbors_set;
-    std::unordered_map<int, cGate *> neighbor_gates;
     std::vector<cMessage *> message_queue;
-    int current_round_alg_stage;
-    int previous_round_alg_stage;
+    std::unordered_set<int> need_to_send;
+    int current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
+    int previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
 
     void init(Node *node, int starting_round);
     IAlgNode();

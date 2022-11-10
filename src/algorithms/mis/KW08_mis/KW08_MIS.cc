@@ -22,7 +22,7 @@ void KW08MISAlg::init_alg_variables() {
     r = node->id;
     status = KW08_COMPETITOR;
     KW08_alg_round_type = EXCHANGE_R;
-    for(int neighbor_id : all_neighbors) {
+    for(int neighbor_id : node->all_neighbors) {
         undecided_neighbors.insert(neighbor_id);
         neighbors_r[neighbor_id] = neighbor_id;
         neighbors_status[neighbor_id] = KW08_COMPETITOR;
@@ -30,9 +30,6 @@ void KW08MISAlg::init_alg_variables() {
 }
 
 void KW08MISAlg::stage_transition() {
-    if (current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) 
-        return IAlgNode::stage_transition();
-    
     current_round_alg_stage = KW08MISStage::MIS_STAGE;
     if (current_round_id < max_num_rounds && KW08_alg_round_type == EXCHANGE_R) {
         KW08_alg_round_type = EXCHANGE_STATE_1;
@@ -45,8 +42,38 @@ void KW08MISAlg::stage_transition() {
     }
 }
 
-void KW08MISAlg::reset_stage_if_needed() {
-    if (is_decided()) return;
+bool KW08MISAlg::is_new_stage() {
+    //if (status == KW08_RULER || status == KW08_COMPETITOR) return false;
+    bool res = true;
+    for(auto it : neighbors_status) {
+        KW08NodeStatus neighbor_status = it.second;
+        if (is_decided_status(neighbor_status)) continue;
+        if (neighbor_status == KW08_RULER || neighbor_status == KW08_COMPETITOR) {
+            res = false;
+            break;
+        }
+    }
+    if (res) return true;
+    return ((current_round_id - starting_round) % n_rounds_per_stage) == 0;
+}
+
+bool KW08MISAlg::is_new_phase() {
+    if (status == KW08_COMPETITOR) return false;
+    bool res = true;
+    for(auto it : neighbors_status) {
+        KW08NodeStatus neighbor_status = it.second;
+        if (is_decided_status(neighbor_status)) continue;
+        if (neighbor_status == KW08_COMPETITOR) {
+            res = false;
+            break;
+        }
+    }
+    if (res) return true;
+    return ((current_round_id - starting_round) % n_rounds_per_phase) == 0;
+}
+
+bool KW08MISAlg::reset_stage_if_needed() {
+    if (is_decided()) return false;
     if (is_new_stage()) {
         if (status == KW08_COMPETITOR || status == KW08_RULER) {
             EV_ERROR << "New stage but node" << node->id << " has status " << status << '\n';
@@ -55,7 +82,7 @@ void KW08MISAlg::reset_stage_if_needed() {
         status = KW08_COMPETITOR;
         r = node->id;
         EV << "New stage. Competitors = [" << node->id << ",";
-        for(int neighbor_id : all_neighbors) {
+        for(int neighbor_id : node->all_neighbors) {
             if (!is_decided_status(neighbors_status[neighbor_id])) {
                 undecided_neighbors.insert(neighbor_id);
                 neighbors_status[neighbor_id] = KW08_COMPETITOR;
@@ -64,27 +91,21 @@ void KW08MISAlg::reset_stage_if_needed() {
             }
         }
         EV << "]\n";
+        return true;
     }
+    return false;
 }
 
-bool KW08MISAlg::is_new_stage() {
-    return ((current_round_id - starting_round) % n_rounds_per_stage) == 0;
-}
-
-bool KW08MISAlg::is_new_phase() {
-    return ((current_round_id - starting_round) % n_rounds_per_phase) == 0;
-}
-
-void KW08MISAlg::reset_phase_if_needed() {
-    if (is_decided()) return;
-    if ((current_round_id - starting_round) % n_rounds_per_phase == 0) {
-        if (!(is_new_stage()) && status == KW08_COMPETITOR) {
+bool KW08MISAlg::reset_phase_if_needed() {
+    if (is_decided()) return false;
+    if (!is_new_stage() && is_new_phase()) {
+        if (status == KW08_COMPETITOR) {
             EV_ERROR << "New phase but node" << node->id << " has status " << status << '\n';
         }
 
         if (status == KW08_RULER) status = KW08_COMPETITOR;
         r = node->id;
-        for(int neighbor_id : all_neighbors) {
+        for(int neighbor_id : node->all_neighbors) {
             if (neighbors_status[neighbor_id] == KW08_RULER) {
                 neighbors_status[neighbor_id] = KW08_COMPETITOR;
                 neighbors_r[neighbor_id] = neighbor_id;
@@ -93,7 +114,7 @@ void KW08MISAlg::reset_phase_if_needed() {
 
         std::vector<int> competitors;
         if (status == KW08_COMPETITOR) competitors.push_back(node->id);
-        for(int neighbor_id : all_neighbors) {
+        for(int neighbor_id : node->all_neighbors) {
             if (neighbors_status[neighbor_id] == KW08_COMPETITOR) {
                 competitors.push_back(neighbor_id);
             }
@@ -101,7 +122,9 @@ void KW08MISAlg::reset_phase_if_needed() {
         EV << "New phase. Competitors = [";
         for(int competitor : competitors) EV << competitor << ",";
         EV << "]\n";
+        return true;
     }
+    return false;
 }
 
 bool KW08MISAlg::is_decided_status(KW08NodeStatus node_status) {
@@ -152,13 +175,37 @@ cMessage *KW08MISAlg::process_message_queue() {
     return nullptr;
 }
 
+void KW08MISAlg::set_need_to_send_to_competitor_neighbors() {
+    need_to_send.clear();
+    for(auto it : neighbors_status) {
+        int neighbor_id = it.first;
+        KW08NodeStatus neighbor_status = it.second;
+        if (neighbor_status == KW08_COMPETITOR) {
+            need_to_send.insert(neighbor_id);
+        }
+    }
+}
+
+void KW08MISAlg::set_need_to_send_to_undecided_neighbors() {
+    need_to_send.clear();
+    for(auto it : neighbors_status) {
+        int neighbor_id = it.first;
+        KW08NodeStatus neighbor_status = it.second;
+        if (!is_decided_status(neighbor_status)) {
+            need_to_send.insert(neighbor_id);
+        }
+    }
+}
+
 cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
     EV << "KW08MISAlg::process_message_queue_for_exchange_r_round() -- round " << current_round_id << "\n";
+    bool new_stage = false;
+    bool new_phase = false;
     if (current_round_id == starting_round) {
         init_alg_variables();
     } else {
-        reset_stage_if_needed();
-        reset_phase_if_needed();
+        new_stage = reset_stage_if_needed();
+        if (!new_stage) new_phase = reset_phase_if_needed();
     }
 
     if (status == KW08_COMPETITOR) {
@@ -167,7 +214,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
             KW08MISMessage *KW08_MIS_message = dynamic_cast<KW08MISMessage *>(msg);
             int neighbor_id = KW08_MIS_message->getSenderId();
             KW08NodeStatus neighbor_status = KW08_MIS_message->getStatus();
-            if (!is_new_phase()) neighbors_status[neighbor_id] = neighbor_status;
+            if (!new_phase && !new_stage) neighbors_status[neighbor_id] = neighbor_status;
             EV << "\t\t" << "neighbor_id = " << neighbor_id << ' ' << "neighbor_status = " << neighbor_status << '\n';
             if (is_decided_status(neighbor_status)) undecided_neighbors.erase(neighbor_id);
         }
@@ -177,6 +224,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
         KW08MISMessage *new_message = new KW08MISMessage("KW08_exchange_r");
         new_message->setR(r);
         new_message->setSenderId(node->id);
+        set_need_to_send_to_competitor_neighbors();
         return new_message;
     }
     return nullptr;
@@ -187,6 +235,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_state_1_round() {
     if (status == KW08_COMPETITOR) {
         bool can_be_dominator = true;
         bool can_be_ruler = true;
+        EV << "\t" << "r = " << r << '\n';
         for(cMessage *msg : message_queue) {
             KW08MISMessage *KW08_MIS_message = dynamic_cast<KW08MISMessage *>(msg);
             int neighbor_id = KW08_MIS_message->getSenderId();
@@ -207,6 +256,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_state_1_round() {
     KW08MISMessage *new_message = new KW08MISMessage("KW08_exchange_state_1");
     new_message->setStatus(status);
     new_message->setSenderId(node->id);
+    set_need_to_send_to_undecided_neighbors();
     return new_message;
 }
 
@@ -231,6 +281,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_state_2_round() {
     KW08MISMessage *new_message = new KW08MISMessage("KW08_exchange_state_1");
     new_message->setStatus(status);
     new_message->setSenderId(node->id);
+    set_need_to_send_to_undecided_neighbors();
     return new_message;
 }
 

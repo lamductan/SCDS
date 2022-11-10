@@ -24,6 +24,9 @@ public:
     int id;
     int n_nodes;
     cGate *networkWirelessIn;
+    std::unordered_map<int, cGate *> neighbor_gates;
+    std::vector<int> all_neighbors;
+    void connect(cGate *src, cGate *dest, int destid);
     IAlgNode *alg;
     virtual ~Node();
 };

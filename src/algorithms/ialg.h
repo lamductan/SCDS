@@ -5,8 +5,6 @@
 
 using namespace omnetpp;
 
-#define LAST_NEIGHBOR_DISCOVERY_ROUND 2
-
 enum AlgType {
     DUMMY_ALG,
     MIS_ALG,

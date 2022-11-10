@@ -9,8 +9,7 @@ LubyMISAlg::LubyMISAlg(Node *node, int starting_round) {
 
 void LubyMISAlg::stage_transition() {
     previous_round_alg_stage = current_round_alg_stage;
-    if (current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) IAlgNode::stage_transition();
-    else if (current_round_id < max_num_rounds) {
+    if (current_round_id < max_num_rounds) {
         current_round_alg_stage = LubyMISStage::MIS_STAGE;
     } else {
         current_round_alg_stage = LubyMISStage::END_STAGE;
@@ -38,16 +37,17 @@ cMessage *LubyMISAlg::process_message_queue() {
         return nullptr;
     }
 
-    if (current_round_alg_stage == LubyMISStage::NEIGHBOR_DISCOVERY_STAGE) {
+    if (current_round_alg_stage == LubyMISStage::INITIAL_STAGE) {
         return IAlgNode::process_message_queue();
     }
 
     // Right after neighbor discovery stage, init the number of undecided neighbors
     // to be the number of neighbors.
     // Only do this once.
-    if (previous_round_alg_stage == LubyMISStage::NEIGHBOR_DISCOVERY_STAGE
+    if (previous_round_alg_stage == LubyMISStage::INITIAL_STAGE
             && current_round_alg_stage == LubyMISStage::MIS_STAGE) {
-        degree = all_neighbors.size();
+        
+        degree = node->all_neighbors.size();
     }
 
     // Check if this round is for marking or not
@@ -55,7 +55,9 @@ cMessage *LubyMISAlg::process_message_queue() {
     if (is_marked_round()) {
         for(cMessage *msg : message_queue) {
             LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
+            int neighbor_id = Luby_MIS_message->getSenderId();
             NodeStatus neighbor_status = Luby_MIS_message->getStatus();
+            if (neighbor_status != UNDECIDED) need_to_send.erase(neighbor_id);
             if (neighbor_status == IN_MIS) {
                 status = NOT_IN_MIS;
                 return nullptr;
@@ -79,11 +81,13 @@ cMessage *LubyMISAlg::process_message_queue() {
         } else {
             if (!marked) return nullptr;
             EV << "\t\t" << "degree = " << degree << ", marked = 1 --> find higher priority message\n";
+            need_to_send.clear();
             for(cMessage *msg : message_queue) {
                 LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
                 bool neighbor_marked = Luby_MIS_message->getMarked();
                 int neighbor_degree = Luby_MIS_message->getDegree();
                 int neighbor_id = Luby_MIS_message->getSenderId();
+                need_to_send.insert(neighbor_id);
                 EV << "\t\t\t" << "neighbor_id = " << neighbor_id << ", neighbor_marked = " << neighbor_marked
                    << ", neighbor_degree = " << neighbor_degree << '\n';
                 if (!neighbor_marked) continue;

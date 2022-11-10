@@ -13,7 +13,7 @@ bool CDSChecker::check_cover(bool is_final_check) {
     std::unordered_map<int, bool> covered;
     for(int selected_node_id : selected_nodes) {
         covered[selected_node_id] = true;
-        for(int neighbor_id : network->nodes[selected_node_id]->alg->all_neighbors) {
+        for(int neighbor_id : network->nodes[selected_node_id]->all_neighbors) {
             covered[neighbor_id] = true;
         }
     }

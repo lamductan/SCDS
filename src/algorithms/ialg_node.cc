@@ -11,6 +11,7 @@ void IAlgNode::init(Node *node, int starting_round) {
     set_max_num_rounds(this->n_nodes);
     current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
     previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
+    need_to_send = std::unordered_set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
 }
 
 IAlgNode::IAlgNode() {}
@@ -65,16 +66,7 @@ void IAlgNode::process_round() {
     if (new_message != nullptr) send_new_message(new_message);
 }
 
-void IAlgNode::stage_transition() {
-    previous_round_alg_stage = current_round_alg_stage;
-    if (current_round_alg_stage == BaseAlgStage::INITIAL_STAGE) {
-        current_round_alg_stage = BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE;
-    } else if (current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) {
-        current_round_alg_stage = BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE;
-    } else {
-        current_round_alg_stage = BaseAlgStage::END_STAGE;
-    }
-}
+void IAlgNode::stage_transition() {}
 
 void IAlgNode::clear_message_queue() {
     for(cMessage *msg : message_queue) delete msg;
@@ -82,32 +74,27 @@ void IAlgNode::clear_message_queue() {
 }
 
 cMessage * IAlgNode::process_message_queue() {
-    //EV << "\t\talg_stage = " << alg_stage << ", " << "current_round_id = " << current_round_id << "\n";
-    if (current_round_alg_stage == BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE && current_round_id == 1) {
-        NeighborDiscoveryMessage *neighbor_discovery_message = new NeighborDiscoveryMessage("neighbor_discovery");
-        neighbor_discovery_message->setSenderId(node->id);
-        return neighbor_discovery_message;
-    } else if (current_round_alg_stage == BaseAlgStage::NEIGHBOR_DISCOVERY_STAGE 
-            && current_round_id <= LAST_NEIGHBOR_DISCOVERY_ROUND) {
-        //EV << "\t\t" << "message_queue.size() = " << message_queue.size() << '\n';
-        for(cMessage *msg : message_queue) {
-            NeighborDiscoveryMessage *neighbor_discovery_message = dynamic_cast<NeighborDiscoveryMessage *>(msg);
-            int neighbor_id = neighbor_discovery_message->getSenderId();
-            cGate *neighbor_gate = neighbor_discovery_message->getArrivalGate();
-            all_neighbors.push_back(neighbor_id);
-            all_neighbors_set.insert(neighbor_id);
-            neighbor_gates[neighbor_id] = neighbor_gate;
-            //EV << "\t\t" << "neighbor " << neighbor_id << ": gate " << neighbor_gate->getName() << "\n";
-        }
-        return nullptr;
-    }
     return nullptr;
 }
 
 void IAlgNode::send_new_message(cMessage *msg, double delay) {
-    int n_neighbors = node->gateSize("port");
-    for(int i = 0; i < n_neighbors; ++i) {
-        node->sendDelayed(msg->dup(), delay, "port$o", i);
+    EV << "node" << node->id << " : need_to_send = [";
+    for(int x : need_to_send) EV << x << ",";
+    EV << "]\n";
+    if (need_to_send.size() == 1 && *need_to_send.begin() == -1) {
+        /*
+        int n_neighbors = node->gateSize("port");
+        for(int i = 0; i < n_neighbors; ++i) {
+            node->sendDelayed(msg->dup(), delay, "port$o", i);
+        }
+        */
+       for(int neighbor_id : node->all_neighbors) {
+            node->sendDelayed(msg->dup(), delay, node->neighbor_gates[neighbor_id]);
+        }
+    } else {
+        for(int neighbor_id : need_to_send) {
+            node->sendDelayed(msg->dup(), delay, node->neighbor_gates[neighbor_id]);
+        }
     }
     delete msg;
 }
@@ -117,4 +104,4 @@ void IAlgNode::listen_new_message(cMessage *msg) {
     else message_queue.push_back(msg);
 }
 
-int IAlgNode::count_n_rounds() { return LAST_NEIGHBOR_DISCOVERY_ROUND; }
+int IAlgNode::count_n_rounds() { return 0; }
