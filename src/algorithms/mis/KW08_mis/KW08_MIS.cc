@@ -21,7 +21,7 @@ KW08MISAlg::KW08MISAlg(Node *node, int starting_round) {
 void KW08MISAlg::init_alg_variables() {
     r = node->id;
     status = KW08_COMPETITOR;
-    KW08_alg_round_type = EXCHANGE_R;
+    KW08_alg_round_type = KW08_EXCHANGING_R;
     for(int neighbor_id : node->all_neighbors) {
         undecided_neighbors.insert(neighbor_id);
         neighbors_r[neighbor_id] = neighbor_id;
@@ -31,12 +31,12 @@ void KW08MISAlg::init_alg_variables() {
 
 void KW08MISAlg::stage_transition() {
     current_round_alg_stage = KW08MISStage::MIS_STAGE;
-    if (current_round_id < max_num_rounds && KW08_alg_round_type == EXCHANGE_R) {
-        KW08_alg_round_type = EXCHANGE_STATE_1;
-    } else if (current_round_id < max_num_rounds && KW08_alg_round_type == EXCHANGE_STATE_1) {
-        KW08_alg_round_type = EXCHANGE_STATE_2;
-    } else if (current_round_id < max_num_rounds && KW08_alg_round_type == EXCHANGE_STATE_2) {
-        KW08_alg_round_type = EXCHANGE_R;
+    if (current_round_id < max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_R) {
+        KW08_alg_round_type = KW08_EXCHANGING_STATE_1;
+    } else if (current_round_id < max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_STATE_1) {
+        KW08_alg_round_type = KW08_EXCHANGING_STATE_2;
+    } else if (current_round_id < max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_STATE_2) {
+        KW08_alg_round_type = KW08_EXCHANGING_R;
     } else {
         current_round_alg_stage = KW08MISStage::END_STAGE;
     }
@@ -157,17 +157,12 @@ void KW08MISAlg::record_last_communication_round() {
 
 cMessage *KW08MISAlg::process_message_queue() {
     EV << "\t" << "KW08MISAlg::process_message_queue()\n";
-
-    if (current_round_alg_stage == KW08MISStage::NEIGHBOR_DISCOVERY_STAGE) {
-        return IAlgNode::process_message_queue();
-    }
-
     record_last_communication_round();
     previous_status = status;
 
-    if (KW08_alg_round_type == EXCHANGE_R) {
+    if (KW08_alg_round_type == KW08_EXCHANGING_R) {
         return process_message_queue_for_exchange_r_round();
-    } else if (KW08_alg_round_type == EXCHANGE_STATE_1) {
+    } else if (KW08_alg_round_type == KW08_EXCHANGING_STATE_1) {
         return process_message_queue_for_exchange_state_1_round();
     } else {
         return process_message_queue_for_exchange_state_2_round();

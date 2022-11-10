@@ -3,7 +3,6 @@
 
 #include "checkers/mis_checker.h"
 #include "algorithms/ialg_node.h"
-#include "algorithms/algs.h"
 
 using namespace omnetpp;
 
@@ -27,20 +26,6 @@ bool MISChecker::check_cover(bool is_final_check) {
         if (!covered[node_id]) {
             failed_cover_check_nodes.push_back(node_id);
             res = false;
-        }
-    }
-
-    if (is_final_check && !failed_cover_check_nodes.empty()) {
-        auto get_node_status = [&] (int x) {
-            return dynamic_cast<KW08MISAlg *>(network->nodes[x]->alg)->status;
-        };
-
-        EV << "Failed cover check MIS-KW08:\n";
-        for(int failed_cover_check_node : failed_cover_check_nodes) {
-            EV << "\t" << failed_cover_check_node << ' ' << get_node_status(failed_cover_check_node) << '\n';
-            for(int neighbor_id : network->nodes[failed_cover_check_node]->all_neighbors) {
-                EV << "\t\t" << neighbor_id << ' ' << get_node_status(neighbor_id) << '\n';
-            }
         }
     }
 

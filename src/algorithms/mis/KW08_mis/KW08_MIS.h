@@ -14,9 +14,9 @@ enum KW08NodeStatus {
 };
 
 enum KW08AlgRoundType {
-    EXCHANGE_R,
-    EXCHANGE_STATE_1,
-    EXCHANGE_STATE_2
+    KW08_EXCHANGING_R,
+    KW08_EXCHANGING_STATE_1,
+    KW08_EXCHANGING_STATE_2
 };
 
 
@@ -48,7 +48,7 @@ private:
     std::unordered_map<int, int> neighbors_r;
     KW08NodeStatus previous_status = KW08_COMPETITOR;
 
-    KW08AlgRoundType KW08_alg_round_type = EXCHANGE_STATE_2;
+    KW08AlgRoundType KW08_alg_round_type = KW08_EXCHANGING_STATE_2;
 
     bool is_decided_status(KW08NodeStatus node_status);
     int find_smallest_r();

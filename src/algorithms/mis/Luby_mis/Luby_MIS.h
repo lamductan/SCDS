@@ -3,6 +3,11 @@
 
 #include "algorithms/ialg_node.h"
 
+enum LubyAlgRoundType {
+    LUBY_GENERATING_MARK,
+    LUBY_PROCESSING_MARK
+};
+
 class LubyMISStage : public BaseAlgStage {
 protected:
     static constexpr int get_max_value() { return MIS_STAGE; }
@@ -17,7 +22,10 @@ protected:
     NodeStatus status = UNDECIDED;
     int degree;
     NodeStatus previous_status = UNDECIDED;
-    bool is_marked_round();
+    LubyAlgRoundType Luby_alg_round_type = LUBY_PROCESSING_MARK;
+
+    cMessage *process_message_queue_for_generate_mark_round();
+    cMessage *process_message_queue_for_processing_mark_round();
 
 public:
     virtual void set_alg_type() override;
