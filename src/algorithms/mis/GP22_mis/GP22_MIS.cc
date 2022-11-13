@@ -31,8 +31,8 @@ GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     GP22_MIS_part1_2_alg->max_num_rounds = part1_2_max_num_rounds;
     
     // part 2
-    if (n >= 1000) part2_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
-    else part2_starting_round = -1;
+    // We don't run part 2 in simulation, because to achieve log^4(logn) < log(n), n must > 10^(10^4)!
+    part2_starting_round = -1;
     part2_num_iterations = loglog_n;
     part2_num_phases = log_d;
     part2_num_rounds_per_iteration = C*((log_d-1)*(log_d)*(2*log_d - 1)/6) + 1;
@@ -40,8 +40,8 @@ GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     GP22_MIS_part2_alg = new GP22MISPart2Alg(node, part2_starting_round);
     
     // part 3
-    if (n >= 1000) part3_starting_round = part2_starting_round + part2_max_num_rounds;
-    else part3_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
+    // We don't run part 2 in simulation, because to achieve log^4(logn) < log(n), n must > 10^(10^4)!
+    part3_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
     part3_max_num_rounds = 2*log_n;
     GP22_MIS_part3_alg = new LubyMISAlg(node, part3_starting_round);
     GP22_MIS_part3_alg->max_num_rounds = part3_max_num_rounds;
@@ -51,10 +51,10 @@ GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     GP22_MIS_part2_alg->max_num_rounds = max_num_rounds;
     GP22_MIS_part3_alg->max_num_rounds = max_num_rounds;
 
-    EV << "part1_stating_round = " << part1_starting_round << ' ' << GP22_MIS_part1_alg->starting_round << '\n';
+    EV << "part1_starting_round = " << part1_starting_round << ' ' << GP22_MIS_part1_alg->starting_round << '\n';
     EV << "part1_2_starting_round = " << part1_2_starting_round << ' ' << GP22_MIS_part1_2_alg->starting_round << '\n';
-    EV << "part2_stating_round = " << part2_starting_round << ' ' << GP22_MIS_part2_alg->starting_round << '\n';
-    EV << "part3_stating_round = " << part3_starting_round << ' ' << GP22_MIS_part3_alg->starting_round << '\n';
+    EV << "part2_starting_round = " << part2_starting_round << ' ' << GP22_MIS_part2_alg->starting_round << '\n';
+    EV << "part3_starting_round = " << part3_starting_round << ' ' << GP22_MIS_part3_alg->starting_round << '\n';
 }
 
 void GP22MISAlg::handle_message(cMessage *msg) {

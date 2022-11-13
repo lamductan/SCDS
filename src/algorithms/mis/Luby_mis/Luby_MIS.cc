@@ -8,11 +8,12 @@ LubyMISAlg::LubyMISAlg(Node *node, int starting_round) {
 }
 
 void LubyMISAlg::stage_transition() {
+    IAlgNode::stage_transition();
     previous_round_alg_stage = current_round_alg_stage;
     current_round_alg_stage = LubyMISStage::MIS_STAGE;
-    if (current_round_id < max_num_rounds && Luby_alg_round_type == LUBY_GENERATING_MARK) {
+    if (Luby_alg_round_type == LUBY_GENERATING_MARK) {
         Luby_alg_round_type = LUBY_PROCESSING_MARK;
-    } else if (current_round_id < max_num_rounds && Luby_alg_round_type == LUBY_PROCESSING_MARK) {
+    } else if (Luby_alg_round_type == LUBY_PROCESSING_MARK) {
         Luby_alg_round_type = LUBY_GENERATING_MARK;
     } else {
         current_round_alg_stage = LubyMISStage::END_STAGE;
@@ -34,6 +35,8 @@ cMessage *LubyMISAlg::process_message_queue() {
         degree = node->all_neighbors.size();
     }
 
+    EV << "current_round_id = " << current_round_id << ", max_num_rounds = " << max_num_rounds;
+    EV << ", Luby_alg_round_type = " << Luby_alg_round_type << "\n";
     if (Luby_alg_round_type == LUBY_GENERATING_MARK) {
         return process_message_queue_for_generate_mark_round();
     } else {
@@ -55,6 +58,7 @@ cMessage *LubyMISAlg::process_message_queue_for_generate_mark_round() {
         }
     }
     
+    degree = need_to_send.size();
     marked = node->bernoulli(1.0/(2*degree));
     LubyMISMessage *new_message = new LubyMISMessage("LubyMIS");
     new_message->setSenderId(node->id);
@@ -72,8 +76,7 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
         status = IN_MIS;
         return nullptr;
     } else {
-        if (!marked) return nullptr;
-        EV << "\t\t" << "degree = " << degree << ", marked = 1 --> find higher priority message\n";
+        EV << "\t\t" << "degree = " << degree << ", marked = " << marked << " --> find higher priority message\n";
         need_to_send.clear();
         for(cMessage *msg : message_queue) {
             LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
@@ -86,9 +89,9 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
             if (!neighbor_marked) continue;
             if ((neighbor_degree > degree) || (neighbor_degree == degree && neighbor_id > node->id)) {
                 marked = false;
-                break;
             }
         }
+        EV << "\t\t" << "marked = " << marked << "\n";
         if (!marked) return nullptr;
         status = IN_MIS;
         LubyMISMessage *new_message = new LubyMISMessage("LubyMIS");

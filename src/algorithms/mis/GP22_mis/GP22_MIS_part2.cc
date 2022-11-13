@@ -43,6 +43,7 @@ bool GP22MISPart2Alg::is_awake() {
 }
 
 void GP22MISPart2Alg::stage_transition() {
+    IAlgNode::stage_transition();
     current_round_id_in_iteration = (current_round_id_in_iteration + 1) % num_rounds_per_iteration;
     if (current_round_id_in_iteration == n_rounds_of_current_phase) {
         ++current_phase_id_in_iteration;

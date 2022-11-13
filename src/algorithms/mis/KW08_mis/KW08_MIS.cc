@@ -30,26 +30,29 @@ void KW08MISAlg::init_alg_variables() {
 }
 
 void KW08MISAlg::stage_transition() {
+    IAlgNode::stage_transition();
     current_round_alg_stage = KW08MISStage::MIS_STAGE;
-    if (current_round_id < max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_R) {
+    if (max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_R) {
         KW08_alg_round_type = KW08_EXCHANGING_STATE_1;
-    } else if (current_round_id < max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_STATE_1) {
+    } else if (KW08_alg_round_type == KW08_EXCHANGING_STATE_1) {
         KW08_alg_round_type = KW08_EXCHANGING_STATE_2;
-    } else if (current_round_id < max_num_rounds && KW08_alg_round_type == KW08_EXCHANGING_STATE_2) {
+    } else if (KW08_alg_round_type == KW08_EXCHANGING_STATE_2) {
         KW08_alg_round_type = KW08_EXCHANGING_R;
-    } else {
-        current_round_alg_stage = KW08MISStage::END_STAGE;
     }
 }
 
 bool KW08MISAlg::is_new_stage() {
-    //if (status == KW08_RULER || status == KW08_COMPETITOR) return false;
+    if (KW08_status == KW08_RULER || KW08_status == KW08_COMPETITOR) {
+        EV << "Can't start new stage. Node" << node->id << " is " << KW08_status << "\n";
+        return false;
+    }
     bool res = true;
     for(auto it : neighbors_status) {
         KW08NodeStatus neighbor_status = it.second;
         if (is_decided_status(neighbor_status)) continue;
         if (neighbor_status == KW08_RULER || neighbor_status == KW08_COMPETITOR) {
             res = false;
+            EV << "Can't start new stage. Neighbor" << it.first << " is " << neighbor_status << "\n";
             break;
         }
     }
@@ -212,9 +215,12 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
         KW08MISMessage *KW08_MIS_message = dynamic_cast<KW08MISMessage *>(msg);
         int neighbor_id = KW08_MIS_message->getSenderId();
         KW08NodeStatus neighbor_status = KW08_MIS_message->getStatus();
+        if (is_decided_status(neighbor_status)) {
+            neighbors_status[neighbor_id] = neighbor_status;
+            undecided_neighbors.erase(neighbor_id);
+        }
         if (!new_phase && !new_stage) neighbors_status[neighbor_id] = neighbor_status;
         EV << "\t\t" << "neighbor_id = " << neighbor_id << ' ' << "neighbor_status = " << neighbor_status << '\n';
-        if (is_decided_status(neighbor_status)) undecided_neighbors.erase(neighbor_id);
     }
     EV << "\t" << "Done processing message queue. Now finding smallest r\n";
     if (KW08_status == KW08_COMPETITOR) {

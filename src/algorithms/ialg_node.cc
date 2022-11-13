@@ -79,7 +79,12 @@ void IAlgNode::process_round() {
     record_decided_round();
 }
 
-void IAlgNode::stage_transition() {}
+void IAlgNode::stage_transition() {
+    if (current_round_id - starting_round >= max_num_rounds) {
+        current_round_alg_stage = BaseAlgStage::END_STAGE;
+        return;
+    }
+}
 
 void IAlgNode::clear_message_queue() {
     for(cMessage *msg : message_queue) delete msg;

@@ -28,6 +28,8 @@ class LamTwoRSAlg : public IAlgNode {
 public:
     bool marked = false;
     int degree;
+    int parent;
+    int cluster_center_id;
     LamTwoRSNodeStatus Lam_Two_RS_status = LAM_TWO_RS_UNDECIDED;
     LamTwoRSNodeStatus Lam_Two_RS_previous_status = LAM_TWO_RS_UNDECIDED;
     LamTwoRSAlgRoundType Lam_Two_RS_alg_round_type = LAM_TWO_RS_INFORMING_STATUS_2;

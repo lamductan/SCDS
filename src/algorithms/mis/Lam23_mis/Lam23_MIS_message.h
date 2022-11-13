@@ -14,6 +14,7 @@ public:
 protected:
     LamTwoRSNodeStatus two_rs_status;
     int color;
+    int cluster_center_id;
     void copyInformation(
         int sender_id, bool marked, int degree, NodeStatus status, LamTwoRSNodeStatus two_rs_status, int color);
     void copyInformation(LamTwoRSNodeStatus two_rs_status, int color);
@@ -29,6 +30,8 @@ public:
     void setTwoRSStatus(LamTwoRSNodeStatus two_rs_status);
     int getColor() const;
     void setColor(int color);
+    int getClusterCenterId() const;
+    void setClusterCenterId(int cluster_center_id);
 };
 
 #endif //SCDS_ALGORITHMS_MIS_LAM23_MIS_LAM23_MIS_MESSAGE_H_

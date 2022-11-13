@@ -35,3 +35,9 @@ int LamMISMessage::getColor() const { return color; }
 void LamMISMessage::setColor(int color) {
     this->color = color;
 }
+
+int LamMISMessage::getClusterCenterId() const { return cluster_center_id; }
+
+void LamMISMessage::setClusterCenterId(int cluster_center_id) {
+    this->cluster_center_id = cluster_center_id;
+}
