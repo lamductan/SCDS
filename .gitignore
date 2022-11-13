@@ -1,20 +1,29 @@
 .*
 !**/.gitignore
 
+*.zip
 out
 clang-release
 command_1.txt
 commands.txt
 **/Makefile
 scds
-**/results
 
-gen_random_networks
+**/results/*
+!**/.gitkeep
+
+gen_random_networks/*
 gen_random_networks_1
-gen_random_networks.zip
-gen_random_networks_1.zip
-!gen_random_networks/20/**
+!gen_random_networks/20
 !gen_random_networks/50
 !gen_random_networks/100
 !gen_random_networks/1000
 !gen_random_networks/*.py
+
+run/*
+!run/20
+!run/50
+!run/100
+!run/1000
+!run/*.py
+!run/*.ini
