@@ -23,7 +23,6 @@ public:
     // field getter/setter methods
     int getSenderId() const;
     void setSenderId(int sender_id);
-    virtual ~NeighborDiscoveryMessage();
 };
 
 #endif //SCDS_MESSAGES_NEIGHBOR_DISCOVERY_MESSAGE_H_

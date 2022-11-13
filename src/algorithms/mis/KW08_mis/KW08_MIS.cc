@@ -58,12 +58,16 @@ bool KW08MISAlg::is_new_stage() {
 }
 
 bool KW08MISAlg::is_new_phase() {
-    if (KW08_status == KW08_COMPETITOR) return false;
+    if (KW08_status == KW08_COMPETITOR) {
+        EV << "Can't start new phase. Node" << node->id << " is KW08_COMPETITOR\n";
+        return false;
+    }
     bool res = true;
     for(auto it : neighbors_status) {
         KW08NodeStatus neighbor_status = it.second;
         if (is_decided_status(neighbor_status)) continue;
         if (neighbor_status == KW08_COMPETITOR) {
+            EV << "Can't start new phase. Neighbor " << it.first << " is KW08_COMPETITOR\n";
             res = false;
             break;
         }
@@ -203,17 +207,17 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
         if (!new_stage) new_phase = reset_phase_if_needed();
     }
 
+    EV << "\t" << "Process message queue\n";
+    for(cMessage *msg : message_queue) {
+        KW08MISMessage *KW08_MIS_message = dynamic_cast<KW08MISMessage *>(msg);
+        int neighbor_id = KW08_MIS_message->getSenderId();
+        KW08NodeStatus neighbor_status = KW08_MIS_message->getStatus();
+        if (!new_phase && !new_stage) neighbors_status[neighbor_id] = neighbor_status;
+        EV << "\t\t" << "neighbor_id = " << neighbor_id << ' ' << "neighbor_status = " << neighbor_status << '\n';
+        if (is_decided_status(neighbor_status)) undecided_neighbors.erase(neighbor_id);
+    }
+    EV << "\t" << "Done processing message queue. Now finding smallest r\n";
     if (KW08_status == KW08_COMPETITOR) {
-        EV << "\t" << "Process message queue\n";
-        for(cMessage *msg : message_queue) {
-            KW08MISMessage *KW08_MIS_message = dynamic_cast<KW08MISMessage *>(msg);
-            int neighbor_id = KW08_MIS_message->getSenderId();
-            KW08NodeStatus neighbor_status = KW08_MIS_message->getStatus();
-            if (!new_phase && !new_stage) neighbors_status[neighbor_id] = neighbor_status;
-            EV << "\t\t" << "neighbor_id = " << neighbor_id << ' ' << "neighbor_status = " << neighbor_status << '\n';
-            if (is_decided_status(neighbor_status)) undecided_neighbors.erase(neighbor_id);
-        }
-        EV << "\t" << "Done processing message queue. Now finding smallest r\n";
         int smallest_r = find_smallest_r();
         r = find_highest_greater_bit(r, smallest_r);
         KW08MISMessage *new_message = new KW08MISMessage("KW08_exchange_r");

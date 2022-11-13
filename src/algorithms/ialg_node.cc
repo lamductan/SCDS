@@ -11,7 +11,7 @@ void IAlgNode::init(Node *node, int starting_round) {
     set_max_num_rounds(this->n_nodes);
     current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
     previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
-    need_to_send = std::unordered_set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+    need_to_send = std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
 }
 
 IAlgNode::IAlgNode() {}
@@ -92,6 +92,7 @@ cMessage *IAlgNode::process_message_queue() {
 
 void IAlgNode::send_new_message(cMessage *msg, double delay) {
     EV << "node" << node->id << " : need_to_send = [";
+    
     for(int x : need_to_send) EV << x << ",";
     EV << "]\n";
     last_communication_round = current_round_id;

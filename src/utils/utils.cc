@@ -82,9 +82,9 @@ int find_highest_greater_bit(int r_v, int r_u) {
     std::bitset<MAX_NUM_BITS> y_v(r_v);
     std::bitset<MAX_NUM_BITS> y_u(r_u);
     for(int k = MAX_NUM_BITS - 1; k >= 0; --k) {
-        if (y_v[k] > y_u[k]) return k;
+        if (y_v[k] > y_u[k]) return k + 1;
     }
-    return 0;
+    return -1;
 }
 
 std::ostream &print_binary(int x, std::ostream& os) {

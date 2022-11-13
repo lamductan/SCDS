@@ -22,6 +22,8 @@ protected:
 
 public:
     int id;
+    int cluster_id;
+    int color;
     int n_nodes;
     cGate *networkWirelessIn;
     std::unordered_map<int, cGate *> neighbor_gates;

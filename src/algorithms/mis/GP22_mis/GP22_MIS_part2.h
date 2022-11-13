@@ -13,7 +13,7 @@ enum GP22Part2AlgRoundType {
 
 class GP22MISPart2Alg : public IAlgNode {
 public:
-    std::unordered_set<int> all_remained_neighbors;
+    std::set<int> all_remained_neighbors;
     bool marked = false;
 
     int num_iterations = 0;

@@ -10,6 +10,9 @@ IChecker * CheckerFactory::create_checker(Network *network) {
     } else if (strncmp(alg_name, "CDS", 3) == 0) {
         EV << "Algorithm: " << alg_name << '\n';
         return new CDSChecker(network);
+    } else if (strncmp(alg_name, "2RS", 3) == 0) {
+        EV << "Algorithm: " << alg_name << '\n';
+        return new TwoRSChecker(network);
     }
     return nullptr;
 }

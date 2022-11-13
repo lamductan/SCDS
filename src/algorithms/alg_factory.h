@@ -22,6 +22,9 @@ public:
         } else if (strcmp(alg_name, "MIS-GP22") == 0) {
             EV << "Create GP22MISAlg instance\n";
             return new GP22MISAlg(node, starting_round);
+        } else if (strcmp(alg_name, "2RS-Lam") == 0) {
+            EV << "Create LamTwoRSAlg instance\n";
+            return new LamTwoRSAlg(node, starting_round);
         }
         return nullptr;
     }

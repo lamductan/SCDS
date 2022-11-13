@@ -21,5 +21,3 @@ int NeighborDiscoveryMessage::getSenderId() const { return sender_id; }
 void NeighborDiscoveryMessage::setSenderId(int sender_id) {
     this->sender_id = sender_id;
 }
-
-NeighborDiscoveryMessage::~NeighborDiscoveryMessage() {}

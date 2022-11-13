@@ -2,7 +2,7 @@
 #define SCDS_ALGORITHMS_MIS_KW08_MIS_H_
 
 #include <unordered_map>
-#include <unordered_set>
+#include <set>
 #include "algorithms/ialg_node.h"
 
 enum KW08NodeStatus {
@@ -43,7 +43,7 @@ public:
     int n_rounds_per_stage;
 
     int r;
-    std::unordered_set<int> undecided_neighbors;
+    std::set<int> undecided_neighbors;
     std::unordered_map<int, KW08NodeStatus> neighbors_status;
     std::unordered_map<int, int> neighbors_r;
     KW08NodeStatus KW08_previous_status = KW08_COMPETITOR;

@@ -52,7 +52,7 @@ public:
     GP22MISPart2Alg *GP22_MIS_part2_alg = nullptr;
     LubyMISAlg *GP22_MIS_part3_alg = nullptr;
 
-    std::unordered_set<int> all_remained_neighbors;
+    std::set<int> all_remained_neighbors;
 
 public:
     virtual void set_alg_type() override;

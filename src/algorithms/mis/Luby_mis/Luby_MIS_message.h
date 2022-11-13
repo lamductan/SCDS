@@ -34,8 +34,6 @@ public:
     void setDegree(int degree);
     NodeStatus getStatus() const;
     void setStatus(NodeStatus status);
-
-    virtual ~LubyMISMessage();
 };
 
 #endif //SCDS_ALGORITHMS_MIS_LUBY_MIS_LUBY_MIS_MESSAGE_H_

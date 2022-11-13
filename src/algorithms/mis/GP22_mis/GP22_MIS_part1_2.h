@@ -6,7 +6,7 @@
 
 class GP22MISPart1_2_Alg : public IAlgNode {
 public:
-    std::unordered_set<int> all_remained_neighbors;
+    std::set<int> all_remained_neighbors;
     bool marked = false;
 
 public:

@@ -36,5 +36,3 @@ SynchronizedMessageType SynchronizedMessage::getSynchronizedMessageType() const 
 void SynchronizedMessage::setSynchronizedMessageType(SynchronizedMessageType synchronized_message_type) {
     this->synchronized_message_type = synchronized_message_type;
 }
-
-SynchronizedMessage::~SynchronizedMessage() {}

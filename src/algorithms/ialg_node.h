@@ -2,7 +2,7 @@
 #define SCDS_ALGORITHMS_IALG_NODE_H_
 
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <omnetpp.h>
 
 #include "algorithms/ialg.h"
@@ -36,7 +36,7 @@ public:
     NodeStatus status = UNDECIDED;
     NodeStatus previous_status = UNDECIDED;
     std::vector<cMessage *> message_queue;
-    std::unordered_set<int> need_to_send;
+    std::set<int> need_to_send;
     int current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
     int previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
 

@@ -3,6 +3,8 @@
 
 void Node::initialize() {
     id = par("id").intValue();
+    cluster_id = id;
+    color = -1;
     n_nodes = par("n_nodes");
     EV << "Node::initialize() -- " << "n_nodes = " << n_nodes << ' ' 
        << "par(\"algorithm\").stringValue()" << par("algorithm").stringValue() << '\n';

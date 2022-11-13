@@ -1,7 +1,7 @@
 #include "algorithms/mis/Luby_mis/Luby_MIS.h"
 #include "algorithms/mis/Luby_mis/Luby_MIS_message.h"
 
-void LubyMISAlg::set_alg_type() { EV << "LubyMIS::set_alg_type()\n"; alg_type = MIS_ALG; }
+void LubyMISAlg::set_alg_type() { EV << "LubyMISAlg::set_alg_type()\n"; alg_type = MIS_ALG; }
 
 LubyMISAlg::LubyMISAlg(Node *node, int starting_round) {
     init(node, starting_round);

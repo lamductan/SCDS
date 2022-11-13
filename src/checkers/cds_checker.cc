@@ -40,5 +40,3 @@ bool CDSChecker::check(bool is_final_check) {
     EV << "PASS CDS CHECK!\n";
     return true;
 }
-
-CDSChecker::~CDSChecker() {}

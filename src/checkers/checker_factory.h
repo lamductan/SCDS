@@ -4,6 +4,7 @@
 #include "dummy_checker.h"
 #include "mis_checker.h"
 #include "cds_checker.h"
+#include "two_rs_checker.h"
 
 class CheckerFactory {
 public:

@@ -27,7 +27,6 @@ public:
     SynchronizedMessage(const SynchronizedMessage& other);
     SynchronizedMessage& operator=(const SynchronizedMessage& other);
     virtual SynchronizedMessage *dup() const override {return new SynchronizedMessage(*this);}
-    virtual ~SynchronizedMessage();
 
     // field getter/setter methods
     int getSenderId() const;

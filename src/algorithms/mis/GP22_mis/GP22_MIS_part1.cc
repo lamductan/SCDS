@@ -29,7 +29,7 @@ cMessage *GP22MISPart1Alg::process_message_queue() {
         GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart1");
         new_message->setSenderId(node->id);
         new_message->setStatus(status);
-        need_to_send = std::unordered_set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
+        need_to_send = std::set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
         return new_message;
     }
     return nullptr;

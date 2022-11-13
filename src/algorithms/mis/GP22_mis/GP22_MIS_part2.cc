@@ -89,7 +89,7 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_mark_round() {
     new_message->setSenderId(node->id);
     new_message->setStatus(status);
     new_message->setMarked(marked);
-    need_to_send = std::unordered_set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
+    need_to_send = std::set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
     return new_message;
 }
 
@@ -116,7 +116,7 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_status_round() {
     new_message->setSenderId(node->id);
     new_message->setStatus(status);
     new_message->setMarked(marked);
-    need_to_send = std::unordered_set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
+    need_to_send = std::set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
     return new_message;
 }
 

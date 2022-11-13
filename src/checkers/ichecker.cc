@@ -65,3 +65,20 @@ bool IChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_n
 
     return res;
 }
+
+bool IChecker::check_independent(bool is_final_check) {
+    EV << "IChecker::check_independent()\n";
+    std::set<int> selected_nodes_set(selected_nodes.begin(), selected_nodes.end());
+    for(int selected_node_id : selected_nodes) {
+        for(int neighbor_id : network->nodes[selected_node_id]->all_neighbors) {
+            if (selected_nodes_set.count(neighbor_id) > 0) {
+                if (is_final_check) 
+                    EV << "\t" << "Failed: Both " << selected_node_id << " and " << neighbor_id
+                       << " are selected but they are neighbors\n";
+                return false;
+            }
+        }
+    }
+    EV << "\tPASS\n";
+    return true;
+}

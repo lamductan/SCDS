@@ -7,7 +7,7 @@ void GP22MISAlg::set_alg_type() { EV << "GP22MIS::set_alg_type()\n"; alg_type = 
 
 GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     init(node, starting_round);
-    all_remained_neighbors = std::unordered_set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+    all_remained_neighbors = std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
     
     n = node->n_nodes;
 

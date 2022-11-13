@@ -48,5 +48,3 @@ NodeStatus LubyMISMessage::getStatus() const {
 void LubyMISMessage::setStatus(NodeStatus status) {
     this->status = status;
 }
-
-LubyMISMessage::~LubyMISMessage() {}
