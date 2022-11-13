@@ -19,6 +19,9 @@ public:
         } else if (strcmp(alg_name, "MIS-KW08") == 0) {
             EV << "Create KW08MISAlg instance\n";
             return new KW08MISAlg(node, starting_round);
+        } else if (strcmp(alg_name, "MIS-GP22") == 0) {
+            EV << "Create GP22MISAlg instance\n";
+            return new GP22MISAlg(node, starting_round);
         }
         return nullptr;
     }

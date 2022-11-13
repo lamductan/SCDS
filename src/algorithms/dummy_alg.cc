@@ -18,4 +18,12 @@ cMessage * DummyAlg::process_message_queue() {
     return nullptr;
 }
 
+bool DummyAlg::is_decided() {
+    return true;
+}
+
+bool DummyAlg::is_awake() {
+    return true;
+}
+
 DummyAlg::~DummyAlg() {}

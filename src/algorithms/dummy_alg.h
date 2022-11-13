@@ -15,6 +15,8 @@ public:
     DummyAlg(Node *node, int starting_round=1);
     virtual cMessage * process_message_queue() override;
     virtual ~DummyAlg();
+    virtual bool is_decided() override;
+    virtual bool is_awake() override;
 };
 
 #endif //SCDS_ALGORITHMS_DUMMY_ALG_H_

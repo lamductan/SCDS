@@ -20,7 +20,7 @@ KW08MISAlg::KW08MISAlg(Node *node, int starting_round) {
 
 void KW08MISAlg::init_alg_variables() {
     r = node->id;
-    status = KW08_COMPETITOR;
+    KW08_status = KW08_COMPETITOR;
     KW08_alg_round_type = KW08_EXCHANGING_R;
     for(int neighbor_id : node->all_neighbors) {
         undecided_neighbors.insert(neighbor_id);
@@ -58,7 +58,7 @@ bool KW08MISAlg::is_new_stage() {
 }
 
 bool KW08MISAlg::is_new_phase() {
-    if (status == KW08_COMPETITOR) return false;
+    if (KW08_status == KW08_COMPETITOR) return false;
     bool res = true;
     for(auto it : neighbors_status) {
         KW08NodeStatus neighbor_status = it.second;
@@ -75,11 +75,11 @@ bool KW08MISAlg::is_new_phase() {
 bool KW08MISAlg::reset_stage_if_needed() {
     if (is_decided()) return false;
     if (is_new_stage()) {
-        if (status == KW08_COMPETITOR || status == KW08_RULER) {
+        if (KW08_status == KW08_COMPETITOR || KW08_status == KW08_RULER) {
             EV_ERROR << "New stage but node" << node->id << " has status " << status << '\n';
         }
 
-        status = KW08_COMPETITOR;
+        KW08_status = KW08_COMPETITOR;
         r = node->id;
         EV << "New stage. Competitors = [" << node->id << ",";
         for(int neighbor_id : node->all_neighbors) {
@@ -99,11 +99,11 @@ bool KW08MISAlg::reset_stage_if_needed() {
 bool KW08MISAlg::reset_phase_if_needed() {
     if (is_decided()) return false;
     if (!is_new_stage() && is_new_phase()) {
-        if (status == KW08_COMPETITOR) {
+        if (KW08_status == KW08_COMPETITOR) {
             EV_ERROR << "New phase but node" << node->id << " has status " << status << '\n';
         }
 
-        if (status == KW08_RULER) status = KW08_COMPETITOR;
+        if (KW08_status == KW08_RULER) KW08_status = KW08_COMPETITOR;
         r = node->id;
         for(int neighbor_id : node->all_neighbors) {
             if (neighbors_status[neighbor_id] == KW08_RULER) {
@@ -113,7 +113,7 @@ bool KW08MISAlg::reset_phase_if_needed() {
         }
 
         std::vector<int> competitors;
-        if (status == KW08_COMPETITOR) competitors.push_back(node->id);
+        if (KW08_status == KW08_COMPETITOR) competitors.push_back(node->id);
         for(int neighbor_id : node->all_neighbors) {
             if (neighbors_status[neighbor_id] == KW08_COMPETITOR) {
                 competitors.push_back(neighbor_id);
@@ -129,6 +129,10 @@ bool KW08MISAlg::reset_phase_if_needed() {
 
 bool KW08MISAlg::is_decided_status(KW08NodeStatus node_status) {
     return (node_status == KW08_DOMINATOR) || (node_status == KW08_DOMINATED);
+}
+
+void KW08MISAlg::update_previous_status() {
+    KW08_previous_status = KW08_status;
 }
 
 int KW08MISAlg::find_smallest_r() {
@@ -149,23 +153,19 @@ int KW08MISAlg::find_smallest_r() {
     return smallest_r;
 }
 
-void KW08MISAlg::record_last_communication_round() {
-    if (!is_decided_status(previous_status) && is_decided_status(status)) {
-        last_communication_round = current_round_id - 1;
-    }
-}
-
 cMessage *KW08MISAlg::process_message_queue() {
     EV << "\t" << "KW08MISAlg::process_message_queue()\n";
-    record_last_communication_round();
-    previous_status = status;
-
     if (KW08_alg_round_type == KW08_EXCHANGING_R) {
         return process_message_queue_for_exchange_r_round();
     } else if (KW08_alg_round_type == KW08_EXCHANGING_STATE_1) {
         return process_message_queue_for_exchange_state_1_round();
     } else {
         return process_message_queue_for_exchange_state_2_round();
+    }
+    if (!is_decided()) status = UNDECIDED;
+    else {
+        if (KW08_status == KW08_DOMINATOR) status = IN_MIS;
+        else status = NOT_IN_MIS;
     }
     return nullptr;
 }
@@ -203,7 +203,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
         if (!new_stage) new_phase = reset_phase_if_needed();
     }
 
-    if (status == KW08_COMPETITOR) {
+    if (KW08_status == KW08_COMPETITOR) {
         EV << "\t" << "Process message queue\n";
         for(cMessage *msg : message_queue) {
             KW08MISMessage *KW08_MIS_message = dynamic_cast<KW08MISMessage *>(msg);
@@ -227,7 +227,7 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_r_round() {
 
 cMessage *KW08MISAlg::process_message_queue_for_exchange_state_1_round() {
     EV << "KW08MISAlg::process_message_queue_for_exchange_state_1_round() -- round " << current_round_id << "\n";
-    if (status == KW08_COMPETITOR) {
+    if (KW08_status == KW08_COMPETITOR) {
         bool can_be_dominator = true;
         bool can_be_ruler = true;
         EV << "\t" << "r = " << r << '\n';
@@ -241,15 +241,15 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_state_1_round() {
             if (neighbor_r < r) can_be_ruler = false;
         }
         if (can_be_dominator) {
-            status = KW08_DOMINATOR;
+            KW08_status = KW08_DOMINATOR;
             last_communication_round = current_round_id + 1;
             EV << "can_be_dominator" << '\n';
         }
-        else if (can_be_ruler) status = KW08_RULER;
+        else if (can_be_ruler) KW08_status = KW08_RULER;
     }
-    EV << "status = " << status << '\n';
+    EV << "KW08_status = " << KW08_status << '\n';
     KW08MISMessage *new_message = new KW08MISMessage("KW08_exchange_state_1");
-    new_message->setStatus(status);
+    new_message->setStatus(KW08_status);
     new_message->setSenderId(node->id);
     set_need_to_send_to_undecided_neighbors();
     return new_message;
@@ -265,25 +265,31 @@ cMessage *KW08MISAlg::process_message_queue_for_exchange_state_2_round() {
         EV << "\t" << "neighbor_id = " << neighbor_id << ' ' << "neighbor_status = " << neighbor_status << '\n';
         if (is_decided_status(neighbor_status)) undecided_neighbors.erase(neighbor_id);
         if (neighbor_status == KW08_DOMINATOR) {
-            status = KW08_DOMINATED;
+            KW08_status = KW08_DOMINATED;
             last_communication_round = current_round_id;
             break;
-        } else if (status != KW08_RULER && neighbor_status == KW08_RULER) {
-            status = KW08_RULED;
+        } else if (KW08_status != KW08_RULER && neighbor_status == KW08_RULER) {
+            KW08_status = KW08_RULED;
         }
     }
-    EV << "status = " << status << '\n';
+    EV << "KW08_status = " << KW08_status << '\n';
     KW08MISMessage *new_message = new KW08MISMessage("KW08_exchange_state_1");
-    new_message->setStatus(status);
+    new_message->setStatus(KW08_status);
     new_message->setSenderId(node->id);
     set_need_to_send_to_undecided_neighbors();
     return new_message;
 }
 
 bool KW08MISAlg::is_selected() {
-    return (status == KW08_DOMINATOR);
+    return (KW08_status == KW08_DOMINATOR);
 }
 
 bool KW08MISAlg::is_decided() {
-    return is_decided_status(status);
+    return is_decided_status(KW08_status);
+}
+
+void KW08MISAlg::record_decided_round() {
+    if (!is_decided_status(KW08_previous_status) && is_decided_status(KW08_status)) {
+        decided_round = current_round_id;
+    }
 }

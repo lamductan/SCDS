@@ -29,7 +29,7 @@ public:
 
 
 class KW08MISAlg : public IAlgNode {
-private:
+public:
     static const int N_ROUNDS_PER_COMPETITION = 3;
     static const int N_PHASES_PER_STAGE = 5;
     static const int N_STAGES = 2;
@@ -46,7 +46,7 @@ private:
     std::unordered_set<int> undecided_neighbors;
     std::unordered_map<int, KW08NodeStatus> neighbors_status;
     std::unordered_map<int, int> neighbors_r;
-    KW08NodeStatus previous_status = KW08_COMPETITOR;
+    KW08NodeStatus KW08_previous_status = KW08_COMPETITOR;
 
     KW08AlgRoundType KW08_alg_round_type = KW08_EXCHANGING_STATE_2;
 
@@ -54,7 +54,7 @@ private:
     int find_smallest_r();
     bool is_new_stage();
     bool is_new_phase();
-    void record_last_communication_round();
+    virtual void record_decided_round() override;
 
     cMessage *process_message_queue_for_exchange_r_round();
     cMessage *process_message_queue_for_exchange_state_1_round();
@@ -64,13 +64,14 @@ private:
     void set_need_to_send_to_undecided_neighbors();
 
 public:
-    KW08NodeStatus status = KW08_COMPETITOR;
+    KW08NodeStatus KW08_status = KW08_COMPETITOR;
     virtual void set_alg_type() override;
     KW08MISAlg(Node *node, int starting_round=1);
     virtual void stage_transition() override;
     virtual cMessage *process_message_queue() override;
     virtual bool is_selected() override;
     virtual bool is_decided() override;
+    virtual void update_previous_status() override;
 };
 
 #endif //SCDS_ALGORITHMS_MIS_KW08_MIS_H_

@@ -30,13 +30,6 @@ void Network::handleMessage(cMessage *msg)
     }
 }
 
-/*
-void Network::connect(cGate *src, cGate *dest)
-{
-    src->connectTo(dest);
-}
-*/
-
 /**
  * @brief 
  * Build Network from file
@@ -159,7 +152,8 @@ int Network::get_finished_round() {
     int finished_round = -1;
     for(auto it : nodes) {
         Node *node = it.second;
-        finished_round = std::max(finished_round, node->alg->last_communication_round);
+        finished_round = std::max(
+            finished_round, std::max(node->alg->last_communication_round, node->alg->decided_round));
     }
     return finished_round;
 }
@@ -189,14 +183,19 @@ void Network::log_result() {
     mkPath(log_dir.c_str());
     
     std::fstream f(log_path.c_str(), std::ios::out);
-    f << n_nodes << ' ' << total_awake_rounds << ' ' << ceil(1.0*total_awake_rounds/n_nodes) 
+    f << "#n total_awake_rounds average_awake_rounds finished_round n_selected_nodes\n";
+    f << n_nodes << ' ' << total_awake_rounds << ' ' << 1.0*total_awake_rounds/n_nodes
       << ' ' << finished_round << ' ' << selected_nodes.size() << "\n";
-    for(auto it : nodes) {
-        Node *node = it.second;
-        f << it.first << ' ' << node->alg->n_awake_rounds << ' ' << node->alg->last_communication_round << '\n';
-    }
-    f << '\n';
     
+    std::vector<int> node_ids = getMapKeys<int, Node *>(nodes);
+    f << "\n#node_id node_n_awake_rounds node_decided_round node_last_communication_round\n";
+    for(int node_id : node_ids) {
+        Node *node = nodes[node_id];
+        f << node_id << ' ' << node->alg->n_awake_rounds << ' ' << node->alg->decided_round 
+          << ' ' <<node->alg->last_communication_round << '\n';
+    }
+    
+    f << "\n#selected nodes:\n";
     for(int selected_node : selected_nodes) f << selected_node << '\n';
     IChecker *checker = CheckerFactory::create_checker(this);
     f << "Check result = " << checker->check() << '\n';

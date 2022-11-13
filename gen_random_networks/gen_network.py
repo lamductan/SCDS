@@ -167,7 +167,7 @@ def gen(n, denseness):
         gen_network_and_save_file(network_id, n, w, h, denseness)
 
 if __name__ == '__main__':
-    for n in tqdm.tqdm([20, 50, 100] + list(range(1000, 2001, 100))):
+    for n in tqdm.tqdm([20, 50, 100] + list(range(200, 2001, 100))):
         print("n =", n)
         for denseness in ['sparse', 'medium', 'dense']:
             print(denseness)

@@ -19,15 +19,8 @@ void LubyMISAlg::stage_transition() {
     }
 }
 
-void LubyMISAlg::record_last_communication_round() {
-    if (previous_status == UNDECIDED && status != UNDECIDED) {
-        last_communication_round = current_round_id - 1;
-    }
-}
-
 cMessage *LubyMISAlg::process_message_queue() {
     EV << "\t" << "LubyMISAlg::process_message_queue()\n";
-    record_last_communication_round();
     previous_status = status;
     if (is_decided()) {
         EV << "\t\t" << "Status is " << status << " decided at round " << last_communication_round << "\n";
@@ -50,6 +43,7 @@ cMessage *LubyMISAlg::process_message_queue() {
 }
 
 cMessage *LubyMISAlg::process_message_queue_for_generate_mark_round() {
+    EV << "LubyMISAlg::process_message_queue_for_generate_mark_round()\n";
     for(cMessage *msg : message_queue) {
         LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
         int neighbor_id = Luby_MIS_message->getSenderId();
@@ -71,6 +65,7 @@ cMessage *LubyMISAlg::process_message_queue_for_generate_mark_round() {
 }
 
 cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
+    EV << "LubyMISAlg::process_message_queue_for_processing_mark_round()\n";
     degree = message_queue.size();
     if (degree == 0) {
         EV << "\t\t" << "degree = 0 --> join MIS\n";
@@ -106,8 +101,4 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
 
 bool LubyMISAlg::is_selected() {
     return (status == IN_MIS);
-}
-
-bool LubyMISAlg::is_decided() {
-    return (status != UNDECIDED);
 }

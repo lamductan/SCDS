@@ -17,11 +17,9 @@ public:
 
 
 class LubyMISAlg : public IAlgNode {
-protected:
+public:
     bool marked = false;
-    NodeStatus status = UNDECIDED;
     int degree;
-    NodeStatus previous_status = UNDECIDED;
     LubyAlgRoundType Luby_alg_round_type = LUBY_PROCESSING_MARK;
 
     cMessage *process_message_queue_for_generate_mark_round();
@@ -33,8 +31,6 @@ public:
     virtual void stage_transition() override;
     virtual cMessage *process_message_queue() override;
     virtual bool is_selected() override;
-    void record_last_communication_round();
-    virtual bool is_decided() override;
 };
 
 #endif //SCDS_ALGORITHMS_MIS_LUBY_MIS_H_

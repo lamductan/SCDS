@@ -14,11 +14,16 @@ void Node::connect(cGate *src, cGate *dest, int destid)
 {
     src->connectTo(dest);
     all_neighbors.push_back(destid);
+    all_neighbors_original.push_back(destid);
     neighbor_gates[destid] = src;
 }
 
 void Node::handleMessage(cMessage *msg) {
     alg->handle_message(msg);
+}
+
+bool Node::is_decided() {
+    return alg->is_decided();
 }
 
 Node::~Node() {

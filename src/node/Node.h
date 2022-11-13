@@ -25,9 +25,11 @@ public:
     int n_nodes;
     cGate *networkWirelessIn;
     std::unordered_map<int, cGate *> neighbor_gates;
-    std::vector<int> all_neighbors;
+    std::vector<int> all_neighbors; //may change during the course of an algorithm
+    std::vector<int> all_neighbors_original; //so it's better to save a copy
     void connect(cGate *src, cGate *dest, int destid);
     IAlgNode *alg;
+    bool is_decided();
     virtual ~Node();
 };
 

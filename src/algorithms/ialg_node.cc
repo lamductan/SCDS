@@ -25,11 +25,8 @@ bool IAlgNode::is_selected() {
 }
 
 bool IAlgNode::is_awake() {
-    return true;
-}
-
-bool IAlgNode::is_decided() {
-    return false;
+    if (!is_decided()) return true;
+    return current_round_id <= decided_round;
 }
 
 void IAlgNode::handle_message(cMessage *msg) {
@@ -47,6 +44,12 @@ void IAlgNode::handle_message(cMessage *msg) {
     }
 }
 
+void IAlgNode::record_decided_round() {
+    if (previous_status == UNDECIDED && status != UNDECIDED) {
+        decided_round = current_round_id;
+    }
+}
+
 void IAlgNode::start_round(cMessage *msg) {
     SynchronizedMessage *synchronized_message = dynamic_cast<SynchronizedMessage *>(msg);
     int sender_id = synchronized_message->getSenderId();
@@ -58,12 +61,22 @@ void IAlgNode::start_round(cMessage *msg) {
 }
 
 void IAlgNode::process_round() {
-    if (!is_awake()) return;
-    ++n_awake_rounds;
+    EV << "IAlgNode::process_round()\n";
+    update_previous_status();
     stage_transition();
+    EV << "n_awake_rounds = " << n_awake_rounds << '\n';
+    if (!is_awake()) {
+        EV << "not awake\n";
+        return;
+    }
+    ++n_awake_rounds;
+    EV << "Is awake: n_awake_rounds = " << n_awake_rounds << '\n';
+    EV << "pre_process: message_queue.size() = " << message_queue.size() << '\n';
     cMessage *new_message = process_message_queue();
     clear_message_queue();
+    EV << "post_process: message_queue.size() = " << message_queue.size() << '\n';
     if (new_message != nullptr) send_new_message(new_message);
+    record_decided_round();
 }
 
 void IAlgNode::stage_transition() {}
@@ -73,7 +86,7 @@ void IAlgNode::clear_message_queue() {
     message_queue.clear();
 }
 
-cMessage * IAlgNode::process_message_queue() {
+cMessage *IAlgNode::process_message_queue() {
     return nullptr;
 }
 
@@ -81,6 +94,7 @@ void IAlgNode::send_new_message(cMessage *msg, double delay) {
     EV << "node" << node->id << " : need_to_send = [";
     for(int x : need_to_send) EV << x << ",";
     EV << "]\n";
+    last_communication_round = current_round_id;
     if (need_to_send.size() == 1 && *need_to_send.begin() == -1) {
         /*
         int n_neighbors = node->gateSize("port");
@@ -100,8 +114,32 @@ void IAlgNode::send_new_message(cMessage *msg, double delay) {
 }
 
 void IAlgNode::listen_new_message(cMessage *msg) {
+    EV << "is_awake() = " << is_awake() << '\n';
     if (!is_awake() || is_decided()) delete msg;
-    else message_queue.push_back(msg);
+    else {
+        message_queue.push_back(msg);
+        last_communication_round = current_round_id;
+        EV << "is_awake() = " << is_awake() << ' ' << "message_queue.size() = " << message_queue.size() << '\n';
+    }
 }
 
-int IAlgNode::count_n_rounds() { return 0; }
+bool IAlgNode::is_decided() {
+    return (status != UNDECIDED);
+}
+
+void IAlgNode::update_previous_status() {
+    previous_status = status;
+}
+
+void IAlgNode::call_handle_message(IAlgNode *alg, cMessage *msg) {
+    alg->handle_message(msg);
+    status = alg->status;
+    if (is_decided() && alg->decided_round > -1)
+        decided_round = alg->decided_round;
+    if (alg->last_communication_round > -1)
+        last_communication_round = alg->last_communication_round;
+}
+
+IAlgNode::~IAlgNode() {
+    clear_message_queue();
+}

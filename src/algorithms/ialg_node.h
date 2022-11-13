@@ -33,6 +33,8 @@ class IAlgNode : public IAlg
 {
 public:
     Node *node;
+    NodeStatus status = UNDECIDED;
+    NodeStatus previous_status = UNDECIDED;
     std::vector<cMessage *> message_queue;
     std::unordered_set<int> need_to_send;
     int current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
@@ -45,6 +47,7 @@ public:
     int n_awake_rounds = 0;
     int n_sleep_rounds = 0;
     int last_communication_round = -1;
+    int decided_round = -1;
     
     virtual bool is_selected(); //should be overriden
 
@@ -60,9 +63,12 @@ public:
     virtual void send_new_message(cMessage *msg, double delay=0.5); //should NOT be overriden
     virtual void listen_new_message(cMessage *msg); //should NOT be overriden
 
-    virtual int count_n_rounds();
+    virtual void record_decided_round();
+    virtual void update_previous_status();
 
-    virtual ~IAlgNode() {}
+    virtual void call_handle_message(IAlgNode *alg, cMessage *msg);
+
+    virtual ~IAlgNode();
 };
 
 #endif //SCDS_ALGORITHMS_IALG_NODE_H_
