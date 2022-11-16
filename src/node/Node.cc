@@ -7,7 +7,8 @@ void Node::initialize() {
     n_nodes = par("n_nodes");
     EV << "Node::initialize() -- " << "n_nodes = " << n_nodes << ' ' 
        << "par(\"algorithm\").stringValue()" << par("algorithm").stringValue() << '\n';
-    alg = AlgFactory::create_alg(this, par("algorithm").stringValue(), 1);
+    threshold_ratio = par("threshold_ratio").doubleValue();
+    alg = AlgFactory::create_alg(this, par("algorithm").stringValue(), 1, threshold_ratio);
     if (id == 0) network_alg->max_num_rounds = alg->max_num_rounds;
     networkWirelessIn = getParentModule()->getSubmodule("net")->gate("wirelessIn");
 }

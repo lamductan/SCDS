@@ -9,7 +9,7 @@ commands.txt
 **/Makefile
 scds
 
-**/results/*
+**/results*/*
 !**/.gitkeep
 
 gen_random_networks/*

@@ -56,7 +56,7 @@ public:
 
 public:
     virtual void set_alg_type() override;
-    GP22MISAlg(Node *node, int starting_round=1);
+    GP22MISAlg(Node *node, int starting_round=1, double threshold_ratio=1);
     virtual void handle_message(cMessage *msg) override;
     virtual void stage_transition() override;
     virtual bool is_selected() override;

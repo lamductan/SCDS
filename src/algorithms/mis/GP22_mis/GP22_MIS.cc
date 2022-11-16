@@ -6,7 +6,7 @@
 
 void GP22MISAlg::set_alg_type() { EV << "GP22MIS::set_alg_type()\n"; alg_type = MIS_ALG; }
 
-GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
+GP22MISAlg::GP22MISAlg(Node *node, int starting_round, double threshold_ratio) {
     init(node, starting_round);
     all_remained_neighbors = std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
     
@@ -16,7 +16,7 @@ GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     loglog_n = log_2(log_n);
     d = 2*log_n*log_n;
     log_d = log_2(d);
-    threshold = ceil(n/log_n);
+    threshold = ceil(threshold_ratio*n/log_n);
     //threshold = ceil(0.9*n);
     EV << "threshold = " << threshold << "\n";
 

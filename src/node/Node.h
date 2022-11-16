@@ -31,6 +31,7 @@ public:
     void connect(cGate *src, cGate *dest, int destid);
     IAlgNode *alg;
     NetworkAlg *network_alg;
+    double threshold_ratio;
     bool is_decided();
     virtual ~Node();
 };
