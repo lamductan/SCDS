@@ -14,6 +14,9 @@ IAlgNode *AlgFactory::create_alg(Node *node, const char* alg_name, int starting_
     } else if (strcmp(alg_name, "MIS-GP22") == 0) {
         EV << "Create GP22MISAlg instance\n";
         return new GP22MISAlg(node, starting_round);
+    } else if (strcmp(alg_name, "MIS-GP22-0.1") == 0) {
+        EV << "Create GP22MISAlg instance\n";
+        return new GP22MISAlg(node, starting_round, threshold_ratio);
     } else if (strcmp(alg_name, "MIS-GP22-0.5") == 0) {
         EV << "Create GP22MISAlg instance\n";
         return new GP22MISAlg(node, starting_round, threshold_ratio);
