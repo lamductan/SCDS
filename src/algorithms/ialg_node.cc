@@ -25,8 +25,15 @@ bool IAlgNode::is_selected() {
 }
 
 bool IAlgNode::is_awake() {
-    if (!is_decided()) return true;
-    return current_round_id <= decided_round;
+    if (!is_decided()) {
+        awake_round_map[current_round_id] = true;
+        return true;
+    }
+    if (current_round_id <= decided_round) {
+        awake_round_map[current_round_id] = true;
+        return true;
+    }
+    return false;
 }
 
 void IAlgNode::handle_message(cMessage *msg) {
@@ -74,7 +81,6 @@ void IAlgNode::process_round() {
     EV << "pre_process: message_queue.size() = " << message_queue.size() << '\n';
     cMessage *new_message = process_message_queue();
     clear_message_queue();
-    EV << "post_process: message_queue.size() = " << message_queue.size() << '\n';
     if (new_message != nullptr) send_new_message(new_message);
     record_decided_round();
 }
@@ -138,8 +144,11 @@ void IAlgNode::update_previous_status() {
 }
 
 void IAlgNode::call_handle_message(IAlgNode *alg, cMessage *msg) {
+    update_previous_status();
     alg->handle_message(msg);
     status = alg->status;
+    dominator = alg->dominator;
+    awake_round_map[current_round_id] = alg->awake_round_map[current_round_id];
     if (is_decided() && alg->decided_round > -1)
         decided_round = alg->decided_round;
     if (alg->last_communication_round > -1)

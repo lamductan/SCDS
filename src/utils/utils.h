@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
 #include <unordered_map>
 
 #define MAX_NUM_BITS 10
@@ -24,5 +25,17 @@ std::vector<K> getMapKeys(const std::unordered_map<K, V>& m) {
     std::sort(keys.begin(), keys.end());
     return keys;
 }
+
+std::map<int,bool> combine_map(std::map<int,bool> &m1, std::map<int,bool> &m2);
+
+template<typename T>
+std::vector<T> combine_vector(const std::vector<T> &a, const std::vector<T> &b) {
+    std::vector<T> c = a;
+    for(T x : b) c.push_back(x);
+    return c;
+}
+
+std::vector<bool> map_to_vector(std::map<int,bool> &awake_round_map, int finished_round);
+bool is_idle_round(std::vector<std::vector<bool>> &all_awake_round_vec, int round_id);
 
 #endif // UTILS_UTILS_H_

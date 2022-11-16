@@ -25,9 +25,20 @@ LamMISAlg::LamMISAlg(Node *node, int starting_round) {
     Lam_MIS_part1_2_alg = new LamInformingNeighborsAlg(node, part1_2_starting_round);
     Lam_MIS_part1_2_alg->max_num_rounds = part1_2_max_num_rounds;
     
+    // part 2
+    // We don't run part 2 in simulation, because to achieve f(5) < log(n), n must > 2^f(5) = 2^600
+    part2_starting_round = -1;
+    Lam_MIS_part2_alg = new IAlgNode(node, part1_starting_round); //TODO: implement Coloring algorithm
+
+    // part 2_3
+    part2_3_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
+    part2_3_max_num_rounds = 2;
+    Lam_MIS_part2_3_alg = new LamInformingNeighborsAlg(node, part2_3_starting_round);
+    Lam_MIS_part2_3_alg->max_num_rounds = part2_3_max_num_rounds;
+    
     // part 3
     // We don't run part 2 in simulation, because to achieve f(5) < log(n), n must > 2^f(5) = 2^600
-    part3_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
+    part3_starting_round = part2_3_starting_round + part2_3_max_num_rounds;
     //part3_max_num_rounds = 2*log_n;
     Lam_MIS_part3_alg = new LamMISPart3Alg(node, part3_starting_round);
     part3_max_num_rounds = Lam_MIS_part3_alg->max_num_rounds;
@@ -36,6 +47,8 @@ LamMISAlg::LamMISAlg(Node *node, int starting_round) {
 
     EV << "LamMISAlg::part1_starting_round = " << part1_starting_round << ' ' << Lam_MIS_part1_alg->starting_round << '\n';
     EV << "LamMISAlg::part1_2_starting_round = " << part1_2_starting_round << ' ' << Lam_MIS_part1_2_alg->starting_round << '\n';
+    EV << "LamMISAlg::part2_starting_round = " << part2_starting_round << ' ' << Lam_MIS_part2_alg->starting_round << '\n';
+    EV << "LamMISAlg::part2_3_starting_round = " << part2_3_starting_round << ' ' << Lam_MIS_part2_3_alg->starting_round << '\n';
     EV << "LamMISAlg::part3_starting_round = " << part3_starting_round << ' ' << Lam_MIS_part3_alg->starting_round << '\n';
     EV << "LamMISAlg::total max_num_rounds = " << max_num_rounds << '\n';
 }
@@ -54,12 +67,18 @@ void LamMISAlg::handle_message(cMessage *msg) {
         call_handle_message(Lam_MIS_part1_alg, msg);
     } else if (Lam_MIS_stage == LamMISStage::PART1_2) {
         call_handle_message(Lam_MIS_part1_2_alg, msg);
+    } else if (Lam_MIS_stage == LamMISStage::PART2) {
+        call_handle_message(Lam_MIS_part2_alg, msg);
+    } else if (Lam_MIS_stage == LamMISStage::PART2_3) {
+        call_handle_message(Lam_MIS_part2_3_alg, msg);
     } else if (Lam_MIS_stage == LamMISStage::PART3) {
         call_handle_message(Lam_MIS_part3_alg, msg);
     }
 
     n_awake_rounds = Lam_MIS_part1_alg->n_awake_rounds 
         + Lam_MIS_part1_2_alg->n_awake_rounds
+        + Lam_MIS_part2_alg->n_awake_rounds
+        + Lam_MIS_part2_3_alg->n_awake_rounds
         + Lam_MIS_part3_alg->n_awake_rounds;
     EV << "LamMISAlg::status after round #" << current_round_id << " = " << status << ": is_decided() = " << is_decided() << '\n';
     EV << "LamMISAlg::last_communication_round : " << last_communication_round << '\n';
@@ -77,28 +96,47 @@ void LamMISAlg::stage_transition() {
         Lam_MIS_part1_2_alg->two_rs_cluster_center_id = Lam_MIS_part1_alg->two_rs_cluster_center_id;
         if (Lam_MIS_part1_alg->Lam_Two_RS_status == LAM_TWO_RS_CLUSTER_CENTER) {
             Lam_MIS_part1_2_alg->status = status = IN_MIS;
-        } else if (Lam_MIS_part1_alg->Lam_Two_RS_status == LAM_TWO_RS_1_HOP) {
-            Lam_MIS_part1_2_alg->status = status = NOT_IN_MIS;
         }
-        Lam_MIS_part1_2_alg->color = Lam_MIS_part1_alg->two_rs_cluster_center_id;
+
+    } else if (current_round_id == part2_starting_round) {
+        Lam_MIS_stage = LamMISStage::PART2;
+        //Lam_MIS_part2_alg->neighbor_clusters = Lam_MIS_part1_2_alg->neighbor_clusters;
+
+    } else if (current_round_id == part2_3_starting_round) {
+        Lam_MIS_stage = LamMISStage::PART2_3;
+        Lam_MIS_part2_3_alg->two_rs_cluster_center_id = Lam_MIS_part1_alg->two_rs_cluster_center_id;
+        //Lam_MIS_part2_3_alg->color = Lam_MIS_part2_alg->color;
+        Lam_MIS_part2_3_alg->color = Lam_MIS_part1_alg->two_rs_cluster_center_id;
+        if (status == IN_MIS) Lam_MIS_part2_3_alg->status = status;
 
     } else if (current_round_id == part3_starting_round) {
         Lam_MIS_stage = LamMISStage::PART3;
-        Lam_MIS_part3_alg->color = Lam_MIS_part1_2_alg->color;
-        Lam_MIS_part3_alg->neighbor_colors = Lam_MIS_part1_2_alg->neighbor_colors;
+        Lam_MIS_part3_alg->color = Lam_MIS_part2_3_alg->color;
+        Lam_MIS_part3_alg->neighbor_colors = Lam_MIS_part2_3_alg->neighbor_colors;
         Lam_MIS_part3_alg->status = status;
         EV << "LamMISAlg::Lam_MIS_part3_alg->color = " << Lam_MIS_part3_alg->color
            << ", Lam_MIS_part3_alg->status = " << Lam_MIS_part3_alg->status << "\n";
     }
-    EV << "LamMISAlg::status = " << status << ", decided_round = " << decided_round << '\n';
+    EV << "LamMISAlg::status = " << status << '\n';
 }
 
 bool LamMISAlg::is_selected() {
     return (status == IN_MIS);
 }
 
+bool LamMISAlg::is_awake() {
+    if (current_round_id == part1_starting_round
+            || current_round_id == part2_starting_round || current_round_id == part3_starting_round) {
+        return true;
+    }
+    if (Lam_MIS_stage == LamMISStage::PART1_2 || Lam_MIS_stage == LamMISStage::PART2_3) return true;
+    return (status == IN_MIS);
+}
+
 LamMISAlg::~LamMISAlg() {
     delete Lam_MIS_part1_alg;
     delete Lam_MIS_part1_2_alg;
+    delete Lam_MIS_part2_alg;
+    delete Lam_MIS_part2_3_alg;
     delete Lam_MIS_part3_alg;
 }

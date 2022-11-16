@@ -1,140 +1,136 @@
+#include "utils/utils.h"
+#include "messages/synchronized_message.h"
 #include "algorithms/mis/Lam23_mis/Lam23_MIS_message.h"
+#include "algorithms/mis/Lam23_mis/Lam23_Part1_Two_RS.h"
 
-void LamTwoRSAlg::set_alg_type() { EV << "LamTwoRSAlg::set_alg_type()\n"; alg_type = MIS_ALG; }
+void LamTwoRSAlg::set_alg_type() { EV << "LamTwoRSAlg::set_alg_type()\n"; alg_type = TWO_RS_ALG; }
 
 LamTwoRSAlg::LamTwoRSAlg(Node *node, int starting_round) {
     init(node, starting_round);
+    
+    n = node->n_nodes;
+    log_n = log_2(n);
+
+    // part 1
+    part1_starting_round = starting_round;
+    part1_max_num_rounds = 3*std::min(2, log_2(log_star(n)));
+    Lam_Two_RS_part1_alg = new BGKO22TwoRSAlg(node, part1_starting_round);
+    Lam_Two_RS_part1_alg->max_num_rounds = part1_max_num_rounds;
+    
+    // part 1_2
+    part1_2_starting_round = starting_round + part1_max_num_rounds;
+    part1_2_max_num_rounds = 2;
+    Lam_Two_RS_part1_2_alg = new LamInformingNeighborsAlg(node, part1_2_starting_round);
+    Lam_Two_RS_part1_2_alg->max_num_rounds = part1_2_max_num_rounds;
+    
+    // part 2
+    part2_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
+    Lam_Two_RS_part2_alg = new SW08MISAlg(node, part2_starting_round);
+    
+    part2_max_num_rounds = 20;
+    Lam_Two_RS_part2_alg->max_num_rounds = part2_max_num_rounds;
+    //part2_max_num_rounds = Lam_Two_RS_part2_alg->max_num_rounds; // either use it or the two above lines
+    
+    max_num_rounds = part2_starting_round + part2_max_num_rounds;
+
+    EV << "LamTwoRSAlg::part1_starting_round = " << part1_starting_round << ' ' << Lam_Two_RS_part1_alg->starting_round << '\n';
+    EV << "LamTwoRSAlg::part1_2_starting_round = " << part1_2_starting_round << ' ' << Lam_Two_RS_part1_2_alg->starting_round << '\n';
+    EV << "LamTwoRSAlg::part2_starting_round = " << part2_starting_round << ' ' << Lam_Two_RS_part2_alg->starting_round << '\n';
+    EV << "LamTwoRSAlg::total max_num_rounds = " << max_num_rounds << '\n';
+}
+
+void LamTwoRSAlg::handle_message(cMessage *msg) {
+    EV << "Lam_Two_RS_stage = " << Lam_Two_RS_stage << '\n';
+    if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
+        SynchronizedMessage *synchronized_message = dynamic_cast<SynchronizedMessage *>(msg);
+        if (synchronized_message->getSynchronizedMessageType() == SYNCHRONIZED_START_ROUND) {
+            current_round_id = synchronized_message->getRoundId();
+            stage_transition();
+        }
+    }
+    EV << "current_round_id = " << current_round_id << "\n";
+    if (Lam_Two_RS_stage == LamTwoRSStage::PART1) {
+        call_handle_message(Lam_Two_RS_part1_alg, msg);
+    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART1_2) {
+        call_handle_message(Lam_Two_RS_part1_2_alg, msg);
+    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART2) {
+        call_handle_message(Lam_Two_RS_part2_alg, msg);
+    } else if (Lam_Two_RS_stage == LamTwoRSStage::END_STAGE) {
+        delete msg;
+    }
+
+    if (Lam_Two_RS_stage == LamTwoRSStage::END_STAGE) return;
+    n_awake_rounds = Lam_Two_RS_part1_alg->n_awake_rounds 
+        + Lam_Two_RS_part1_2_alg->n_awake_rounds
+        + Lam_Two_RS_part2_alg->n_awake_rounds;
+    EV << "LamTwoRSAlg::status after round #" << current_round_id << " = " << Lam_Two_RS_status << ": is_decided() = " << is_decided() << '\n';
+    EV << "LamTwoRSAlg::last_communication_round : " << last_communication_round << '\n';
+    EV << "LamTwoRSAlg::n_awake_rounds = " << n_awake_rounds << '\n';
+    EV << "LamTwoRSAlg::decided_round = " << decided_round << '\n';
 }
 
 void LamTwoRSAlg::stage_transition() {
-    previous_round_alg_stage = current_round_alg_stage;
-    current_round_alg_stage = LamTwoRSStage::LAM_TWO_RS_STAGE;
-    if (current_round_id < max_num_rounds && Lam_Two_RS_alg_round_type == LAM_TWO_RS_GENERATING_MARK) {
-        Lam_Two_RS_alg_round_type = LAM_TWO_RS_INFORMING_STATUS_1;
-    } else if (current_round_id < max_num_rounds && Lam_Two_RS_alg_round_type == LAM_TWO_RS_INFORMING_STATUS_1) {
-        Lam_Two_RS_alg_round_type = LAM_TWO_RS_INFORMING_STATUS_2;
-    } else if (current_round_id < max_num_rounds && Lam_Two_RS_alg_round_type == LAM_TWO_RS_INFORMING_STATUS_2) {
-        Lam_Two_RS_alg_round_type = LAM_TWO_RS_GENERATING_MARK;
-    } else {
-        current_round_alg_stage = LamTwoRSStage::END_STAGE;
-    }
-}
+    EV << "LamTwoRSAlg::status = " << status << '\n';
+    if (Lam_Two_RS_stage == LamTwoRSStage::INITIAL_STAGE) {
+        Lam_Two_RS_stage = LamTwoRSStage::PART1;
+        
+    } else if (current_round_id == part1_2_starting_round) {
+        Lam_Two_RS_stage = LamTwoRSStage::PART1_2;
+        two_rs_cluster_center_id = Lam_Two_RS_part1_alg->two_rs_cluster_center_id;
+        Lam_Two_RS_part1_2_alg->two_rs_cluster_center_id = two_rs_cluster_center_id;
+        Lam_Two_RS_part1_2_alg->Lam_Two_RS_status = Lam_Two_RS_part1_alg->BGKO22_Two_RS_status;
+        Lam_Two_RS_part1_2_alg->all_remained_neighbors = Lam_Two_RS_part1_alg->all_remained_neighbors;
 
-cMessage *LamTwoRSAlg::process_message_queue() {
-    EV << "\t" << "LamTwoRSAlg::process_message_queue()\n";
-    previous_status = status;
-    if (is_decided()) {
-        EV << "\t\t" << "Status is " << status << " decided at round " << last_communication_round << "\n";
-        return nullptr;
-    }
-
-    // Init the number of undecided neighbors to be the number of neighbors.
-    // Only do this once.
-    if (previous_round_alg_stage == LamTwoRSStage::INITIAL_STAGE
-            && current_round_alg_stage == LamTwoRSStage::LAM_TWO_RS_STAGE) {
-        degree = node->all_neighbors.size();
-    }
-
-    if (Lam_Two_RS_alg_round_type == LAM_TWO_RS_GENERATING_MARK) {
-        return process_message_queue_for_generate_mark_round();
-    } else if (Lam_Two_RS_alg_round_type == LAM_TWO_RS_INFORMING_STATUS_1) {
-        return process_message_queue_for_informing_status_1_round();
-    } else if (Lam_Two_RS_alg_round_type == LAM_TWO_RS_INFORMING_STATUS_2) {
-        return process_message_queue_for_informing_status_2_round();
-    }
-    return nullptr;
-}
-
-cMessage *LamTwoRSAlg::process_message_queue_for_generate_mark_round() {
-    EV << "LamTwoRSAlg::process_message_queue_for_generate_mark_round()\n";
-    for(cMessage *msg : message_queue) {
-        LamMISMessage *Lam_MIS_message = dynamic_cast<LamMISMessage *>(msg);
-        int neighbor_id = Lam_MIS_message->getSenderId();
-        LamTwoRSNodeStatus Lam_Two_RS_neighbor_status = Lam_MIS_message->getTwoRSStatus();
-        if (Lam_Two_RS_neighbor_status != LAM_TWO_RS_UNDECIDED) need_to_send.erase(neighbor_id);
-        if (Lam_Two_RS_neighbor_status == LAM_TWO_RS_1_HOP) {
-            Lam_Two_RS_status = LAM_TWO_RS_2_HOP;
-            parent = neighbor_id;
-            cluster_center_id = Lam_MIS_message->getClusterCenterId();
-            break;
+    } else if (current_round_id == part2_starting_round) {
+        if (Lam_Two_RS_status != LAM_TWO_RS_UNDECIDED) Lam_Two_RS_stage = LamTwoRSStage::END_STAGE;
+        else {
+            Lam_Two_RS_stage = LamTwoRSStage::PART2;
+            node->all_neighbors = std::vector<int>(
+                Lam_Two_RS_part1_2_alg->all_remained_neighbors.begin(),
+                Lam_Two_RS_part1_2_alg->all_remained_neighbors.end()
+            );
+            std::sort(node->all_neighbors.begin(), node->all_neighbors.end());
+            EV << "LamTwoRSAlg::node->all_neighbors = [";
+            for(int x : node->all_neighbors) EV << x << ',';
+            EV << "]\n";
         }
     }
-    
-    marked = node->bernoulli(1.0/(2*degree));
-    LamMISMessage *new_message = new LamMISMessage("LamMISMessage_2RS");
-    new_message->setSenderId(node->id);
-    new_message->setMarked(marked);
-    new_message->setDegree(degree);
-    new_message->setTwoRSStatus(Lam_Two_RS_status);
-    EV << "\t\t" << "marked = " << marked << ", degree = " << degree << '\n';
-    return new_message;
 }
 
-cMessage *LamTwoRSAlg::process_message_queue_for_informing_status_1_round() {
-    EV << "LamTwoRSAlg::process_message_queue_for_informing_status_1_round()\n";
-    degree = message_queue.size();
-    if (degree == 0) {
-        EV << "\t\t" << "degree = 0 --> become 2RS cluster center\n";
-        Lam_Two_RS_status = LAM_TWO_RS_CLUSTER_CENTER;
-        return nullptr;
-    } else {
-        EV << "\t\t" << "degree = " << degree << ", marked = 1 --> find higher priority message\n";
-        need_to_send.clear();
-        for(cMessage *msg : message_queue) {
-            LamMISMessage *Lam_MIS_message = dynamic_cast<LamMISMessage *>(msg);
-            int neighbor_id = Lam_MIS_message->getSenderId();
-            bool neighbor_marked = Lam_MIS_message->getMarked();
-            int neighbor_degree = Lam_MIS_message->getDegree();
-            LamTwoRSNodeStatus Lam_Two_RS_neighbor_status = Lam_MIS_message->getTwoRSStatus();
-            EV << "\t\t\t" << "neighbor_id = " << neighbor_id << ", neighbor_marked = " << neighbor_marked
-                << ", neighbor_degree = " << neighbor_degree
-                << ", Lam_Two_RS_neighbor_status = " << Lam_Two_RS_neighbor_status <<'\n';
-            if (Lam_Two_RS_neighbor_status != LAM_TWO_RS_UNDECIDED) {
-                continue;
-            }
-            need_to_send.insert(neighbor_id);
-            if (!neighbor_marked) continue;
-            if ((neighbor_degree > degree) || (neighbor_degree == degree && neighbor_id > node->id)) {
-                marked = false;
-            }
-        }
-        if (!marked) return nullptr;
-        Lam_Two_RS_status = LAM_TWO_RS_CLUSTER_CENTER;
-        LamMISMessage *new_message = new LamMISMessage("LamMISMessage_2RS");
-        new_message->setSenderId(node->id);
-        new_message->setStatus(status);
-        new_message->setTwoRSStatus(Lam_Two_RS_status);
-        new_message->setClusterCenterId(node->id);
-        return new_message;
-    }
-    return nullptr;
-}
-
-cMessage *LamTwoRSAlg::process_message_queue_for_informing_status_2_round() {
-    EV << "LamTwoRSAlg::process_message_queue_for_informing_status_2_round()\n";
-    need_to_send.clear();
-    need_to_send.insert(-1);
-    for(cMessage *msg : message_queue) {
-        LamMISMessage *Lam_MIS_message = dynamic_cast<LamMISMessage *>(msg);
-        int neighbor_id = Lam_MIS_message->getSenderId();
-        LamTwoRSNodeStatus Lam_Two_RS_neighbor_status = Lam_MIS_message->getTwoRSStatus();
-        EV << "\t\t\t" << "neighbor_id = " << neighbor_id
-            << ", Lam_Two_RS_neighbor_status = " << Lam_Two_RS_neighbor_status <<'\n';
-        if (Lam_Two_RS_neighbor_status == LAM_TWO_RS_CLUSTER_CENTER) {
+void LamTwoRSAlg::call_handle_message(IAlgNode *alg, cMessage *msg) {
+    IAlgNode::call_handle_message(alg, msg);
+    if (Lam_Two_RS_stage == LamTwoRSStage::PART1) {
+        BGKO22TwoRSAlg *alg_1 = dynamic_cast<BGKO22TwoRSAlg *>(alg);
+        two_rs_cluster_center_id = alg_1->two_rs_cluster_center_id;
+        Lam_Two_RS_status = alg_1->BGKO22_Two_RS_status;
+    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART1_2) {
+        LamInformingNeighborsAlg *alg_1 = dynamic_cast<LamInformingNeighborsAlg *>(alg);
+        Lam_Two_RS_status = alg_1->Lam_Two_RS_status;
+    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART2) {
+        SW08MISAlg *alg_1 = dynamic_cast<SW08MISAlg *>(alg);
+        if (alg_1->SW08_status == SW08_DOMINATOR) {
+            Lam_Two_RS_status = LAM_TWO_RS_CLUSTER_CENTER;
+            two_rs_cluster_center_id = alg_1->dominator;
+        } else if (alg_1->SW08_status == SW08_DOMINATED) {
             Lam_Two_RS_status = LAM_TWO_RS_1_HOP;
-            cluster_center_id = Lam_MIS_message->getClusterCenterId();
-            break;
+            two_rs_cluster_center_id = alg_1->dominator;
         }
     }
-    if (Lam_Two_RS_status == LAM_TWO_RS_1_HOP) {
-        LamMISMessage *new_message = new LamMISMessage("LamMISMessage_2RS");
-        new_message->setSenderId(node->id);
-        new_message->setStatus(status);
-        new_message->setTwoRSStatus(Lam_Two_RS_status);
-        new_message->setClusterCenterId(cluster_center_id);
-    return new_message;
+    if (Lam_Two_RS_status == LAM_TWO_RS_CLUSTER_CENTER) {
+        status = IN_MIS;
+        if (previous_status == UNDECIDED) {
+            decided_round = current_round_id;
+            EV << "LamTwoRSAlg::call_handle_message() --- decided_round = " << decided_round << '\n';
+        }
+    } else if (Lam_Two_RS_status == LAM_TWO_RS_1_HOP) {
+        status = NOT_IN_MIS;
+        if (previous_status == UNDECIDED) {
+            decided_round = current_round_id;
+            EV << "LamTwoRSAlg::call_handle_message() --- decided_round = " << decided_round << '\n';
+        }
     }
-    return nullptr;
+    EV << "LamTwoRSAlg::call_handle_message: " << "Lam_Two_RS_status = " << Lam_Two_RS_status
+       << ", two_rs_cluster_center_id = " << two_rs_cluster_center_id << '\n';
 }
 
 bool LamTwoRSAlg::is_selected() {
@@ -145,12 +141,8 @@ bool LamTwoRSAlg::is_decided() {
     return (Lam_Two_RS_status != LAM_TWO_RS_UNDECIDED);
 }
 
-void LamTwoRSAlg::update_previous_status() {
-    Lam_Two_RS_previous_status = Lam_Two_RS_status;
-}
-
-void LamTwoRSAlg::record_decided_round() {
-    if (Lam_Two_RS_previous_status == LAM_TWO_RS_UNDECIDED && Lam_Two_RS_status != LAM_TWO_RS_UNDECIDED) {
-        decided_round = current_round_id;
-    }
+LamTwoRSAlg::~LamTwoRSAlg() {
+    delete Lam_Two_RS_part1_alg;
+    delete Lam_Two_RS_part1_2_alg;
+    delete Lam_Two_RS_part2_alg;
 }

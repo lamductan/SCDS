@@ -2,6 +2,7 @@
 #include "messages/synchronized_message.h"
 #include "algorithms/mis/GP22_mis/GP22_MIS.h"
 #include "algorithms/mis/GP22_mis/GP22_MIS_message.h"
+#include "algorithms/network_alg.h"
 
 void GP22MISAlg::set_alg_type() { EV << "GP22MIS::set_alg_type()\n"; alg_type = MIS_ALG; }
 
@@ -15,12 +16,13 @@ GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     loglog_n = log_2(log_n);
     d = 2*log_n*log_n;
     log_d = log_2(d);
-    threshold = ceil(1.0*n/log_n);
+    threshold = ceil(n/log_n);
+    //threshold = ceil(0.9*n);
     EV << "threshold = " << threshold << "\n";
 
     // part 1
     part1_starting_round = starting_round;
-    part1_max_num_rounds = 2*log_n;
+    part1_max_num_rounds = log_n;
     GP22_MIS_part1_alg = new GP22MISPart1Alg(node, part1_starting_round);
     GP22_MIS_part1_alg->max_num_rounds = part1_max_num_rounds;
     
@@ -42,23 +44,20 @@ GP22MISAlg::GP22MISAlg(Node *node, int starting_round) {
     // part 3
     // We don't run part 2 in simulation, because to achieve log^4(logn) < log(n), n must > 10^(10^4)!
     part3_starting_round = part1_2_starting_round + part1_2_max_num_rounds;
-    part3_max_num_rounds = 2*log_n;
+    part3_max_num_rounds = 3*log_n;
     GP22_MIS_part3_alg = new LubyMISAlg(node, part3_starting_round);
     GP22_MIS_part3_alg->max_num_rounds = part3_max_num_rounds;
     
     max_num_rounds = part3_starting_round + part3_max_num_rounds;
-    GP22_MIS_part1_alg->max_num_rounds = max_num_rounds;
-    GP22_MIS_part2_alg->max_num_rounds = max_num_rounds;
-    GP22_MIS_part3_alg->max_num_rounds = max_num_rounds;
 
     EV << "part1_starting_round = " << part1_starting_round << ' ' << GP22_MIS_part1_alg->starting_round << '\n';
     EV << "part1_2_starting_round = " << part1_2_starting_round << ' ' << GP22_MIS_part1_2_alg->starting_round << '\n';
     EV << "part2_starting_round = " << part2_starting_round << ' ' << GP22_MIS_part2_alg->starting_round << '\n';
     EV << "part3_starting_round = " << part3_starting_round << ' ' << GP22_MIS_part3_alg->starting_round << '\n';
+    EV << "total max_num_rounds = " << max_num_rounds << '\n';
 }
 
 void GP22MISAlg::handle_message(cMessage *msg) {
-    EV << "GP22_MIS_stage = " << GP22_MIS_stage << '\n';
     if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
         SynchronizedMessage *synchronized_message = dynamic_cast<SynchronizedMessage *>(msg);
         if (synchronized_message->getSynchronizedMessageType() == SYNCHRONIZED_START_ROUND) {
@@ -67,6 +66,7 @@ void GP22MISAlg::handle_message(cMessage *msg) {
         }
     }
     EV << "current_round_id = " << current_round_id << "\n";
+    EV << "GP22_MIS_stage = " << GP22_MIS_stage << '\n';
     if (GP22_MIS_stage == GP22MISStage::PART1) {
         if (node->id <= threshold) {
             call_handle_message(GP22_MIS_part1_alg, msg);
@@ -116,7 +116,6 @@ void GP22MISAlg::stage_transition() {
         GP22_MIS_part2_alg->init_alg_params(this);
 
     } else if (current_round_id == part3_starting_round) {
-        GP22_MIS_part2_alg->clear_message_queue();
         GP22_MIS_stage = GP22MISStage::PART3;
         GP22_MIS_part3_alg->need_to_send = all_remained_neighbors;
         GP22_MIS_part3_alg->status = status;

@@ -16,14 +16,19 @@ cMessage *GP22MISPart1Alg::process_message_queue() {
         NodeStatus neighbor_status = GP22_MIS_message->getStatus();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_status = " << neighbor_status << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) status = NOT_IN_MIS;
+            if (status == UNDECIDED) {
+                status = NOT_IN_MIS;
+                dominator = neighbor_id;
+            }
             all_remained_neighbors.erase(neighbor_id);
         } else if (neighbor_status == NOT_IN_MIS) {
             all_remained_neighbors.erase(neighbor_id);
         }
     }
-    if ((status == UNDECIDED) && (all_remained_neighbors.empty() || (node->id < *all_remained_neighbors.begin())))
+    if ((status == UNDECIDED) && (all_remained_neighbors.empty() || (node->id < *all_remained_neighbors.begin()))) {
         status = IN_MIS;
+        dominator = node->id;
+    }
     
     if (previous_status == UNDECIDED && status != UNDECIDED) {
         GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart1");
@@ -40,5 +45,9 @@ bool GP22MISPart1Alg::is_selected() {
 }
 
 bool GP22MISPart1Alg::is_awake() {
-    return !is_decided();
+    if (!is_decided()) {
+        awake_round_map[current_round_id] = true;
+        return true;
+    }
+    return false;
 }

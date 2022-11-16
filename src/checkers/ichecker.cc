@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "checkers/ichecker.h"
 
 bool IChecker::check_all_decided(bool is_final_check) {
@@ -14,6 +15,7 @@ bool IChecker::check_all_decided(bool is_final_check) {
 
     if (is_final_check) {
         if (!res) {
+            std::sort(failed_all_decided_check_nodes.begin(), failed_all_decided_check_nodes.end());
             EV << "\tFailed all decided check nodes: [";
             for(int node_id : failed_all_decided_check_nodes) EV << node_id << ",";
             EV << "]\n";
@@ -55,6 +57,7 @@ bool IChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_n
 
     if (is_final_check) {
         if (!res) {
+            std::sort(failed_cover_check_nodes.begin(), failed_cover_check_nodes.end());
             EV << "Failed cover check nodes: [";
             for(int node_id : failed_cover_check_nodes) EV << node_id << ",";
             EV << "]\n";

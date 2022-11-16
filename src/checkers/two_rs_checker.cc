@@ -1,5 +1,6 @@
-#include <unordered_map>
 #include <set>
+#include <algorithm>
+#include <unordered_map>
 
 #include "checkers/two_rs_checker.h"
 #include "algorithms/ialg_node.h"
@@ -42,6 +43,7 @@ bool TwoRSChecker::check_cover(bool is_final_check, std::vector<int> need_to_che
 
     if (is_final_check) {
         if (!res) {
+            std::sort(failed_cover_check_nodes.begin(), failed_cover_check_nodes.end());
             EV << "Failed two ruling set cover check nodes: [";
             for(int node_id : failed_cover_check_nodes) EV << node_id << ",";
             EV << "]\n";

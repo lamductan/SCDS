@@ -1,52 +1,55 @@
-#ifndef SCDS_ALGORITHMS_MIS_LAM23_MIS_LAM23_PART1_TWO_RS_H_
-#define SCDS_ALGORITHMS_MIS_LAM23_MIS_LAM23_PART1_TWO_RS_H_
+#ifndef SCDS_ALGORITHMS_MIS_LAM23_PART_1_TWO_RS_H_
+#define SCDS_ALGORITHMS_MIS_LAM23_PART_1_TWO_RS_H_
 
 #include "algorithms/ialg_node.h"
+#include "algorithms/mis/Lam23_mis/Lam23_Part1_Two_RS_BGKO22.h"
+#include "algorithms/mis/Lam23_mis/Lam23_InformingNeighbors.h"
+#include "algorithms/mis/SW08_mis/SW08_MIS.h"
 
-enum LamTwoRSNodeStatus {
-    LAM_TWO_RS_UNDECIDED,
-    LAM_TWO_RS_CLUSTER_CENTER,
-    LAM_TWO_RS_1_HOP,
-    LAM_TWO_RS_2_HOP
-};
-
-enum LamTwoRSAlgRoundType {
-    LAM_TWO_RS_GENERATING_MARK,
-    LAM_TWO_RS_INFORMING_STATUS_1,
-    LAM_TWO_RS_INFORMING_STATUS_2,
-};
 
 class LamTwoRSStage : public BaseAlgStage {
 protected:
-    static constexpr int get_max_value() { return LAM_TWO_RS_STAGE; }
+    static constexpr int get_max_value() { return PART2; }
 public:
-    static const int LAM_TWO_RS_STAGE = BaseAlgStage::get_max_value() + 1;
+    static const int PART1 = BaseAlgStage::get_max_value() + 1; // 2-RulingSet-BGKO22
+    static const int PART1_2 = BaseAlgStage::get_max_value() + 2; // Informing 2-RulingSet-BGKO22 result
+    static const int PART2 = BaseAlgStage::get_max_value() + 3; // MIS-SW08
 };
 
 
 class LamTwoRSAlg : public IAlgNode {
 public:
-    bool marked = false;
-    int degree;
-    int parent;
-    int cluster_center_id;
-    LamTwoRSNodeStatus Lam_Two_RS_status = LAM_TWO_RS_UNDECIDED;
-    LamTwoRSNodeStatus Lam_Two_RS_previous_status = LAM_TWO_RS_UNDECIDED;
-    LamTwoRSAlgRoundType Lam_Two_RS_alg_round_type = LAM_TWO_RS_INFORMING_STATUS_2;
+    int n;
+    int log_n;
 
-    cMessage *process_message_queue_for_generate_mark_round();
-    cMessage *process_message_queue_for_informing_status_1_round();
-    cMessage *process_message_queue_for_informing_status_2_round();
+    int part1_starting_round = 0;
+    int part1_max_num_rounds = 0;
+    
+    int part1_2_starting_round = 0;
+    int part1_2_max_num_rounds = 0;
+
+    int part2_starting_round = 0;
+    int part2_max_num_rounds = 0;
+
+    int Lam_Two_RS_stage = LamTwoRSStage::INITIAL_STAGE;
+    LamTwoRSNodeStatus Lam_Two_RS_status = LAM_TWO_RS_UNDECIDED;
+
+    BGKO22TwoRSAlg *Lam_Two_RS_part1_alg = nullptr;
+    LamInformingNeighborsAlg *Lam_Two_RS_part1_2_alg = nullptr;
+    SW08MISAlg *Lam_Two_RS_part2_alg = nullptr;
+
+    int two_rs_cluster_center_id = -1;
 
 public:
     virtual void set_alg_type() override;
     LamTwoRSAlg(Node *node, int starting_round=1);
+    virtual void handle_message(cMessage *msg) override;
     virtual void stage_transition() override;
-    virtual cMessage *process_message_queue() override;
     virtual bool is_selected() override;
     virtual bool is_decided() override;
-    virtual void update_previous_status() override;
-    virtual void record_decided_round() override;
+    virtual void call_handle_message(IAlgNode *alg, cMessage *msg) override;
+
+    virtual ~LamTwoRSAlg();
 };
 
-#endif //SCDS_ALGORITHMS_MIS_LAM23_MIS_LAM23_PART1_TWO_RS_H_
+#endif //SCDS_ALGORITHMS_MIS_LAM23_PART_1_TWO_RS_H_

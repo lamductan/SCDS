@@ -10,6 +10,7 @@
 using namespace omnetpp;
 
 class IAlgNode;
+class NetworkAlg;
 
 class Node : public IModule
 {
@@ -22,8 +23,6 @@ protected:
 
 public:
     int id;
-    int cluster_id;
-    int color;
     int n_nodes;
     cGate *networkWirelessIn;
     std::unordered_map<int, cGate *> neighbor_gates;
@@ -31,6 +30,7 @@ public:
     std::vector<int> all_neighbors_original; //so it's better to save a copy
     void connect(cGate *src, cGate *dest, int destid);
     IAlgNode *alg;
+    NetworkAlg *network_alg;
     bool is_decided();
     virtual ~Node();
 };

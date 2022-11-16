@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <iomanip>
 
 #include "common.h"
 #include "utils/utils.h"
@@ -126,6 +127,10 @@ void Network::buildNetwork(cModule *parent)
     EV << "Done buildNetwork " << parent->getName() << '\n';
     networkFile.close();
     alg = new NetworkAlg(this, alg_name);
+    for(auto it : nodes) {
+        Node *node = it.second;
+        node->network_alg = alg;
+    }
     parent->callInitialize();
 }
 
@@ -183,16 +188,41 @@ void Network::log_result() {
     mkPath(log_dir.c_str());
     
     std::fstream f(log_path.c_str(), std::ios::out);
-    f << "#n total_awake_rounds average_awake_rounds finished_round n_selected_nodes\n";
-    f << n_nodes << ' ' << total_awake_rounds << ' ' << 1.0*total_awake_rounds/n_nodes
-      << ' ' << finished_round << ' ' << selected_nodes.size() << "\n";
-    
+
     std::vector<int> node_ids = getMapKeys<int, Node *>(nodes);
+    std::vector<std::vector<bool>> all_awake_round_vec(n_nodes);
+    for(int node_id : node_ids) {
+        Node *node = nodes[node_id];
+        std::vector<bool> awake_round_vec = map_to_vector(node->alg->awake_round_map, finished_round);
+        all_awake_round_vec[node_id] = awake_round_vec;
+    }
+
+    std::vector<int> idle_rounds;
+    for(int i = 1; i < finished_round; ++i) {
+        if (is_idle_round(all_awake_round_vec, i)) idle_rounds.push_back(i);
+    }
+
+    f << "#n n_selected_nodes total_awake_rounds average_awake_rounds finished_round n_idle_rounds n_active_rounds\n";
+    f << n_nodes << ' ' << selected_nodes.size() << ' ' << total_awake_rounds << ' ' << 1.0*total_awake_rounds/n_nodes
+      << ' ' << finished_round << ' ' << idle_rounds.size() << ' ' << (finished_round - idle_rounds.size()) << "\n";
+    
+    f << "#idle rounds:\n";
+    for(int x : idle_rounds) f << x << ' ';
+    f << '\n';
+
     f << "\n#node_id node_n_awake_rounds node_decided_round node_last_communication_round\n";
     for(int node_id : node_ids) {
         Node *node = nodes[node_id];
-        f << node_id << ' ' << node->alg->n_awake_rounds << ' ' << node->alg->decided_round 
-          << ' ' <<node->alg->last_communication_round << '\n';
+        f << std::setfill('0') << std::setw(4) << node_id << ' ' << node->alg->n_awake_rounds << ' '
+          << node->alg->decided_round << ' ' <<node->alg->last_communication_round << '\n';
+    }
+
+    f << "\n#awake_rounds\n";
+    for(int node_id : node_ids) {
+        f << std::setfill('0') << std::setw(4) << node_id << ' ';
+        for(int i = 1; i < all_awake_round_vec[node_id].size(); ++i) 
+            f << all_awake_round_vec[node_id][i] << ' ';
+        f << '\n';
     }
     
     f << "\n#selected nodes:\n";

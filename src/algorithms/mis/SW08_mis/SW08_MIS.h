@@ -1,26 +1,26 @@
-#ifndef SCDS_ALGORITHMS_MIS_KW08_MIS_H_
-#define SCDS_ALGORITHMS_MIS_KW08_MIS_H_
+#ifndef SCDS_ALGORITHMS_MIS_SW08_MIS_H_
+#define SCDS_ALGORITHMS_MIS_SW08_MIS_H_
 
 #include <unordered_map>
 #include <set>
 #include "algorithms/ialg_node.h"
 
-enum KW08NodeStatus {
-    KW08_COMPETITOR,
-    KW08_RULER,
-    KW08_RULED,
-    KW08_DOMINATOR,
-    KW08_DOMINATED
+enum SW08NodeStatus {
+    SW08_COMPETITOR,
+    SW08_RULER,
+    SW08_RULED,
+    SW08_DOMINATOR,
+    SW08_DOMINATED
 };
 
-enum KW08AlgRoundType {
-    KW08_EXCHANGING_R,
-    KW08_EXCHANGING_STATE_1,
-    KW08_EXCHANGING_STATE_2
+enum SW08AlgRoundType {
+    SW08_EXCHANGING_R,
+    SW08_EXCHANGING_STATE_1,
+    SW08_EXCHANGING_STATE_2
 };
 
 
-class KW08MISStage : public BaseAlgStage {
+class SW08MISStage : public BaseAlgStage {
 protected:
     static constexpr int get_max_value() { return MIS_STAGE; }
 public:
@@ -28,7 +28,7 @@ public:
 };
 
 
-class KW08MISAlg : public IAlgNode {
+class SW08MISAlg : public IAlgNode {
 public:
     static const int N_ROUNDS_PER_COMPETITION = 3;
     static const int N_PHASES_PER_STAGE = 5;
@@ -44,13 +44,13 @@ public:
 
     int r;
     std::set<int> undecided_neighbors;
-    std::unordered_map<int, KW08NodeStatus> neighbors_status;
+    std::unordered_map<int, SW08NodeStatus> neighbors_status;
     std::unordered_map<int, int> neighbors_r;
-    KW08NodeStatus KW08_previous_status = KW08_COMPETITOR;
+    SW08NodeStatus SW08_previous_status = SW08_COMPETITOR;
 
-    KW08AlgRoundType KW08_alg_round_type = KW08_EXCHANGING_STATE_2;
+    SW08AlgRoundType SW08_alg_round_type = SW08_EXCHANGING_STATE_2;
 
-    bool is_decided_status(KW08NodeStatus node_status);
+    bool is_decided_status(SW08NodeStatus node_status);
     int find_smallest_r();
     bool is_new_stage();
     bool is_new_phase();
@@ -64,14 +64,15 @@ public:
     void set_need_to_send_to_undecided_neighbors();
 
 public:
-    KW08NodeStatus KW08_status = KW08_COMPETITOR;
+    SW08NodeStatus SW08_status = SW08_COMPETITOR;
     virtual void set_alg_type() override;
-    KW08MISAlg(Node *node, int starting_round=1);
+    SW08MISAlg(Node *node, int starting_round=1);
     virtual void stage_transition() override;
     virtual cMessage *process_message_queue() override;
     virtual bool is_selected() override;
     virtual bool is_decided() override;
     virtual void update_previous_status() override;
+    virtual bool is_awake() override;
 };
 
-#endif //SCDS_ALGORITHMS_MIS_KW08_MIS_H_
+#endif //SCDS_ALGORITHMS_MIS_SW08_MIS_H_

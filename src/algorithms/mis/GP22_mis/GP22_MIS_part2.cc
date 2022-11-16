@@ -39,7 +39,11 @@ int GP22MISPart2Alg::find_first_awake_round_in_iteration() {
 }
 
 bool GP22MISPart2Alg::is_awake() {
-    return current_round_id_in_iteration >= first_awake_round_in_iteration;
+    if (current_round_id_in_iteration >= first_awake_round_in_iteration) {
+        awake_round_map[current_round_id] = true;
+        return true;
+    }
+    return false;
 }
 
 void GP22MISPart2Alg::stage_transition() {
@@ -77,7 +81,10 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_mark_round() {
         NodeStatus neighbor_status = GP22_MIS_message->getStatus();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_status = " << neighbor_status << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) status = NOT_IN_MIS;
+            if (status == UNDECIDED) {
+                status = NOT_IN_MIS;
+                dominator = neighbor_id;
+            }
             all_remained_neighbors.erase(neighbor_id);
         } else if (neighbor_status == NOT_IN_MIS) {
             all_remained_neighbors.erase(neighbor_id);
@@ -104,7 +111,10 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_status_round() {
         bool neighbor_marked = GP22_MIS_message->getMarked();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_marked = " << neighbor_marked << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) status = NOT_IN_MIS;
+            if (status == UNDECIDED) {
+                status = NOT_IN_MIS;
+                dominator = neighbor_id;
+            }
             all_remained_neighbors.erase(neighbor_id);
         } else if (neighbor_status == NOT_IN_MIS) {
             all_remained_neighbors.erase(neighbor_id);
@@ -112,7 +122,10 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_status_round() {
         if (neighbor_marked) has_one_marked_neighbor = true;
     }
     if (!marked && status == UNDECIDED) return nullptr;
-    if (marked && !has_one_marked_neighbor) status = IN_MIS;
+    if (marked && !has_one_marked_neighbor) {
+        status = IN_MIS;
+        dominator = node->id;
+    }
     GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart2");
     new_message->setSenderId(node->id);
     new_message->setStatus(status);

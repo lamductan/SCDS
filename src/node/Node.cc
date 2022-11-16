@@ -1,14 +1,14 @@
 #include "node/Node.h"
 #include "algorithms/alg_factory.h"
+#include "algorithms/network_alg.h"
 
 void Node::initialize() {
     id = par("id").intValue();
-    cluster_id = id;
-    color = -1;
     n_nodes = par("n_nodes");
     EV << "Node::initialize() -- " << "n_nodes = " << n_nodes << ' ' 
        << "par(\"algorithm\").stringValue()" << par("algorithm").stringValue() << '\n';
     alg = AlgFactory::create_alg(this, par("algorithm").stringValue(), 1);
+    if (id == 0) network_alg->max_num_rounds = alg->max_num_rounds;
     networkWirelessIn = getParentModule()->getSubmodule("net")->gate("wirelessIn");
 }
 

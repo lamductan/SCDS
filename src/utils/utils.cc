@@ -92,3 +92,24 @@ std::ostream &print_binary(int x, std::ostream& os) {
     os << bs_x.to_string();
     return os;
 }
+
+std::map<int,bool> combine(std::map<int,bool> &m1, std::map<int,bool> &m2) {
+    std::map<int,bool> m;
+    m = m1;
+    for(auto it : m2) m[it.first] = it.second;
+    return m;
+}
+
+std::vector<bool> map_to_vector(std::map<int,bool> &awake_round_map, int finished_round) {
+    std::vector<bool> awake_round_vec(finished_round);
+    for(int i = 1; i < finished_round; ++i) awake_round_vec[i] = awake_round_map[i];
+    return awake_round_vec;
+}
+
+bool is_idle_round(std::vector<std::vector<bool>> &all_awake_round_vec, int round_id) {
+    int n_nodes = all_awake_round_vec.size();
+    for(int i = 0; i < n_nodes; ++i) {
+        if (all_awake_round_vec[i][round_id]) return false;
+    }
+    return true;
+}

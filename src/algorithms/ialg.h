@@ -8,6 +8,7 @@ using namespace omnetpp;
 enum AlgType {
     DUMMY_ALG,
     MIS_ALG,
+    TWO_RS_ALG,
     CDS_ALG
 };
 

@@ -1,7 +1,8 @@
 #!/bin/bash
 # ./run.sh run/20/sparse/omnetpp_000.ini dummy
 # ./run.sh run/20/sparse/omnetpp_000.ini MIS-Luby
-# ./run.sh run/20/sparse/omnetpp_000.ini TwoRS-Lam > results/a.txt
+# ./run.sh run/20/sparse/omnetpp_000.ini TwoRS-Lam > results/a4.txt
+# ./run.sh run/1900/sparse/omnetpp_000.ini TwoRS-BGKO22 > results/a4.txt
 
 omnetpp=${1:-"run/20/sparse/omnetpp_000.ini"}
 config=${2:-"MIS-KW08"}

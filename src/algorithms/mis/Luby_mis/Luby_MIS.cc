@@ -54,11 +54,14 @@ cMessage *LubyMISAlg::process_message_queue_for_generate_mark_round() {
         if (neighbor_status != UNDECIDED) need_to_send.erase(neighbor_id);
         if (neighbor_status == IN_MIS) {
             status = NOT_IN_MIS;
+            dominator = neighbor_id;
+            EV << "\tBe dominated by node" << dominator << "\n";
             return nullptr;
         }
     }
     
     degree = need_to_send.size();
+    EV << "\tJoin a competition\n";
     marked = node->bernoulli(1.0/(2*degree));
     LubyMISMessage *new_message = new LubyMISMessage("LubyMIS");
     new_message->setSenderId(node->id);
@@ -74,9 +77,12 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
     if (degree == 0) {
         EV << "\t\t" << "degree = 0 --> join MIS\n";
         status = IN_MIS;
+        dominator = node->id;
         return nullptr;
     } else {
-        EV << "\t\t" << "degree = " << degree << ", marked = " << marked << " --> find higher priority message\n";
+        EV << "\t\t" << "degree = " << degree << ", marked = " << marked;
+        if (marked) EV << " --> find higher priority message\n";
+        else EV << "\n";
         need_to_send.clear();
         for(cMessage *msg : message_queue) {
             LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
@@ -91,9 +97,11 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
                 marked = false;
             }
         }
-        EV << "\t\t" << "marked = " << marked << "\n";
+        EV << "\t" << "marked = " << marked << "\n";
         if (!marked) return nullptr;
+        EV << "\tJoin MIS\n";
         status = IN_MIS;
+        dominator = node->id;
         LubyMISMessage *new_message = new LubyMISMessage("LubyMIS");
         new_message->setSenderId(node->id);
         new_message->setStatus(status);

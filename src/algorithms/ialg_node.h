@@ -48,6 +48,9 @@ public:
     int n_sleep_rounds = 0;
     int last_communication_round = -1;
     int decided_round = -1;
+    std::map<int,bool> awake_round_map;
+
+    int dominator = -1;
     
     virtual bool is_selected(); //should be overriden
 

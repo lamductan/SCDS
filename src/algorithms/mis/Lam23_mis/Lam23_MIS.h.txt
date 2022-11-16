@@ -29,6 +29,12 @@ public:
     
     int part1_2_starting_round = 0;
     int part1_2_max_num_rounds = 0;
+
+    int part2_starting_round = 0;
+    int part2_max_num_rounds = 0;
+
+    int part2_3_starting_round = 0;
+    int part2_3_max_num_rounds = 0;
     
     int part3_starting_round = 0;
     int part3_max_num_rounds = 0;
@@ -37,6 +43,8 @@ public:
 
     LamTwoRSAlg *Lam_MIS_part1_alg = nullptr;
     LamInformingNeighborsAlg *Lam_MIS_part1_2_alg = nullptr;
+    IAlgNode *Lam_MIS_part2_alg = nullptr;
+    LamInformingNeighborsAlg *Lam_MIS_part2_3_alg = nullptr;
     LamMISPart3Alg *Lam_MIS_part3_alg = nullptr;
 
     std::map<int, int> neighbor_colors;
@@ -46,6 +54,7 @@ public:
     LamMISAlg(Node *node, int starting_round=1);
     virtual void handle_message(cMessage *msg) override;
     virtual void stage_transition() override;
+    virtual bool is_awake() override;
     virtual bool is_selected() override;
 
     virtual ~LamMISAlg();

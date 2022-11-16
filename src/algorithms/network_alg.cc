@@ -12,7 +12,9 @@ NetworkAlg::NetworkAlg(Network *network, const char *alg_name) {
 void NetworkAlg::set_alg_type() {
     if (strncmp(alg_name, "MIS", 3) == 0) {
         alg_type = MIS_ALG;
-    } else if (strncmp(alg_name, "CDS", 3) == 0) {
+    } else if (strncmp(alg_name, "2RS", 3) == 0) {
+        alg_type = TWO_RS_ALG;
+    }else if (strncmp(alg_name, "CDS", 3) == 0) {
         alg_type = CDS_ALG;
     } else {
         alg_type = DUMMY_ALG;
