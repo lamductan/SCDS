@@ -47,4 +47,5 @@ bool GP22MISPart1_2_Alg::is_awake() {
         awake_round_map[current_round_id] = true;
         return true;
     }
+    return false;
 }
