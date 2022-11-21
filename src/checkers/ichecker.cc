@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "checkers/ichecker.h"
 
-bool IChecker::check_all_decided(bool is_final_check) {
+bool IChecker::check_all_decided(bool is_final_check) const {
     EV << "IChecker::check_all_decided()\n";
     std::vector<int> failed_all_decided_check_nodes;
     for(auto it : network->nodes) {
@@ -28,7 +28,7 @@ bool IChecker::check_all_decided(bool is_final_check) {
 }
 
 
-bool IChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_nodes) {
+bool IChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_nodes) const {
     EV << "IChecker::check_cover()\n";
     std::unordered_map<int, bool> covered;
     for(int selected_node_id : selected_nodes) {
@@ -69,7 +69,7 @@ bool IChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_n
     return res;
 }
 
-bool IChecker::check_independent(bool is_final_check) {
+bool IChecker::check_independent(bool is_final_check) const {
     EV << "IChecker::check_independent()\n";
     std::set<int> selected_nodes_set(selected_nodes.begin(), selected_nodes.end());
     for(int selected_node_id : selected_nodes) {

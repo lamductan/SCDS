@@ -10,6 +10,5 @@
 #include "algorithms/mis/GP22_mis/GP22_MIS.h"
 #include "algorithms/mis/Lam23_mis/Lam23_Part1_Two_RS_BGKO22.h"
 #include "algorithms/mis/Lam23_mis/Lam23_MIS.h"
-#include "algorithms/mis/Lam23_mis/Lam23_MIS_M1.h"
 
 #endif //SCDS_ALGORITHMS_ALGS_H_

@@ -6,7 +6,7 @@
 class DummyChecker : public IChecker {
 public:
     DummyChecker(Network *network) : IChecker(network) {}
-    virtual bool check(bool is_final_check=true) { return true; }
+    virtual bool check(bool is_final_check=true) const { return true; }
     virtual ~DummyChecker() {}
 };
 

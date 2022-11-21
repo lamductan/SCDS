@@ -11,7 +11,7 @@ TwoRSChecker::TwoRSChecker(Network *network) : IChecker(network) {
     selected_nodes = network->get_selected_nodes();
 }
 
-bool TwoRSChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_nodes) {
+bool TwoRSChecker::check_cover(bool is_final_check, std::vector<int> need_to_check_nodes) const {
     EV << "TwoRSChecker::check_cover()\n";
     std::unordered_map<int, bool> covered;
     for(int selected_node_id : selected_nodes) {
@@ -55,7 +55,7 @@ bool TwoRSChecker::check_cover(bool is_final_check, std::vector<int> need_to_che
     return res;
 }
 
-bool TwoRSChecker::check(bool is_final_check) {
+bool TwoRSChecker::check(bool is_final_check) const {
     if (!check_all_decided(is_final_check)) {
         if (is_final_check) EV_ERROR << "Failed ALL DECIDIED check!\n";
         return false;

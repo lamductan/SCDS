@@ -10,7 +10,7 @@ MISChecker::MISChecker(Network *network) : IChecker(network) {
     selected_nodes = network->get_selected_nodes();
 }
 
-bool MISChecker::check(bool is_final_check) {
+bool MISChecker::check(bool is_final_check) const {
     if (!check_all_decided(is_final_check)) {
         if (is_final_check) EV_ERROR << "Failed ALL DECIDED check!\n";
         return false;

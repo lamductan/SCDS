@@ -11,7 +11,7 @@ public:
     int color = -1;
     LamTwoRSNodeStatus Lam_Two_RS_status = LAM_TWO_RS_UNDECIDED;
     std::set<int> all_remained_neighbors;
-    std::set<std::pair<int,int>> neighbor_colors; //TODO: init color in LamMISAlg stage_transition().
+    std::set<std::pair<int,int>> neighbor_colors;
 
 public:
     virtual void set_alg_type() override;
