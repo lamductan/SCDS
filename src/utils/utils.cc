@@ -1,8 +1,9 @@
 #include <string.h>
 #include <sys/stat.h>
-#include <stdexcept>
 #include <math.h>
 #include <bitset>
+#include <sstream>
+#include <stdexcept>
 
 #include "utils/utils.h"
 
@@ -112,4 +113,19 @@ bool is_idle_round(std::vector<std::vector<bool>> &all_awake_round_vec, int roun
         if (all_awake_round_vec[i][round_id]) return false;
     }
     return true;
+}
+
+std::vector<std::string> splitString(const std::string& s, char delimiter) {
+    std::stringstream ss(s);
+    std::string token;
+    std::vector<std::string> tokens;
+    while (getline(ss, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+bool is_subset(const std::set<int>& a, const std::set<int> &b) {
+    for(int x : a) if (b.count(x) == 0) return false;
+    return a.size() < b.size();
 }

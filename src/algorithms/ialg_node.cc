@@ -6,6 +6,7 @@ using namespace omnetpp;
 void IAlgNode::init(Node *node, int starting_round) {
     this->starting_round = starting_round;
     this->node = node;
+    this->id = node->id;
     this->n_nodes = node->n_nodes;
     set_alg_type();
     set_max_num_rounds(this->n_nodes);
@@ -52,7 +53,7 @@ void IAlgNode::handle_message(cMessage *msg) {
 }
 
 void IAlgNode::record_decided_round() {
-    if (previous_status == UNDECIDED && status != UNDECIDED) {
+    if (previous_MIS_status == UNDECIDED && MIS_status != UNDECIDED) {
         decided_round = current_round_id;
     }
 }
@@ -127,7 +128,8 @@ void IAlgNode::send_new_message(cMessage *msg, double delay) {
 
 void IAlgNode::listen_new_message(cMessage *msg) {
     EV << "is_awake() = " << is_awake() << '\n';
-    if (!is_awake() || is_decided()) delete msg;
+    if (!is_awake()) delete msg;
+    else if (alg_type == MIS_ALG && is_decided()) delete msg;
     else {
         message_queue.push_back(msg);
         last_communication_round = current_round_id;
@@ -136,19 +138,20 @@ void IAlgNode::listen_new_message(cMessage *msg) {
 }
 
 bool IAlgNode::is_decided() {
-    return (status != UNDECIDED);
+    return (MIS_status != UNDECIDED);
 }
 
 void IAlgNode::update_previous_status() {
-    previous_status = status;
+    previous_MIS_status = MIS_status;
 }
 
 void IAlgNode::call_handle_message(IAlgNode *alg, cMessage *msg) {
     update_previous_status();
     alg->handle_message(msg);
-    status = alg->status;
+    MIS_status = alg->MIS_status;
     dominator = alg->dominator;
     awake_round_map[current_round_id] = alg->awake_round_map[current_round_id];
+    CDS_status = alg->CDS_status;
     if (is_decided() && alg->decided_round > -1)
         decided_round = alg->decided_round;
     if (alg->last_communication_round > -1)

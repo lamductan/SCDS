@@ -50,18 +50,25 @@ void LamMISAlg::handle_message(cMessage *msg) {
     }
     EV << "current_round_id = " << current_round_id << "\n";
     EV << "LamMISAlg::Lam_MIS_stage = " << Lam_MIS_stage << '\n';
-    if (Lam_MIS_stage == LamMISStage::PART1) {
+
+    switch (Lam_MIS_stage) {
+    case LamMISStage::PART1:
         call_handle_message(Lam_MIS_part1_alg, msg);
-    } else if (Lam_MIS_stage == LamMISStage::PART1_2) {
+        break;
+    case LamMISStage::PART1_2:
         call_handle_message(Lam_MIS_part1_2_alg, msg);
-    } else if (Lam_MIS_stage == LamMISStage::PART3) {
+        break;
+    case LamMISStage::PART3:
         call_handle_message(Lam_MIS_part3_alg, msg);
+        break;
+    default:
+        break;
     }
 
     n_awake_rounds = Lam_MIS_part1_alg->n_awake_rounds 
         + Lam_MIS_part1_2_alg->n_awake_rounds
         + Lam_MIS_part3_alg->n_awake_rounds;
-    EV << "LamMISAlg::status after round #" << current_round_id << " = " << status << ": is_decided() = " << is_decided() << '\n';
+    EV << "LamMISAlg::status after round #" << current_round_id << " = " << MIS_status << ": is_decided() = " << is_decided() << '\n';
     EV << "LamMISAlg::last_communication_round : " << last_communication_round << '\n';
     EV << "LamMISAlg::n_awake_rounds = " << n_awake_rounds << '\n';
     EV << "LamMISAlg::decided_round = " << decided_round << '\n';
@@ -76,9 +83,9 @@ void LamMISAlg::stage_transition() {
         node->all_neighbors = node->all_neighbors_original;
         Lam_MIS_part1_2_alg->two_rs_cluster_center_id = Lam_MIS_part1_alg->two_rs_cluster_center_id;
         if (Lam_MIS_part1_alg->Lam_Two_RS_status == LAM_TWO_RS_CLUSTER_CENTER) {
-            Lam_MIS_part1_2_alg->status = status = IN_MIS;
+            Lam_MIS_part1_2_alg->MIS_status = MIS_status = IN_MIS;
         } else if (Lam_MIS_part1_alg->Lam_Two_RS_status == LAM_TWO_RS_1_HOP) {
-            Lam_MIS_part1_2_alg->status = status = NOT_IN_MIS;
+            Lam_MIS_part1_2_alg->MIS_status = MIS_status = NOT_IN_MIS;
         }
         Lam_MIS_part1_2_alg->color = Lam_MIS_part1_alg->two_rs_cluster_center_id;
 
@@ -86,15 +93,15 @@ void LamMISAlg::stage_transition() {
         Lam_MIS_stage = LamMISStage::PART3;
         Lam_MIS_part3_alg->color = Lam_MIS_part1_2_alg->color;
         Lam_MIS_part3_alg->neighbor_colors = Lam_MIS_part1_2_alg->neighbor_colors;
-        Lam_MIS_part3_alg->status = status;
+        Lam_MIS_part3_alg->MIS_status = MIS_status;
         EV << "LamMISAlg::Lam_MIS_part3_alg->color = " << Lam_MIS_part3_alg->color
-           << ", Lam_MIS_part3_alg->status = " << Lam_MIS_part3_alg->status << "\n";
+           << ", Lam_MIS_part3_alg->MIS_status = " << Lam_MIS_part3_alg->MIS_status << "\n";
     }
-    EV << "LamMISAlg::status = " << status << ", decided_round = " << decided_round << '\n';
+    EV << "LamMISAlg::MIS_status = " << MIS_status << ", decided_round = " << decided_round << '\n';
 }
 
 bool LamMISAlg::is_selected() {
-    return (status == IN_MIS);
+    return (MIS_status == IN_MIS);
 }
 
 LamMISAlg::~LamMISAlg() {

@@ -16,7 +16,7 @@ protected:
     int color;
     int two_rs_cluster_center_id;
     void copyInformation(
-        int sender_id, bool marked, int degree, NodeStatus status,
+        int sender_id, bool marked, int degree, MISNodeStatus MIS_status,
         LamTwoRSNodeStatus two_rs_status, int color, int two_rs_cluster_center_id
     );
     void copyInformation(LamTwoRSNodeStatus two_rs_status, int color, int two_rs_cluster_center_id);

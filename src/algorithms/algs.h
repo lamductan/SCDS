@@ -11,4 +11,6 @@
 #include "algorithms/mis/Lam23_mis/Lam23_Part1_Two_RS_BGKO22.h"
 #include "algorithms/mis/Lam23_mis/Lam23_MIS.h"
 
+#include "algorithms/cds/cds_simple/simple_cds.h"
+
 #endif //SCDS_ALGORITHMS_ALGS_H_

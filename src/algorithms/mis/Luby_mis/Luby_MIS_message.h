@@ -15,9 +15,9 @@ protected:
     int sender_id;
     bool marked;
     int degree = -1;
-    NodeStatus status;
+    MISNodeStatus MIS_status;
 
-    void copyInformation(int sender_id, bool marked, int degree, NodeStatus status);
+    void copyInformation(int sender_id, bool marked, int degree, MISNodeStatus MIS_status);
 
 public:
     LubyMISMessage(const char *name=nullptr, short kind=LUBY_MIS_MESSAGE);
@@ -32,8 +32,8 @@ public:
     void setMarked(bool marked);
     int getDegree() const;
     void setDegree(int degree);
-    NodeStatus getStatus() const;
-    void setStatus(NodeStatus status);
+    MISNodeStatus getStatus() const;
+    void setStatus(MISNodeStatus MIS_status);
 };
 
 #endif //SCDS_ALGORITHMS_MIS_LUBY_MIS_LUBY_MIS_MESSAGE_H_

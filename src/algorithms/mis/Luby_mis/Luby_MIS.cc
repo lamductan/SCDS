@@ -22,9 +22,9 @@ void LubyMISAlg::stage_transition() {
 
 cMessage *LubyMISAlg::process_message_queue() {
     EV << "\t" << "LubyMISAlg::process_message_queue()\n";
-    previous_status = status;
+    previous_MIS_status = MIS_status;
     if (is_decided()) {
-        EV << "\t\t" << "Status is " << status << " decided at round " << last_communication_round << "\n";
+        EV << "\t\t" << "Status is " << MIS_status << " decided at round " << last_communication_round << "\n";
         return nullptr;
     }
 
@@ -50,10 +50,10 @@ cMessage *LubyMISAlg::process_message_queue_for_generate_mark_round() {
     for(cMessage *msg : message_queue) {
         LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
         int neighbor_id = Luby_MIS_message->getSenderId();
-        NodeStatus neighbor_status = Luby_MIS_message->getStatus();
+        MISNodeStatus neighbor_status = Luby_MIS_message->getStatus();
         if (neighbor_status != UNDECIDED) need_to_send.erase(neighbor_id);
         if (neighbor_status == IN_MIS) {
-            status = NOT_IN_MIS;
+            MIS_status = NOT_IN_MIS;
             dominator = neighbor_id;
             EV << "\tBe dominated by node" << dominator << "\n";
             return nullptr;
@@ -76,7 +76,7 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
     degree = message_queue.size();
     if (degree == 0) {
         EV << "\t\t" << "degree = 0 --> join MIS\n";
-        status = IN_MIS;
+        MIS_status = IN_MIS;
         dominator = node->id;
         return nullptr;
     } else {
@@ -100,16 +100,16 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round() {
         EV << "\t" << "marked = " << marked << "\n";
         if (!marked) return nullptr;
         EV << "\tJoin MIS\n";
-        status = IN_MIS;
+        MIS_status = IN_MIS;
         dominator = node->id;
         LubyMISMessage *new_message = new LubyMISMessage("LubyMIS");
         new_message->setSenderId(node->id);
-        new_message->setStatus(status);
+        new_message->setStatus(MIS_status);
         return new_message;
     }
     return nullptr;
 }
 
 bool LubyMISAlg::is_selected() {
-    return (status == IN_MIS);
+    return (MIS_status == IN_MIS);
 }

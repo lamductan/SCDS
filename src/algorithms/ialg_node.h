@@ -10,12 +10,15 @@
 
 using namespace omnetpp;
 
-enum NodeStatus {
+enum MISNodeStatus {
     UNDECIDED,
     IN_MIS,
-    NOT_IN_MIS,
-    IN_CDS,
-    NOT_IN_CDS
+    NOT_IN_MIS
+};
+
+enum CDSNodeStatus {
+    NOT_IN_CDS,
+    IN_CDS
 };
 
 
@@ -33,8 +36,11 @@ class IAlgNode : public IAlg
 {
 public:
     Node *node;
-    NodeStatus status = UNDECIDED;
-    NodeStatus previous_status = UNDECIDED;
+    int id;
+    MISNodeStatus MIS_status = UNDECIDED;
+    MISNodeStatus previous_MIS_status = UNDECIDED;
+    CDSNodeStatus CDS_status = NOT_IN_CDS;
+    CDSNodeStatus previous_CDS_status = NOT_IN_CDS;
     std::vector<cMessage *> message_queue;
     std::set<int> need_to_send;
     int current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;

@@ -2,20 +2,20 @@
 
 LubyMISMessage::LubyMISMessage(const char* name, short kind) : cMessage(name, kind) {}
 
-void LubyMISMessage::copyInformation(int sender_id, bool marked, int degree, NodeStatus status) {
+void LubyMISMessage::copyInformation(int sender_id, bool marked, int degree, MISNodeStatus MIS_status) {
     this->sender_id = sender_id;
     this->marked = marked;
     this->degree = degree;
-    this->status = status;
+    this->MIS_status = MIS_status;
 }
 
 LubyMISMessage::LubyMISMessage(const LubyMISMessage& other) : cMessage((cMessage) other) {
-    copyInformation(other.sender_id, other.marked, other.degree, other.status);
+    copyInformation(other.sender_id, other.marked, other.degree, other.MIS_status);
 }
 
 LubyMISMessage& LubyMISMessage::operator=(const LubyMISMessage& other) {
     cMessage::operator=(other);
-    copyInformation(other.sender_id, other.marked, other.degree, other.status);
+    copyInformation(other.sender_id, other.marked, other.degree, other.MIS_status);
     return *this;
 }
 
@@ -41,10 +41,10 @@ void LubyMISMessage::setDegree(int degree) {
     this->degree = degree;
 }
 
-NodeStatus LubyMISMessage::getStatus() const {
-    return status;
+MISNodeStatus LubyMISMessage::getStatus() const {
+    return MIS_status;
 }
 
-void LubyMISMessage::setStatus(NodeStatus status) {
-    this->status = status;
+void LubyMISMessage::setStatus(MISNodeStatus MIS_status) {
+    this->MIS_status = MIS_status;
 }

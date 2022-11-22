@@ -65,34 +65,44 @@ void GP22MISAlg::handle_message(cMessage *msg) {
             stage_transition();
         }
     }
+    
     EV << "current_round_id = " << current_round_id << "\n";
     EV << "GP22_MIS_stage = " << GP22_MIS_stage << '\n';
-    if (GP22_MIS_stage == GP22MISStage::PART1) {
+
+    switch (GP22_MIS_stage) {
+    case GP22MISStage::PART1: {
         if (node->id <= threshold) {
             call_handle_message(GP22_MIS_part1_alg, msg);
         } else {
             delete msg;
         }
-    } else if (GP22_MIS_stage == GP22MISStage::PART1_2) {
+        break;
+    }
+    case GP22MISStage::PART1_2:
         call_handle_message(GP22_MIS_part1_2_alg, msg);
-    } else if (GP22_MIS_stage == GP22MISStage::PART2) {
+        break;
+    case GP22MISStage::PART2:
         call_handle_message(GP22_MIS_part2_alg, msg);
-    } else if (GP22_MIS_stage == GP22MISStage::PART3) {
+        break;
+    case GP22MISStage::PART3:
         call_handle_message(GP22_MIS_part3_alg, msg);
+        break;
+    default:
+        break;
     }
 
     n_awake_rounds = GP22_MIS_part1_alg->n_awake_rounds 
         + GP22_MIS_part1_2_alg->n_awake_rounds
         + GP22_MIS_part2_alg->n_awake_rounds
         + GP22_MIS_part3_alg->n_awake_rounds;
-    EV << "status after round #" << current_round_id << " = " << status << ": is_decided() = " << is_decided() << '\n';
+    EV << "MIS_status after round #" << current_round_id << " = " << MIS_status << ": is_decided() = " << is_decided() << '\n';
     EV << "last_communication_round : " << last_communication_round << '\n';
     EV << "n_awake_rounds = " << n_awake_rounds << '\n';
     EV << "decided_round = " << decided_round << '\n';
 }
 
 void GP22MISAlg::stage_transition() {
-    EV << "status = " << status << '\n';
+    EV << "MIS_status = " << MIS_status << '\n';
     if (GP22_MIS_stage == GP22MISStage::INITIAL_STAGE) {
         GP22_MIS_stage = GP22MISStage::PART1;
         for(int neighbor_id : node->all_neighbors) {
@@ -108,7 +118,7 @@ void GP22MISAlg::stage_transition() {
             all_remained_neighbors.erase(i);
         }
         GP22_MIS_part1_2_alg->all_remained_neighbors = all_remained_neighbors;
-        GP22_MIS_part1_2_alg->status = status;
+        GP22_MIS_part1_2_alg->MIS_status = MIS_status;
 
     } else if (current_round_id == part2_starting_round) {
         GP22_MIS_stage = GP22MISStage::PART2;
@@ -118,12 +128,12 @@ void GP22MISAlg::stage_transition() {
     } else if (current_round_id == part3_starting_round) {
         GP22_MIS_stage = GP22MISStage::PART3;
         GP22_MIS_part3_alg->need_to_send = all_remained_neighbors;
-        GP22_MIS_part3_alg->status = status;
+        GP22_MIS_part3_alg->MIS_status = MIS_status;
     }
 }
 
 bool GP22MISAlg::is_selected() {
-    return (status == IN_MIS);
+    return (MIS_status == IN_MIS);
 }
 
 GP22MISAlg::~GP22MISAlg() {

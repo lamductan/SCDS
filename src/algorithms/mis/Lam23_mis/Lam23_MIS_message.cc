@@ -9,10 +9,10 @@ void LamMISMessage::copyInformation(LamTwoRSNodeStatus two_rs_status, int color,
 }
 
 void LamMISMessage::copyInformation(
-    int sender_id, bool marked, int degree, NodeStatus status, 
+    int sender_id, bool marked, int degree, MISNodeStatus MIS_status, 
     LamTwoRSNodeStatus two_rs_status, int color, int two_rs_cluster_center_id
 ) {
-    LubyMISMessage::copyInformation(sender_id, marked, degree, status);
+    LubyMISMessage::copyInformation(sender_id, marked, degree, MIS_status);
     copyInformation(two_rs_status, color, two_rs_cluster_center_id);
 }
 

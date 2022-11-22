@@ -49,14 +49,21 @@ void LamTwoRSAlg::handle_message(cMessage *msg) {
         }
     }
     EV << "current_round_id = " << current_round_id << "\n";
-    if (Lam_Two_RS_stage == LamTwoRSStage::PART1) {
+    switch (Lam_Two_RS_stage) {
+    case LamTwoRSStage::PART1:
         call_handle_message(Lam_Two_RS_part1_alg, msg);
-    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART1_2) {
+        break;
+    case LamTwoRSStage::PART1_2:
         call_handle_message(Lam_Two_RS_part1_2_alg, msg);
-    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART2) {
+        break;
+    case LamTwoRSStage::PART2:
         call_handle_message(Lam_Two_RS_part2_alg, msg);
-    } else if (Lam_Two_RS_stage == LamTwoRSStage::END_STAGE) {
+        break;
+    case LamTwoRSStage::END_STAGE:
         delete msg;
+        break;
+    default:
+        break;
     }
 
     if (Lam_Two_RS_stage == LamTwoRSStage::END_STAGE) return;
@@ -70,7 +77,7 @@ void LamTwoRSAlg::handle_message(cMessage *msg) {
 }
 
 void LamTwoRSAlg::stage_transition() {
-    EV << "LamTwoRSAlg::status = " << status << '\n';
+    EV << "LamTwoRSAlg::status = " << MIS_status << '\n';
     if (Lam_Two_RS_stage == LamTwoRSStage::INITIAL_STAGE) {
         Lam_Two_RS_stage = LamTwoRSStage::PART1;
         
@@ -99,32 +106,42 @@ void LamTwoRSAlg::stage_transition() {
 
 void LamTwoRSAlg::call_handle_message(IAlgNode *alg, cMessage *msg) {
     IAlgNode::call_handle_message(alg, msg);
-    if (Lam_Two_RS_stage == LamTwoRSStage::PART1) {
+    switch (Lam_Two_RS_stage) {
+    case LamTwoRSStage::PART1: {
         BGKO22TwoRSAlg *alg_1 = dynamic_cast<BGKO22TwoRSAlg *>(alg);
         two_rs_cluster_center_id = alg_1->two_rs_cluster_center_id;
         Lam_Two_RS_status = alg_1->BGKO22_Two_RS_status;
-    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART1_2) {
-        LamInformingNeighborsAlg *alg_1 = dynamic_cast<LamInformingNeighborsAlg *>(alg);
-        Lam_Two_RS_status = alg_1->Lam_Two_RS_status;
-    } else if (Lam_Two_RS_stage == LamTwoRSStage::PART2) {
-        SW08MISAlg *alg_1 = dynamic_cast<SW08MISAlg *>(alg);
-        if (alg_1->SW08_status == SW08_DOMINATOR) {
-            Lam_Two_RS_status = LAM_TWO_RS_CLUSTER_CENTER;
-            two_rs_cluster_center_id = alg_1->dominator;
-        } else if (alg_1->SW08_status == SW08_DOMINATED) {
-            Lam_Two_RS_status = LAM_TWO_RS_1_HOP;
-            two_rs_cluster_center_id = alg_1->dominator;
-        }
+        break;
     }
+    case LamTwoRSStage::PART1_2: {
+        LamInformingNeighborsAlg *alg_1_2 = dynamic_cast<LamInformingNeighborsAlg *>(alg);
+        Lam_Two_RS_status = alg_1_2->Lam_Two_RS_status;
+        break;
+    }
+    case LamTwoRSStage::PART2: {
+        SW08MISAlg *alg_2 = dynamic_cast<SW08MISAlg *>(alg);
+        if (alg_2->SW08_status == SW08_DOMINATOR) {
+            Lam_Two_RS_status = LAM_TWO_RS_CLUSTER_CENTER;
+            two_rs_cluster_center_id = alg_2->dominator;
+        } else if (alg_2->SW08_status == SW08_DOMINATED) {
+            Lam_Two_RS_status = LAM_TWO_RS_1_HOP;
+            two_rs_cluster_center_id = alg_2->dominator;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
     if (Lam_Two_RS_status == LAM_TWO_RS_CLUSTER_CENTER) {
-        status = IN_MIS;
-        if (previous_status == UNDECIDED) {
+        MIS_status = IN_MIS;
+        if (previous_MIS_status == UNDECIDED) {
             decided_round = current_round_id;
             EV << "LamTwoRSAlg::call_handle_message() --- decided_round = " << decided_round << '\n';
         }
     } else if (Lam_Two_RS_status == LAM_TWO_RS_1_HOP) {
-        status = NOT_IN_MIS;
-        if (previous_status == UNDECIDED) {
+        MIS_status = NOT_IN_MIS;
+        if (previous_MIS_status == UNDECIDED) {
             decided_round = current_round_id;
             EV << "LamTwoRSAlg::call_handle_message() --- decided_round = " << decided_round << '\n';
         }

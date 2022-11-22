@@ -22,9 +22,9 @@ void BGKO22TwoRSAlg::stage_transition() {
 
 cMessage *BGKO22TwoRSAlg::process_message_queue() {
     EV << "\t" << "BGKO22TwoRSAlg::process_message_queue()\n";
-    previous_status = status;
+    previous_MIS_status = MIS_status;
     if (is_decided()) {
-        EV << "\t\t" << "Status is " << status << " decided at round " << last_communication_round << "\n";
+        EV << "\t\t" << "Status is " << MIS_status << " decided at round " << last_communication_round << "\n";
         return nullptr;
     }
 

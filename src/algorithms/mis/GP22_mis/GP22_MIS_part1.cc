@@ -8,16 +8,17 @@ GP22MISPart1Alg::GP22MISPart1Alg(Node *node, int starting_round) {
 }
 
 cMessage *GP22MISPart1Alg::process_message_queue() {
-    previous_status = status;
-    EV << "GP22MISPart1Alg::process_message_queue() -- message_queue.size() = " << message_queue.size() << '\n';
+    previous_MIS_status = MIS_status;
+    EV << "GP22MISPart1Alg::process_message_queue() -- message_queue.size() = "
+       << message_queue.size() << '\n';
     for(cMessage *msg : message_queue) {
         GP22MISMessage *GP22_MIS_message = dynamic_cast<GP22MISMessage *>(msg);
         int neighbor_id = GP22_MIS_message->getSenderId();
-        NodeStatus neighbor_status = GP22_MIS_message->getStatus();
+        MISNodeStatus neighbor_status = GP22_MIS_message->getStatus();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_status = " << neighbor_status << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) {
-                status = NOT_IN_MIS;
+            if (MIS_status == UNDECIDED) {
+                MIS_status = NOT_IN_MIS;
                 dominator = neighbor_id;
             }
             all_remained_neighbors.erase(neighbor_id);
@@ -25,15 +26,16 @@ cMessage *GP22MISPart1Alg::process_message_queue() {
             all_remained_neighbors.erase(neighbor_id);
         }
     }
-    if ((status == UNDECIDED) && (all_remained_neighbors.empty() || (node->id < *all_remained_neighbors.begin()))) {
-        status = IN_MIS;
+    if ((MIS_status == UNDECIDED) && (all_remained_neighbors.empty() || 
+            (node->id < *all_remained_neighbors.begin()))) {
+        MIS_status = IN_MIS;
         dominator = node->id;
     }
     
-    if (previous_status == UNDECIDED && status != UNDECIDED) {
+    if (previous_MIS_status == UNDECIDED && MIS_status != UNDECIDED) {
         GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart1");
         new_message->setSenderId(node->id);
-        new_message->setStatus(status);
+        new_message->setStatus(MIS_status);
         need_to_send = std::set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
         return new_message;
     }
@@ -41,7 +43,7 @@ cMessage *GP22MISPart1Alg::process_message_queue() {
 }
 
 bool GP22MISPart1Alg::is_selected() {
-    return (status == IN_MIS);
+    return (MIS_status == IN_MIS);
 }
 
 bool GP22MISPart1Alg::is_awake() {

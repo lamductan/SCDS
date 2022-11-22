@@ -78,11 +78,11 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_mark_round() {
     for(cMessage *msg : message_queue) {
         GP22MISMessage *GP22_MIS_message = dynamic_cast<GP22MISMessage *>(msg);
         int neighbor_id = GP22_MIS_message->getSenderId();
-        NodeStatus neighbor_status = GP22_MIS_message->getStatus();
+        MISNodeStatus neighbor_status = GP22_MIS_message->getStatus();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_status = " << neighbor_status << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) {
-                status = NOT_IN_MIS;
+            if (MIS_status == UNDECIDED) {
+                MIS_status = NOT_IN_MIS;
                 dominator = neighbor_id;
             }
             all_remained_neighbors.erase(neighbor_id);
@@ -90,12 +90,12 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_mark_round() {
             all_remained_neighbors.erase(neighbor_id);
         }
     }
-    if (status == UNDECIDED && all_remained_neighbors.empty()) status = IN_MIS;
-    if (status != UNDECIDED) marked = false;
+    if (MIS_status == UNDECIDED && all_remained_neighbors.empty()) MIS_status = IN_MIS;
+    if (MIS_status != UNDECIDED) marked = false;
     else marked = node->bernoulli(pow(2, current_phase_id_in_iteration)/log_d);
     GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart2");
     new_message->setSenderId(node->id);
-    new_message->setStatus(status);
+    new_message->setStatus(MIS_status);
     new_message->setMarked(marked);
     need_to_send = std::set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
     return new_message;
@@ -107,12 +107,12 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_status_round() {
     for(cMessage *msg : message_queue) {
         GP22MISMessage *GP22_MIS_message = dynamic_cast<GP22MISMessage *>(msg);
         int neighbor_id = GP22_MIS_message->getSenderId();
-        NodeStatus neighbor_status = GP22_MIS_message->getStatus();
+        MISNodeStatus neighbor_status = GP22_MIS_message->getStatus();
         bool neighbor_marked = GP22_MIS_message->getMarked();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_marked = " << neighbor_marked << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) {
-                status = NOT_IN_MIS;
+            if (MIS_status == UNDECIDED) {
+                MIS_status = NOT_IN_MIS;
                 dominator = neighbor_id;
             }
             all_remained_neighbors.erase(neighbor_id);
@@ -121,19 +121,19 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_status_round() {
         }
         if (neighbor_marked) has_one_marked_neighbor = true;
     }
-    if (!marked && status == UNDECIDED) return nullptr;
+    if (!marked && MIS_status == UNDECIDED) return nullptr;
     if (marked && !has_one_marked_neighbor) {
-        status = IN_MIS;
+        MIS_status = IN_MIS;
         dominator = node->id;
     }
     GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart2");
     new_message->setSenderId(node->id);
-    new_message->setStatus(status);
+    new_message->setStatus(MIS_status);
     new_message->setMarked(marked);
     need_to_send = std::set<int>(all_remained_neighbors.begin(), all_remained_neighbors.end());
     return new_message;
 }
 
 bool GP22MISPart2Alg::is_selected() {
-    return (status == IN_MIS);
+    return (MIS_status == IN_MIS);
 }

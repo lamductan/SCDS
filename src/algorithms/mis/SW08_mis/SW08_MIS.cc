@@ -83,7 +83,7 @@ bool SW08MISAlg::reset_stage_if_needed() {
     if (is_decided()) return false;
     if (is_new_stage()) {
         if (SW08_status == SW08_COMPETITOR || SW08_status == SW08_RULER) {
-            EV_ERROR << "New stage but node" << node->id << " has status " << status << '\n';
+            EV_ERROR << "New stage but node" << node->id << " has status " << SW08_status << '\n';
         }
 
         SW08_status = SW08_COMPETITOR;
@@ -107,7 +107,7 @@ bool SW08MISAlg::reset_phase_if_needed() {
     if (is_decided()) return false;
     if (!is_new_stage() && is_new_phase()) {
         if (SW08_status == SW08_COMPETITOR) {
-            EV_ERROR << "New phase but node" << node->id << " has status " << status << '\n';
+            EV_ERROR << "New phase but node" << node->id << " has status " << SW08_status << '\n';
         }
 
         if (SW08_status == SW08_RULER) SW08_status = SW08_COMPETITOR;
@@ -134,8 +134,8 @@ bool SW08MISAlg::reset_phase_if_needed() {
     return false;
 }
 
-bool SW08MISAlg::is_decided_status(SW08NodeStatus node_status) {
-    return (node_status == SW08_DOMINATOR) || (node_status == SW08_DOMINATED);
+bool SW08MISAlg::is_decided_status(SW08NodeStatus SW08_node_status) {
+    return (SW08_node_status == SW08_DOMINATOR) || (SW08_node_status == SW08_DOMINATED);
 }
 
 void SW08MISAlg::update_previous_status() {
@@ -162,19 +162,20 @@ int SW08MISAlg::find_smallest_r() {
 
 cMessage *SW08MISAlg::process_message_queue() {
     EV << "\t" << "SW08MISAlg::process_message_queue()\n";
+    cMessage *msg = nullptr;
     if (SW08_alg_round_type == SW08_EXCHANGING_R) {
-        return process_message_queue_for_exchange_r_round();
+        msg = process_message_queue_for_exchange_r_round();
     } else if (SW08_alg_round_type == SW08_EXCHANGING_STATE_1) {
-        return process_message_queue_for_exchange_state_1_round();
+        msg = process_message_queue_for_exchange_state_1_round();
     } else {
-        return process_message_queue_for_exchange_state_2_round();
+        msg = process_message_queue_for_exchange_state_2_round();
     }
-    if (!is_decided()) status = UNDECIDED;
+    if (!is_decided()) MIS_status = UNDECIDED;
     else {
-        if (SW08_status == SW08_DOMINATOR) status = IN_MIS;
-        else status = NOT_IN_MIS;
+        if (SW08_status == SW08_DOMINATOR) MIS_status = IN_MIS;
+        else MIS_status = NOT_IN_MIS;
     }
-    return nullptr;
+    return msg;
 }
 
 void SW08MISAlg::set_need_to_send_to_competitor_neighbors() {

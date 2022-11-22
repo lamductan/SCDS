@@ -13,11 +13,11 @@ cMessage *GP22MISPart1_2_Alg::process_message_queue() {
     for(cMessage *msg : message_queue) {
         GP22MISMessage *GP22_MIS_message = dynamic_cast<GP22MISMessage *>(msg);
         int neighbor_id = GP22_MIS_message->getSenderId();
-        NodeStatus neighbor_status = GP22_MIS_message->getStatus();
+        MISNodeStatus neighbor_status = GP22_MIS_message->getStatus();
         EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_status = " << neighbor_status << '\n';
         if (neighbor_status == IN_MIS) {
-            if (status == UNDECIDED) {
-                status = NOT_IN_MIS;
+            if (MIS_status == UNDECIDED) {
+                MIS_status = NOT_IN_MIS;
                 dominator = neighbor_id;
             }
             all_remained_neighbors.erase(neighbor_id);
@@ -28,14 +28,14 @@ cMessage *GP22MISPart1_2_Alg::process_message_queue() {
 
     GP22MISMessage *new_message = new GP22MISMessage("GP22MISPart1_2");
     new_message->setSenderId(node->id);
-    new_message->setStatus(status);
+    new_message->setStatus(MIS_status);
     clear_message_queue();
     need_to_send = all_remained_neighbors;
     return new_message;
 }
 
 bool GP22MISPart1_2_Alg::is_selected() {
-    return (status == IN_MIS);
+    return (MIS_status == IN_MIS);
 }
 
 bool GP22MISPart1_2_Alg::is_awake() {
