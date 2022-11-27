@@ -11,6 +11,7 @@ scds
 
 **/results*/*
 !**/.gitkeep
+!.clang-format
 
 gen_random_networks/*
 gen_random_networks_1

@@ -7,27 +7,31 @@
 
 namespace centralized {
 
-enum MISNodeStatus {
+enum MISNodeStatus
+{
     MIS_UNDECIDED,
     IN_MIS,
     NOT_IN_MIS
 };
 
-enum CDSNodeStatus {
+enum CDSNodeStatus
+{
     CDS_UNDECIDED,
     IN_CDS,
     NOT_IN_CDS
 };
 
-enum NodeType {
+enum NodeType
+{
     CDS_DEFAULT_NODE_TYPE,
     CDS_SIMPLE_NODE_TYPE,
     CDS_GK96_NODE_TYPE,
     CDS_WAF02_NODE_TYPE
 };
 
-class Node {
-public:
+class Node
+{
+  public:
     int id;
     int x;
     int y;
@@ -40,15 +44,17 @@ public:
     int dominator = -1;
 
     std::map<Node *, std::array<Node *, 2>> two_hop_neighbors;
+    std::map<Node *, std::array<Node *, 2>> three_hop_neighbors;
 
     Node();
     Node(int x, int y, int id);
     Node(const Node &other);
     Node &operator=(const Node &other);
-    virtual Node *dup() const {return new Node(*this);}
+    virtual Node *dup() const { return new Node(*this); }
 
     virtual void copyInformation(int x, int y, int id);
-    virtual void copyInformation(int x, int y, int id, std::map<int, Node *> neighbors);
+    virtual void copyInformation(int x, int y, int id,
+                                 std::map<int, Node *> neighbors);
     virtual void add_neighbor(Node *neighbor);
     virtual NodeType get_node_type();
 
@@ -57,8 +63,8 @@ public:
 
     std::string to_string() const;
     virtual ~Node();
-}; //class Node
+}; // class Node
 
-}; //namespace centralized
+}; // namespace centralized
 
-#endif //CENTRALIZED_CDS_GRAPH_NODE_H_
+#endif // CENTRALIZED_CDS_GRAPH_NODE_H_

@@ -1,24 +1,33 @@
 #include "algorithms/mis/Lam23_mis/Lam23_MIS_part3.h"
 
-void LamMISPart3Alg::set_alg_type() { EV << "LamMISPart3Alg::set_alg_type()\n"; alg_type = MIS_ALG; }
-
-LamMISPart3Alg::LamMISPart3Alg(Node *node, int starting_round) {
-    init(node, starting_round);
-    all_remained_neighbors = std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+void LamMISPart3Alg::set_alg_type()
+{
+    EV << "LamMISPart3Alg::set_alg_type()\n";
+    alg_type = MIS_ALG;
 }
 
-cMessage *LamMISPart3Alg::process_message_queue() {
+LamMISPart3Alg::LamMISPart3Alg(Node *node, int starting_round)
+{
+    init(node, starting_round);
+    all_remained_neighbors =
+        std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+}
+
+cMessage *LamMISPart3Alg::process_message_queue()
+{
     EV << "LamMISPart3Alg::process_message_queue()\n";
-    for(cMessage *msg : message_queue) {
+    for (cMessage *msg : message_queue) {
         LamMISMessage *Lam_MIS_message = dynamic_cast<LamMISMessage *>(msg);
         int neighbor_id = Lam_MIS_message->getSenderId();
         int neighbor_color = Lam_MIS_message->getColor();
         MISNodeStatus neighbor_status = Lam_MIS_message->getStatus();
-        EV << "\t" << "neighbor_id = " << neighbor_id << ", neighbor_color = " << neighbor_color 
+        EV << "\t"
+           << "neighbor_id = " << neighbor_id
+           << ", neighbor_color = " << neighbor_color
            << ", neighbor_status = " << neighbor_status << '\n';
         if (neighbor_status != UNDECIDED) {
             all_remained_neighbors.erase(neighbor_id);
-            neighbor_colors.erase({neighbor_color, neighbor_id});
+            neighbor_colors.erase({ neighbor_color, neighbor_id });
         }
         if (neighbor_status == IN_MIS) {
             if (MIS_status == UNDECIDED) {
@@ -29,11 +38,13 @@ cMessage *LamMISPart3Alg::process_message_queue() {
     }
 
     EV << "LamMISPart3Alg::status = " << MIS_status << "\n";
-    std::pair<int,int> color_id_pair = {color, node->id};
+    std::pair<int, int> color_id_pair = { color, node->id };
     if (MIS_status == UNDECIDED) {
-        EV << "\t(color,id) = " << "(" << color_id_pair.first << "," << color_id_pair.second << ")"
+        EV << "\t(color,id) = "
+           << "(" << color_id_pair.first << "," << color_id_pair.second << ")"
            << " --- LamMISPart3Alg::neighbor_colors = [";
-        for(auto it : neighbor_colors) EV << "(" << it.first << "," << it.second << "), ";
+        for (auto it : neighbor_colors)
+            EV << "(" << it.first << "," << it.second << "), ";
         EV << "]\n";
     }
 
@@ -47,9 +58,12 @@ cMessage *LamMISPart3Alg::process_message_queue() {
         }
     }
 
-    if (MIS_status == UNDECIDED) return nullptr;
-    if (MIS_status == IN_MIS) EV << "\tJoin MIS\n";
-    else EV << "\tNOT JOIN mis\n";
+    if (MIS_status == UNDECIDED)
+        return nullptr;
+    if (MIS_status == IN_MIS)
+        EV << "\tJoin MIS\n";
+    else
+        EV << "\tNOT JOIN mis\n";
     LamMISMessage *new_message = new LamMISMessage("LamMISPart3Alg");
     new_message->setSenderId(node->id);
     new_message->setColor(color);
@@ -58,11 +72,10 @@ cMessage *LamMISPart3Alg::process_message_queue() {
     return new_message;
 }
 
-bool LamMISPart3Alg::is_selected() {
-    return (MIS_status == IN_MIS);
-}
+bool LamMISPart3Alg::is_selected() { return (MIS_status == IN_MIS); }
 
-bool LamMISPart3Alg::is_awake() {
+bool LamMISPart3Alg::is_awake()
+{
     if (current_round_id == starting_round) {
         awake_round_map[current_round_id] = true;
         return true;

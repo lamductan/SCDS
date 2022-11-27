@@ -1,22 +1,23 @@
 #include <algorithm>
 #include <iomanip>
 
+#include "algorithms/algs.h"
+#include "algorithms/ialg_node.h"
+#include "algorithms/network_alg.h"
+#include "checkers/checker_factory.h"
 #include "common.h"
-#include "utils/utils.h"
+#include "messages/messages.h"
 #include "networks/Network.h"
 #include "node/Node.h"
-#include "messages/messages.h"
-#include "algorithms/network_alg.h"
-#include "algorithms/ialg_node.h"
-#include "checkers/checker_factory.h"
-#include "algorithms/algs.h"
+#include "utils/utils.h"
 
 void Network::initialize()
 {
     network_file = par("networkFile").stringValue();
     alg_name = par("algorithm").stringValue();
     setDisplayString("p=0,0");
-    scheduleAt(0, new cMessage("Initialize the network!", SELF_INITIALIZE_MESSAGE));
+    scheduleAt(
+        0, new cMessage("Initialize the network!", SELF_INITIALIZE_MESSAGE));
 }
 
 void Network::handleMessage(cMessage *msg)
@@ -32,9 +33,9 @@ void Network::handleMessage(cMessage *msg)
 }
 
 /**
- * @brief 
+ * @brief
  * Build Network from file
- * @param parent 
+ * @param parent
  */
 void Network::buildNetwork(cModule *parent)
 {
@@ -51,9 +52,12 @@ void Network::buildNetwork(cModule *parent)
         if (line.empty() || line[0] == '#')
             continue;
 
-        std::vector<std::string> tokens = cStringTokenizer(line.c_str()).asVector();
+        std::vector<std::string> tokens =
+            cStringTokenizer(line.c_str()).asVector();
         if (tokens.size() != 4)
-            throw cRuntimeError("wrong line in module file: 4 items required, line: \"%s\"", line.c_str());
+            throw cRuntimeError(
+                "wrong line in module file: 4 items required, line: \"%s\"",
+                line.c_str());
 
         n = atoi(tokens[0].c_str());
         m = atoi(tokens[1].c_str());
@@ -62,12 +66,15 @@ void Network::buildNetwork(cModule *parent)
 
     n_nodes = n;
 
-    for(int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i) {
         // get fields from tokens
         getline(networkFile, line, '\n');
-        std::vector<std::string> tokens = cStringTokenizer(line.c_str()).asVector();
+        std::vector<std::string> tokens =
+            cStringTokenizer(line.c_str()).asVector();
         if (tokens.size() != 3)
-            throw cRuntimeError("wrong line when reading node content: 3 items required, line: \"%s\"", line.c_str());
+            throw cRuntimeError("wrong line when reading node content: 3 items "
+                                "required, line: \"%s\"",
+                                line.c_str());
         int nodeid = atoi(tokens[0].c_str());
         int x = atoi(tokens[1].c_str());
         int y = atoi(tokens[2].c_str());
@@ -89,93 +96,112 @@ void Network::buildNetwork(cModule *parent)
 
         // read params from the ini file, etc
         mod->finalizeParameters();
-        std::string displayString = "p=" + std::to_string(x) + "," + std::to_string(y);
+        std::string displayString =
+            "p=" + std::to_string(x) + "," + std::to_string(y);
         mod->setDisplayString(displayString.c_str());
         nodesWirelessIn.push_back(mod->gate("wirelessIn"));
     }
 
     // read and create connections
-    for(int i = 0; i < m; ++i) {
+    for (int i = 0; i < m; ++i) {
         getline(networkFile, line, '\n');
-        std::vector<std::string> tokens = cStringTokenizer(line.c_str()).asVector();
+        std::vector<std::string> tokens =
+            cStringTokenizer(line.c_str()).asVector();
         if (tokens.size() != 2)
-            throw cRuntimeError("wrong line when reading edge content: 2 items required, line: \"%s\"", line.c_str());
+            throw cRuntimeError("wrong line when reading edge content: 2 items "
+                                "required, line: \"%s\"",
+                                line.c_str());
 
         // get fields from tokens
         int srcnodeid = atoi(tokens[0].c_str());
         int destnodeid = atoi(tokens[1].c_str());
-        //EV << "Edge " << srcnodeid << ' ' << destnodeid << '\n';
+        // EV << "Edge " << srcnodeid << ' ' << destnodeid << '\n';
 
         if (nodes.find(srcnodeid) == nodes.end())
-            throw cRuntimeError("wrong line in connections file: node with id=%d not found", srcnodeid);
+            throw cRuntimeError(
+                "wrong line in connections file: node with id=%d not found",
+                srcnodeid);
         if (nodes.find(destnodeid) == nodes.end())
-            throw cRuntimeError("wrong line in connections file: node with id=%d not found", destnodeid);
+            throw cRuntimeError(
+                "wrong line in connections file: node with id=%d not found",
+                destnodeid);
 
         Node *srcnode = nodes[srcnodeid];
         Node *destnode = nodes[destnodeid];
 
         cGate *srcIn, *srcOut, *destIn, *destOut;
-        srcnode->getOrCreateFirstUnconnectedGatePair("port", false, true, srcIn, srcOut);
-        destnode->getOrCreateFirstUnconnectedGatePair("port", false, true, destIn, destOut);
+        srcnode->getOrCreateFirstUnconnectedGatePair("port", false, true, srcIn,
+                                                     srcOut);
+        destnode->getOrCreateFirstUnconnectedGatePair("port", false, true,
+                                                      destIn, destOut);
 
         // connect
         srcnode->connect(srcOut, destIn, destnodeid);
         destnode->connect(destOut, srcIn, srcnodeid);
     }
 
-    // initialization will simply skip already-initialized modules instead of causing error
+    // initialization will simply skip already-initialized modules instead of
+    // causing error
     EV << "Done buildNetwork " << parent->getName() << '\n';
     networkFile.close();
     alg = new NetworkAlg(this, alg_name);
-    for(auto it : nodes) {
+    for (auto it : nodes) {
         Node *node = it.second;
         node->network_alg = alg;
     }
     parent->callInitialize();
 }
 
-std::vector<int> Network::get_selected_nodes() {
+std::vector<int> Network::get_selected_nodes()
+{
     std::vector<int> selected_nodes;
-    for(auto it : nodes) {
+    for (auto it : nodes) {
         Node *node = it.second;
-        if (node->alg->is_selected()) selected_nodes.push_back(node->id);
+        if (node->alg->is_selected())
+            selected_nodes.push_back(node->id);
     }
     std::sort(selected_nodes.begin(), selected_nodes.end());
     return selected_nodes;
 }
 
-int Network::get_total_awake_rounds() {
+int Network::get_total_awake_rounds()
+{
     int total_awake_rounds = 0;
-    for(auto it : nodes) {
+    for (auto it : nodes) {
         Node *node = it.second;
         total_awake_rounds += node->alg->n_awake_rounds;
     }
     return total_awake_rounds;
 }
 
-int Network::get_finished_round() {
+int Network::get_finished_round()
+{
     int finished_round = -1;
-    for(auto it : nodes) {
+    for (auto it : nodes) {
         Node *node = it.second;
-        finished_round = std::max(
-            finished_round, std::max(node->alg->last_communication_round, node->alg->decided_round));
+        finished_round = std::max(finished_round,
+                                  std::max(node->alg->last_communication_round,
+                                           node->alg->decided_round));
     }
     return finished_round;
 }
 
-bool Network::check(bool is_final_check) {
+bool Network::check(bool is_final_check)
+{
     IChecker *checker = CheckerFactory::create_checker(this);
     bool result = checker->check(is_final_check);
     delete checker;
     return result;
 }
 
-void Network::log_result() {
+void Network::log_result()
+{
     int total_awake_rounds = get_total_awake_rounds();
     int finished_round = get_finished_round();
     std::vector<int> selected_nodes = get_selected_nodes();
 
-    std::vector<std::string> tokens = cStringTokenizer(network_file, "/").asVector();
+    std::vector<std::string> tokens =
+        cStringTokenizer(network_file, "/").asVector();
     EV << "network_file = " << network_file << '\n';
     tokens[0] = "results";
     std::string basename = tokens.back();
@@ -186,60 +212,69 @@ void Network::log_result() {
 
     EV << "log_path = " << log_path << '\n';
     mkPath(log_dir.c_str());
-    
+
     std::fstream f(log_path.c_str(), std::ios::out);
 
     std::vector<int> node_ids = getMapKeys<int, Node *>(nodes);
     std::vector<std::vector<bool>> all_awake_round_vec(n_nodes);
-    for(int node_id : node_ids) {
+    EV << "finished_round = " << finished_round << '\n';
+    for (int node_id : node_ids) {
         Node *node = nodes[node_id];
-        std::vector<bool> awake_round_vec = map_to_vector(node->alg->awake_round_map, finished_round);
+        std::vector<bool> awake_round_vec =
+            map_to_vector(node->alg->awake_round_map, finished_round);
         all_awake_round_vec[node_id] = awake_round_vec;
     }
 
     std::vector<int> idle_rounds;
-    for(int i = 1; i < finished_round; ++i) {
-        if (is_idle_round(all_awake_round_vec, i)) idle_rounds.push_back(i);
+    for (int i = 1; i < finished_round; ++i) {
+        if (is_idle_round(all_awake_round_vec, i))
+            idle_rounds.push_back(i);
     }
 
-    f << "#n n_selected_nodes total_awake_rounds average_awake_rounds finished_round n_idle_rounds n_active_rounds\n";
-    f << n_nodes << ' ' << selected_nodes.size() << ' ' << total_awake_rounds << ' ' << 1.0*total_awake_rounds/n_nodes
-      << ' ' << finished_round << ' ' << idle_rounds.size() << ' ' << (finished_round - idle_rounds.size()) << "\n";
-    
+    f << "#n n_selected_nodes total_awake_rounds average_awake_rounds "
+         "finished_round n_idle_rounds n_active_rounds\n";
+    f << n_nodes << ' ' << selected_nodes.size() << ' ' << total_awake_rounds
+      << ' ' << 1.0 * total_awake_rounds / n_nodes << ' ' << finished_round
+      << ' ' << idle_rounds.size() << ' '
+      << (finished_round - idle_rounds.size()) << "\n";
+
     f << "#idle rounds:\n";
-    for(int x : idle_rounds) f << x << ' ';
+    for (int x : idle_rounds)
+        f << x << ' ';
     f << '\n';
 
-    f << "\n#node_id node_n_awake_rounds node_decided_round node_last_communication_round\n";
-    for(int node_id : node_ids) {
+    f << "\n#node_id node_n_awake_rounds node_decided_round "
+         "node_last_communication_round\n";
+    for (int node_id : node_ids) {
         Node *node = nodes[node_id];
-        f << std::setfill('0') << std::setw(4) << node_id << ' ' << node->alg->n_awake_rounds << ' '
-          << node->alg->decided_round << ' ' <<node->alg->last_communication_round << '\n';
+        f << std::setfill('0') << std::setw(4) << node_id << ' '
+          << node->alg->n_awake_rounds << ' ' << node->alg->decided_round << ' '
+          << node->alg->last_communication_round << '\n';
     }
 
     f << "\n#awake_rounds\n";
-    for(int node_id : node_ids) {
+    for (int node_id : node_ids) {
         f << std::setfill('0') << std::setw(4) << node_id << ' ';
-        for(int i = 1; i < all_awake_round_vec[node_id].size(); ++i) 
+        for (int i = 1; i < all_awake_round_vec[node_id].size(); ++i)
             f << all_awake_round_vec[node_id][i] << ' ';
         f << '\n';
     }
-    
+
     f << "\n#selected nodes:\n";
-    for(int selected_node : selected_nodes) f << selected_node << '\n';
+    for (int selected_node : selected_nodes)
+        f << selected_node << '\n';
     IChecker *checker = CheckerFactory::create_checker(this);
     f << "Check result = " << checker->check() << '\n';
     delete checker;
     f.close();
 }
 
-void Network::finish() {
+void Network::finish()
+{
     log_result();
     IChecker *checker = CheckerFactory::create_checker(this);
     EV << "Check result = " << checker->check();
     delete checker;
 }
 
-Network::~Network() {
-    delete alg;
-}
+Network::~Network() { delete alg; }

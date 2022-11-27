@@ -1,0 +1,25 @@
+Language: Cpp
+BasedOnStyle: LLVM
+DerivePointerAlignment: false
+PointerAlignment: Right
+IndentPPDirectives: AfterHash
+Cpp11BracedListStyle: false
+AlwaysBreakTemplateDeclarations: false
+AllowShortCaseLabelsOnASingleLine: false
+SpaceAfterTemplateKeyword: false
+AllowShortBlocksOnASingleLine: false
+IndentWidth: 4
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterEnum: true
+  AfterExternBlock: true
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: false
+  BeforeElse: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true

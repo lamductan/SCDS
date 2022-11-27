@@ -5,11 +5,12 @@
 
 namespace centralized {
 
-class NodeFactory {
-public:
+class NodeFactory
+{
+  public:
     static Node *create_node(Node *node, NodeType node_type);
 };
 
-}; //namespace centralized
+}; // namespace centralized
 
-#endif //CENTRALIZED_CDS_GRAPH_NODE_FACTORY_H_
+#endif // CENTRALIZED_CDS_GRAPH_NODE_FACTORY_H_

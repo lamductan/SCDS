@@ -1,0 +1,1 @@
+run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --cmdenv-express-mode=false -c MST-GHS -r 1

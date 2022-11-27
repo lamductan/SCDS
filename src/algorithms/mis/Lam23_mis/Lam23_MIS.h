@@ -2,34 +2,38 @@
 #define SCDS_ALGORITHMS_MIS_LAM23_MIS_H_
 
 #include "algorithms/ialg_node.h"
-#include "algorithms/mis/Lam23_mis/Lam23_Part1_Two_RS.h"
 #include "algorithms/mis/Lam23_mis/Lam23_InformingNeighbors.h"
 #include "algorithms/mis/Lam23_mis/Lam23_MIS_part3.h"
+#include "algorithms/mis/Lam23_mis/Lam23_Part1_Two_RS.h"
 
-
-class LamMISStage : public BaseAlgStage {
-protected:
+class LamMISStage : public BaseAlgStage
+{
+  protected:
     static constexpr int get_max_value() { return PART3; }
-public:
+
+  public:
     static const int PART1 = BaseAlgStage::get_max_value() + 1; // 2-RulingSet
-    static const int PART1_2 = BaseAlgStage::get_max_value() + 2; // Informing 2-RulingSet result
-    static const int PART2 = BaseAlgStage::get_max_value() + 3; // (Delta + 1)-Coloring
-    static const int PART2_3 = BaseAlgStage::get_max_value() + 4; // Informing coloring result
+    static const int PART1_2 =
+        BaseAlgStage::get_max_value() + 2; // Informing 2-RulingSet result
+    static const int PART2 =
+        BaseAlgStage::get_max_value() + 3; // (Delta + 1)-Coloring
+    static const int PART2_3 =
+        BaseAlgStage::get_max_value() + 4; // Informing coloring result
     static const int PART3 = BaseAlgStage::get_max_value() + 5; // MIS
 };
 
-
-class LamMISAlg : public IAlgNode {
-public:
+class LamMISAlg : public IAlgNode
+{
+  public:
     int n;
     int log_n;
 
     int part1_starting_round = 0;
     int part1_max_num_rounds = 0;
-    
+
     int part1_2_starting_round = 0;
     int part1_2_max_num_rounds = 0;
-    
+
     int part3_starting_round = 0;
     int part3_max_num_rounds = 0;
 
@@ -41,9 +45,9 @@ public:
 
     std::map<int, int> neighbor_colors;
 
-public:
+  public:
     virtual void set_alg_type() override;
-    LamMISAlg(Node *node, int starting_round=1);
+    LamMISAlg(Node *node, int starting_round = 1);
     virtual void handle_message(cMessage *msg) override;
     virtual void stage_transition() override;
     virtual bool is_selected() override;
@@ -51,4 +55,4 @@ public:
     virtual ~LamMISAlg();
 };
 
-#endif //SCDS_ALGORITHMS_MIS_LAM23_MIS_H_
+#endif // SCDS_ALGORITHMS_MIS_LAM23_MIS_H_

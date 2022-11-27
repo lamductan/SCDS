@@ -5,7 +5,7 @@ import Network;
 
 network Dynamic
 {
-    submodules:
-        net: Network {
-        }
+submodules:
+net:
+    Network {}
 }

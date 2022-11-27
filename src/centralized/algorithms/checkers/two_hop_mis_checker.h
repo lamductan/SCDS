@@ -5,15 +5,17 @@
 
 namespace centralized {
 
-class TwoHopMISChecker : public MISChecker {
-private:
+class TwoHopMISChecker : public MISChecker
+{
+  private:
     Graph *construct_two_hop_mis_graph() const;
-public:
+
+  public:
     TwoHopMISChecker(CDSSimpleAlg *alg, const std::vector<int> &selected_nodes);
     virtual bool check_two_hop_mis() const;
     virtual bool check() const;
-}; //class TwoHopMISChecker
+}; // class TwoHopMISChecker
 
-}; //namespace centralized
+}; // namespace centralized
 
-#endif //CENTRALIZED_CDS_ALGORITHMS_CHECKERS_TWO_HOP_MIS_CHECKER_H_
+#endif // CENTRALIZED_CDS_ALGORITHMS_CHECKERS_TWO_HOP_MIS_CHECKER_H_

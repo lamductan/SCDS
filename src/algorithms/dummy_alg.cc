@@ -1,14 +1,18 @@
 #include <cassert>
 #include <omnetpp.h>
 
-#include "messages/messages.h"
 #include "algorithms/dummy_alg.h"
+#include "messages/messages.h"
 
 using namespace omnetpp;
 
-DummyAlg::DummyAlg(Node *node, int starting_round) : IAlgNode(node, starting_round) {}
+DummyAlg::DummyAlg(Node *node, int starting_round)
+    : IAlgNode(node, starting_round)
+{
+}
 
-cMessage * DummyAlg::process_message_queue() {
+cMessage *DummyAlg::process_message_queue()
+{
     if (current_round_id <= 2) {
         return IAlgNode::process_message_queue();
     }
@@ -18,12 +22,8 @@ cMessage * DummyAlg::process_message_queue() {
     return nullptr;
 }
 
-bool DummyAlg::is_decided() {
-    return true;
-}
+bool DummyAlg::is_decided() { return true; }
 
-bool DummyAlg::is_awake() {
-    return true;
-}
+bool DummyAlg::is_awake() { return true; }
 
 DummyAlg::~DummyAlg() {}

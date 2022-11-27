@@ -5,16 +5,18 @@
 
 using namespace omnetpp;
 
-enum AlgType {
+enum AlgType
+{
     DUMMY_ALG,
     MIS_ALG,
     TWO_RS_ALG,
-    CDS_ALG
+    CDS_ALG,
+    MST_ALG
 };
 
 class IAlg
 {
-public:
+  public:
     int n_nodes;
     int current_round_id = 1;
     int max_num_rounds;
@@ -28,4 +30,4 @@ public:
     virtual ~IAlg() {}
 };
 
-#endif //SCDS_ALGORITHMS_IALG_H_
+#endif // SCDS_ALGORITHMS_IALG_H_

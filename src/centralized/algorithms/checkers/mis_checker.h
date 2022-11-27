@@ -5,13 +5,14 @@
 
 namespace centralized {
 
-class MISChecker : public IChecker {
-public:
+class MISChecker : public IChecker
+{
+  public:
     MISChecker(CDSSimpleAlg *alg, const std::vector<int> &selected_nodes);
     virtual bool check_independent() const;
     virtual bool check() const;
-}; //class MISChecker
+}; // class MISChecker
 
-}; //namespace centralized
+}; // namespace centralized
 
-#endif //CENTRALIZED_CDS_ALGORITHMS_CHECKERS_MIS_CHECKER_H_
+#endif // CENTRALIZED_CDS_ALGORITHMS_CHECKERS_MIS_CHECKER_H_

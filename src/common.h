@@ -5,16 +5,17 @@
 
 using namespace omnetpp;
 
-enum ModuleType {
+enum ModuleType
+{
     NODE_TYPE,
     NETWORK_TYPE
 };
 
 class IModule : public cSimpleModule
 {
-public:
+  public:
     virtual ModuleType getModuleType() const = 0;
     int current_round_id = 0;
 };
 
-#endif //SCDS_COMMON_H_
+#endif // SCDS_COMMON_H_
