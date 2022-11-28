@@ -7,13 +7,14 @@ class ThreeHopMSTAlg : public GHSMSTAlg
 {
   public:
     std::map<int, std::array<int, 4>> nodes_on_path;
-    virtual GHSMSTMessage *
-    create_message(GHSMSTMessageType GHS_MST_message_type,
-                   const std::tuple<int, int, int> &edge_id,
-                   int relay_receiver_id = -1,
-                   int real_sender_id = -1) override;
+
+  public:
+    ThreeHopMSTAlg(Node *node, int starting_round = 1);
+    virtual void init(Node *node, int starting_round) override;
+    virtual int
+    find_next_relay_node_id_on_path_to(int next_node_on_path_id) override;
     virtual void process_async_message_queue() override;
-    virtual void send_messages_current_round() override;
+    virtual bool is_awake() override;
 };
 
 #endif // SCDS_ALGORITHMS_CDS_GK96_CDS_THREE_HOP_MST_H_

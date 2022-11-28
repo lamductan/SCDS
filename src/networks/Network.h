@@ -32,7 +32,7 @@ class Network : public IModule
   public:
     int n_nodes;
     std::unordered_map<int, Node *> nodes;
-    std::vector<cGate *> nodesWirelessIn;
+    std::map<Node *, cGate *> nodesWirelessIn;
     const char *network_file;
     const char *alg_name;
     NetworkAlg *alg;

@@ -21,6 +21,7 @@ bool SimpleMISToCDSAlg::is_awake() { return true; }
 cMessage *SimpleMISToCDSAlg::process_message_queue()
 {
     int round_id = current_round_id - starting_round;
+    awake_round_map[current_round_id] = true;
     // EV << "SimpleMISToCDSAlg::process_message_queue() -- message_queue.size()
     // = "
     //    << message_queue.size() << '\n';
@@ -79,6 +80,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_one_hop_MIS_neighbors()
             dynamic_cast<SimpleCDSMessage *>(msg);
         int sender_id = simple_CDS_message->getSenderId();
         MIS_in_one_hop_neighbor[sender_id] = { sender_id, id, -1 };
+        nodes_on_path[sender_id] = { id, sender_id, -1, -1 };
     }
     if (MIS_in_one_hop_neighbor.empty())
         return nullptr;
@@ -113,8 +115,12 @@ SimpleMISToCDSAlg::process_message_queue_exchange_two_hop_MIS_neighbors()
             if (MIS_in_two_hop_neighbor.count(candidate_two_hop_MIS_node_id) >
                 0)
                 continue;
+            int intermedidate_node = it.second[1];
             MIS_in_two_hop_neighbor[candidate_two_hop_MIS_node_id] = {
-                candidate_two_hop_MIS_node_id, it.second[1], id
+                candidate_two_hop_MIS_node_id, intermedidate_node, id
+            };
+            nodes_on_path[candidate_two_hop_MIS_node_id] = {
+                id, intermedidate_node, candidate_two_hop_MIS_node_id, -1
             };
         }
     }
@@ -156,6 +162,9 @@ SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_neighbors()
                 continue;
             MIS_in_three_hop_neighbor[candidate_three_hop_MIS_node_id] =
                 it.second;
+            nodes_on_path[candidate_three_hop_MIS_node_id] = {
+                id, it.second[2], it.second[1], candidate_three_hop_MIS_node_id
+            };
         }
     }
 

@@ -92,14 +92,16 @@ void Network::buildNetwork(cModule *parent)
         parY.setIntValue(y);
         cPar &parNNodes = mod->par("n_nodes");
         parNNodes.setIntValue(n);
-        nodes[nodeid] = dynamic_cast<Node *>(mod);
+
+        Node *node_ptr = dynamic_cast<Node *>(mod);
+        nodes[nodeid] = node_ptr;
 
         // read params from the ini file, etc
         mod->finalizeParameters();
         std::string displayString =
             "p=" + std::to_string(x) + "," + std::to_string(y);
         mod->setDisplayString(displayString.c_str());
-        nodesWirelessIn.push_back(mod->gate("wirelessIn"));
+        nodesWirelessIn[node_ptr] = mod->gate("wirelessIn");
     }
 
     // read and create connections

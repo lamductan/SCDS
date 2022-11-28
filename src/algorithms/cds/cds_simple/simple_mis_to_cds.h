@@ -10,6 +10,7 @@ class SimpleMISToCDSAlg : public IAlgNode
     std::map<int, std::array<int, 3>> MIS_in_two_hop_neighbor;
     std::map<int, std::array<int, 3>> MIS_in_three_hop_neighbor;
     std::map<int, std::array<int, 3>> MIS_in_two_three_hop_neighbor;
+    std::map<int, std::array<int, 4>> nodes_on_path;
 
     cMessage *process_message_queue_exchange_MIS_status();
     cMessage *process_message_queue_exchange_one_hop_MIS_neighbors();

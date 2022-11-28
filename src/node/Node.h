@@ -29,11 +29,15 @@ class Node : public IModule
     std::vector<int>
         all_neighbors; // may change during the course of an algorithm
     std::vector<int> all_neighbors_original; // so it's better to save a copy
+    bool is_finished = false;
+
+  public:
     void connect(cGate *src, cGate *dest, int destid);
     IAlgNode *alg;
     NetworkAlg *network_alg;
     double threshold_ratio;
     bool is_decided();
+    void callFinish() override;
     virtual ~Node();
 };
 

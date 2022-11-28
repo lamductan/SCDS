@@ -12,7 +12,8 @@ void GHSMSTMessage::copyInformation(
     const std::pair<std::tuple<int, int, int>, int> &fragment_core, int level,
     GHSMSTNodeState GHS_MST_node_state, GHSMSTMessageType GHS_MST_message_type,
     const std::tuple<int, int, int> &best_edge_id, int fragment_id,
-    int real_sender_id, int real_receiver_id, int message_id)
+    int real_sender_id, int real_receiver_id, int message_id,
+    int prev_node_on_path_id, int next_node_on_path_id)
 {
     this->sender_id = sender_id;
     this->receiver_id = receiver_id;
@@ -27,6 +28,8 @@ void GHSMSTMessage::copyInformation(
     this->real_sender_id = real_sender_id;
     this->real_receiver_id = real_receiver_id;
     this->message_id = message_id;
+    this->prev_node_on_path_id = prev_node_on_path_id;
+    this->next_node_on_path_id = next_node_on_path_id;
 }
 
 GHSMSTMessage::GHSMSTMessage(const GHSMSTMessage &other)
@@ -36,7 +39,8 @@ GHSMSTMessage::GHSMSTMessage(const GHSMSTMessage &other)
                     other.sent_round_id, other.fragment_core, other.level,
                     other.GHS_MST_node_state, other.GHS_MST_message_type,
                     other.best_edge_id, other.fragment_id, other.real_sender_id,
-                    other.real_receiver_id, other.message_id);
+                    other.real_receiver_id, other.message_id,
+                    other.prev_node_on_path_id, other.next_node_on_path_id);
 }
 
 GHSMSTMessage &GHSMSTMessage::operator=(const GHSMSTMessage &other)
@@ -46,7 +50,8 @@ GHSMSTMessage &GHSMSTMessage::operator=(const GHSMSTMessage &other)
                     other.sent_round_id, other.fragment_core, other.level,
                     other.GHS_MST_node_state, other.GHS_MST_message_type,
                     other.best_edge_id, other.fragment_id, other.real_sender_id,
-                    other.real_receiver_id, other.message_id);
+                    other.real_receiver_id, other.message_id,
+                    other.prev_node_on_path_id, other.next_node_on_path_id);
     return *this;
 }
 
@@ -148,6 +153,20 @@ void GHSMSTMessage::setMessageId(int message_id)
     this->message_id = message_id;
 }
 
+int GHSMSTMessage::getPrevNodeOnPathId() const { return prev_node_on_path_id; }
+
+void GHSMSTMessage::setPrevNodeOnPathId(int prev_node_on_path_id)
+{
+    this->prev_node_on_path_id = prev_node_on_path_id;
+}
+
+int GHSMSTMessage::getNextNodeOnPathId() const { return next_node_on_path_id; }
+
+void GHSMSTMessage::setNextNodeOnPathId(int next_node_on_path_id)
+{
+    this->next_node_on_path_id = next_node_on_path_id;
+}
+
 std::string GHSMSTMessage::to_string(int log_level) const
 {
     std::string one_tab = std::string(4, ' ');
@@ -163,6 +182,10 @@ std::string GHSMSTMessage::to_string(int log_level) const
           "real_sender_id       = " + std::to_string(real_sender_id) + ",\n");
     s += (tab + one_tab +
           "real_receiver_id     = " + std::to_string(real_receiver_id) + ",\n");
+    s += (tab + one_tab + "prev_node_on_path_id = " +
+          std::to_string(prev_node_on_path_id) + ",\n");
+    s += (tab + one_tab + "next_node_on_path_id = " +
+          std::to_string(next_node_on_path_id) + ",\n");
     s += (tab + one_tab +
           "message_id           = " + std::to_string(message_id) + ",\n");
     s += (tab + one_tab +

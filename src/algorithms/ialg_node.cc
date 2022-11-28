@@ -71,10 +71,13 @@ void IAlgNode::start_round(cMessage *msg)
     int sender_id = synchronized_message->getSenderId();
     assert(sender_id == -1);
     current_round_id = synchronized_message->getRoundId();
+    EV << "Set synchronized_message_ptr here\n";
+    synchronized_message_ptr = msg;
     // EV << "node" << node->id
     //    << " received synchronized message of round " << current_round_id <<
     //    "\n";
     delete msg;
+    synchronized_message_ptr = nullptr;
 }
 
 void IAlgNode::process_round()
@@ -168,11 +171,17 @@ void IAlgNode::call_handle_message(IAlgNode *alg, cMessage *msg)
     MIS_status = alg->MIS_status;
     dominator = alg->dominator;
     awake_round_map[current_round_id] = alg->awake_round_map[current_round_id];
-    CDS_status = alg->CDS_status;
+    if (CDS_status != IN_CDS)
+        CDS_status = alg->CDS_status;
     if (is_decided() && alg->decided_round > -1)
         decided_round = alg->decided_round;
     if (alg->last_communication_round > -1)
         last_communication_round = alg->last_communication_round;
+}
+
+void IAlgNode::delete_synchronized_message()
+{
+    delete synchronized_message_ptr;
 }
 
 IAlgNode::~IAlgNode() { clear_message_queue(); }

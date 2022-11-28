@@ -77,7 +77,12 @@ void NetworkAlg::send_synchronized_message(
     synchronized_message->setSenderId(-1);
     synchronized_message->setRoundId(current_round_id);
     synchronized_message->setSynchronizedMessageType(synchronized_message_type);
-    for (cGate *gate : network->nodesWirelessIn) {
+    for (auto it : network->nodesWirelessIn) {
+        Node *node = it.first;
+        if (node->is_finished)
+            continue;
+        // EV << "Send SYNCHRONIZED message to node" << node->id << '\n';
+        cGate *gate = it.second;
         cMessage *msg = synchronized_message->dup();
         network->sendDirect(msg, gate);
         // EV << "node " << gate->getOwner()->getName() << ' ' << msg->getKind()

@@ -11,6 +11,7 @@
 #include "algorithms/mis/Luby_mis/Luby_MIS.h"
 #include "algorithms/mis/SW08_mis/SW08_MIS.h"
 
+#include "algorithms/cds/GK96_cds/GK96_CDS.h"
 #include "algorithms/cds/cds_simple/simple_cds.h"
 #include "algorithms/mst/GHS_mst/GHS_MST.h"
 

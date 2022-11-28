@@ -58,6 +58,8 @@ class GHSMSTMessage : public cMessage
 
     int real_sender_id = -1;
     int real_receiver_id = -1;
+    int prev_node_on_path_id = -1;
+    int next_node_on_path_id = -1;
 
     int message_id;
 
@@ -68,7 +70,8 @@ class GHSMSTMessage : public cMessage
         int level, GHSMSTNodeState GHS_MST_node_state,
         GHSMSTMessageType GHS_MST_message_type,
         const std::tuple<int, int, int> &best_edge_id, int fragment_id,
-        int real_sender_id, int real_receiver_id, int message_id);
+        int real_sender_id, int real_receiver_id, int message_id,
+        int prev_node_on_path_id, int next_node_on_path_id);
 
     std::string to_string(int log_level = 0) const;
 
@@ -109,6 +112,10 @@ class GHSMSTMessage : public cMessage
     void setRealReceiverId(int real_receiver_id);
     int getMessageId() const;
     void setMessageId(int message_id);
+    int getPrevNodeOnPathId() const;
+    void setPrevNodeOnPathId(int prev_node_on_path_id);
+    int getNextNodeOnPathId() const;
+    void setNextNodeOnPathId(int next_node_on_path_id);
 };
 
 std::string GHSMSTMessageType_to_string(GHSMSTMessageType GHS_MST_message_type);

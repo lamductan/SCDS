@@ -21,6 +21,7 @@ enum MISNodeStatus
 enum CDSNodeStatus
 {
     NOT_IN_CDS,
+    TENTATIVE_IN_CDS,
     IN_CDS
 };
 
@@ -62,6 +63,8 @@ class IAlgNode : public IAlg
     int dominator = -1;
     std::map<int, centralized::Edge> tree_edges;
 
+    cMessage *synchronized_message_ptr = nullptr;
+
     virtual bool is_selected(); // should be overriden
 
     virtual bool is_awake();   // should be overriden
@@ -83,6 +86,7 @@ class IAlgNode : public IAlg
     virtual void update_previous_status();
 
     virtual void call_handle_message(IAlgNode *alg, cMessage *msg);
+    void delete_synchronized_message();
 
     virtual ~IAlgNode();
 };

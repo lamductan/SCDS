@@ -7,6 +7,8 @@ void GHSMSTAlg::set_alg_type()
     alg_type = MST_ALG;
 }
 
+GHSMSTAlg::GHSMSTAlg() {}
+
 GHSMSTAlg::GHSMSTAlg(Node *node, int starting_round)
 {
     init(node, starting_round);
@@ -37,6 +39,11 @@ bool GHSMSTAlg::is_endpoint_of_edge(
     const std::tuple<int, int, int> &edge_id) const
 {
     return std::get<1>(edge_id) == id || std::get<2>(edge_id) == id;
+}
+
+int GHSMSTAlg::find_next_relay_node_id_on_path_to(int next_node_on_path_id)
+{
+    return next_node_on_path_id;
 }
 
 void GHSMSTAlg::add_branch_edge(const std::tuple<int, int, int> &edge_id)
@@ -72,51 +79,63 @@ void GHSMSTAlg::record_decided_round()
         decided_round = current_round_id;
 }
 
-bool GHSMSTAlg::is_awake()
-{
-    awake_round_map[current_round_id] = true;
-    return true;
-}
+bool GHSMSTAlg::is_awake() { return true; }
 
 GHSMSTMessage *
 GHSMSTAlg::create_message(GHSMSTMessageType GHS_MST_message_type,
                           const std::tuple<int, int, int> &edge_id,
-                          int relay_receiver_id, int real_sender_id)
+                          int real_sender_id, int real_receiver_id,
+                          int prev_node_on_path_id, int next_node_on_path_id)
 {
     int sender_id = id;
-    int receiver_id = (relay_receiver_id != -1) ? relay_receiver_id
-                                                : get_neighbor_id(edge_id);
+    if (prev_node_on_path_id == -1)
+        prev_node_on_path_id = id;
+    if (next_node_on_path_id == -1)
+        next_node_on_path_id = get_neighbor_id(edge_id);
+    int receiver_id = find_next_relay_node_id_on_path_to(next_node_on_path_id);
+    if (real_receiver_id == -2)
+        real_receiver_id = next_node_on_path_id;
+
     int sent_round_id = current_round_id;
     GHSMSTMessage *msg = new GHSMSTMessage();
+
     msg->setSenderId(sender_id);
     msg->setReceiverId(receiver_id);
+    if (real_sender_id == -1)
+        real_sender_id = sender_id;
     msg->setRealSenderId(real_sender_id);
+    msg->setRealReceiverId(real_receiver_id);
     msg->setEdgeId(edge_id);
     msg->setGHSMSTMessageType(GHS_MST_message_type);
     msg->setFragmentId(fragment_core.second);
     msg->setSentRoundId(current_round_id);
     msg->setMessageId(message_id++);
+    msg->setPrevNodeOnPathId(prev_node_on_path_id);
+    msg->setNextNodeOnPathId(next_node_on_path_id);
     return msg;
 }
 
 void GHSMSTAlg::listen_new_message(cMessage *msg)
 {
     async_message_queue.insert(dynamic_cast<GHSMSTMessage *>(msg));
+    last_communication_round = current_round_id;
 }
 
 void GHSMSTAlg::send_messages_current_round()
 {
     // EV << "GHSMSTAlg::send_messages_current_round()\n";
     // EV << "\t"
-    //    << "need to send " << need_to_send_message_queue.size() << "
-    //    messages\n";
+    //    << "need to send " << need_to_send_message_queue.size() <<
+    //    "messages\n";
     std::set<int> already_sent_neighbors;
     std::vector<GHSMSTMessage *> sent_messages;
+    if (!need_to_send_message_queue.empty())
+        last_communication_round = current_round_id;
     for (GHSMSTMessage *msg : need_to_send_message_queue) {
         int receiver_id = msg->getReceiverId();
         if (already_sent_neighbors.count(receiver_id))
             continue;
-        // msg->setSentRoundId(current_round_id);
+        msg->setSentRoundId(current_round_id);
         // EV << msg->to_string(1) << '\n';
         node->sendDelayed(msg->dup(), 0.5, node->neighbor_gates[receiver_id]);
         sent_messages.push_back(msg);
@@ -141,17 +160,19 @@ void GHSMSTAlg::clear_message_queue()
 
 void GHSMSTAlg::process_round()
 {
+    if (!is_awake())
+        return;
     // EV << "GHSMSTAlg::process_round()\n";
     // print_state();
-    if (is_awake())
-        ++n_awake_rounds;
+    awake_round_map[current_round_id] = true;
+    ++n_awake_rounds;
     process_async_message_queue();
     send_messages_current_round();
 }
 
 void GHSMSTAlg::process_async_message_queue()
 {
-    // EV << "GHSMSTAlg::process_async_message_queue()\n";
+    EV << "GHSMSTAlg::process_async_message_queue()\n";
 
     if (current_round_id == starting_round) {
         GHSMSTMessage *msg =
@@ -164,7 +185,7 @@ void GHSMSTAlg::process_async_message_queue()
     std::set<int> already_processed_neighbors;
     std::vector<GHSMSTMessage *> processed_messages;
     for (GHSMSTMessage *msg : async_message_queue) {
-        int sender_id = msg->getSenderId();
+        int sender_id = msg->getRealSenderId();
         if (already_processed_neighbors.count(sender_id) > 0)
             continue;
         // EV << msg->to_string(1) << '\n';
@@ -397,7 +418,7 @@ bool GHSMSTAlg::handle_report_message(GHSMSTMessage *msg)
         --find_count;
         if (reported_best_edge_id < best_edge_id) {
             best_edge_id = reported_best_edge_id;
-            received_best_edge_from = msg->getSenderId();
+            received_best_edge_from = msg->getRealSenderId();
         }
         report();
         return true;
@@ -434,7 +455,7 @@ void GHSMSTAlg::change_root(int core_node_id)
     if (!is_endpoint_of_edge(best_edge_id)) {
         GHSMSTMessage *new_msg =
             create_message(GHS_MST_MESSAGE_CHANGE_ROOT, best_edge_id,
-                           received_best_edge_from, core_node_id);
+                           core_node_id, -1, id, received_best_edge_from);
         need_to_send_message_queue.insert(new_msg);
     } else {
         GHSMSTMessage *msg =

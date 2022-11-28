@@ -62,11 +62,14 @@ class GHSMSTAlg : public IAlgNode
     virtual GHSMSTMessage *
     create_message(GHSMSTMessageType GHS_MST_message_type,
                    const std::tuple<int, int, int> &edge_id,
-                   int relay_receiver_id = -1, int real_sender_id = -1);
+                   int real_sender_id = -1, int real_receiver_id = -2,
+                   int prev_node_on_path_id = -1,
+                   int next_node_on_path_id = -1);
 
   public:
     virtual void set_alg_type() override;
     virtual void init(Node *node, int starting_round) override;
+    GHSMSTAlg();
     GHSMSTAlg(Node *node, int starting_round = 1);
     virtual void process_round() override;
     virtual void process_async_message_queue();
@@ -79,6 +82,8 @@ class GHSMSTAlg : public IAlgNode
 
     int get_neighbor_id(const std::tuple<int, int, int> &edge_id) const;
     bool is_endpoint_of_edge(const std::tuple<int, int, int> &edge_id) const;
+    virtual int find_next_relay_node_id_on_path_to(int next_node_on_path_id);
+
     void add_branch_edge(const std::tuple<int, int, int> &edge_id);
     void add_rejected_edge(const std::tuple<int, int, int> &edge_id);
 

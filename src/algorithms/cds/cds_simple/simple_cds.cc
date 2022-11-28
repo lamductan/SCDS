@@ -23,6 +23,8 @@ void SimpleCDSAlg::init_CDS()
     CDS_stage_max_num_rounds = CDS_alg->max_num_rounds;
 }
 
+SimpleCDSAlg::SimpleCDSAlg() {}
+
 SimpleCDSAlg::SimpleCDSAlg(Node *node, int starting_round)
 {
     init(node, starting_round);
@@ -39,22 +41,17 @@ SimpleCDSAlg::SimpleCDSAlg(Node *node, int starting_round)
 
 void SimpleCDSAlg::handle_message(cMessage *msg)
 {
-    if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
-        SynchronizedMessage *synchronized_message =
-            dynamic_cast<SynchronizedMessage *>(msg);
-        if (synchronized_message->getSynchronizedMessageType() ==
-            SYNCHRONIZED_START_ROUND) {
-            current_round_id = synchronized_message->getRoundId();
-            stage_transition();
-        }
-    }
+    handle_synchronized_message(msg);
     EV << "current_round_id = " << current_round_id << "\n";
     switch (Simple_CDS_stage) {
     case SimpleCDSStage::MIS_STAGE:
         call_handle_message(SW08_MIS_alg, msg);
         break;
-    case SimpleCDSStage::CDS_STAGE: call_handle_message(CDS_alg, msg); break;
-    default: break;
+    case SimpleCDSStage::CDS_STAGE:
+        call_handle_message(CDS_alg, msg);
+        break;
+    default:
+        break;
     }
 
     n_awake_rounds = SW08_MIS_alg->n_awake_rounds + CDS_alg->n_awake_rounds;
@@ -63,6 +60,20 @@ void SimpleCDSAlg::handle_message(cMessage *msg)
     EV << "CDS_status after round #" << current_round_id << " = " << CDS_status
        << '\n';
     EV << "last_communication_round : " << last_communication_round << '\n';
+}
+
+void SimpleCDSAlg::handle_synchronized_message(cMessage *msg)
+{
+    if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
+        SynchronizedMessage *synchronized_message =
+            dynamic_cast<SynchronizedMessage *>(msg);
+        if (synchronized_message->getSynchronizedMessageType() ==
+            SYNCHRONIZED_START_ROUND) {
+            synchronized_message_ptr = msg;
+            current_round_id = synchronized_message->getRoundId();
+            stage_transition();
+        }
+    }
 }
 
 void SimpleCDSAlg::stage_transition()

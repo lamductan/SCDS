@@ -35,8 +35,10 @@ class SimpleCDSAlg : public IAlgNode
 
   public:
     virtual void set_alg_type() override;
+    SimpleCDSAlg();
     SimpleCDSAlg(Node *node, int starting_round = 1);
     virtual void handle_message(cMessage *msg) override;
+    void handle_synchronized_message(cMessage *msg);
     virtual void stage_transition() override;
     virtual bool is_selected() override;
 

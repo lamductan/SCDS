@@ -30,4 +30,14 @@ void Node::handleMessage(cMessage *msg) { alg->handle_message(msg); }
 
 bool Node::is_decided() { return alg->is_decided(); }
 
+void Node::callFinish()
+{
+    // EV << "\nNode::callFinish -- node" << id << '\n';
+    if (!is_finished)
+        return;
+    delete alg->synchronized_message_ptr;
+    // alg->delete_synchronized_message();
+    IModule::callFinish();
+}
+
 Node::~Node() { delete alg; }

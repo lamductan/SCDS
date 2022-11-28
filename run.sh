@@ -15,4 +15,4 @@ mode=${3:-"false"}
 echo "omnetpp.ini = ${omnetpp}"
 echo "config = ${config}"
 
-./scds -f ${omnetpp} -n src -u Cmdenv --cmdenv-express-mode=${mode} -c ${config} -r 1
+./scds -f ${omnetpp} -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=${mode} -c ${config} -r 1
