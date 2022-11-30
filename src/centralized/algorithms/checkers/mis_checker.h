@@ -8,7 +8,7 @@ namespace centralized {
 class MISChecker : public IChecker
 {
   public:
-    MISChecker(CDSSimpleAlg *alg, const std::vector<int> &selected_nodes);
+    MISChecker(Graph *graph, const std::vector<int> &selected_nodes);
     virtual bool check_independent() const;
     virtual bool check() const;
 }; // class MISChecker

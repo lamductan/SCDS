@@ -73,12 +73,6 @@ bool GHSMSTAlg::is_decided()
     return res;
 }
 
-void GHSMSTAlg::record_decided_round()
-{
-    if (is_decided() && decided_round == -1)
-        decided_round = current_round_id;
-}
-
 bool GHSMSTAlg::is_awake() { return true; }
 
 GHSMSTMessage *
@@ -88,21 +82,18 @@ GHSMSTAlg::create_message(GHSMSTMessageType GHS_MST_message_type,
                           int prev_node_on_path_id, int next_node_on_path_id)
 {
     int sender_id = id;
-    if (prev_node_on_path_id == -1)
-        prev_node_on_path_id = id;
+    if (prev_node_on_path_id == -1) prev_node_on_path_id = id;
     if (next_node_on_path_id == -1)
         next_node_on_path_id = get_neighbor_id(edge_id);
     int receiver_id = find_next_relay_node_id_on_path_to(next_node_on_path_id);
-    if (real_receiver_id == -2)
-        real_receiver_id = next_node_on_path_id;
+    if (real_receiver_id == -2) real_receiver_id = next_node_on_path_id;
 
     int sent_round_id = current_round_id;
     GHSMSTMessage *msg = new GHSMSTMessage();
 
     msg->setSenderId(sender_id);
     msg->setReceiverId(receiver_id);
-    if (real_sender_id == -1)
-        real_sender_id = sender_id;
+    if (real_sender_id == -1) real_sender_id = sender_id;
     msg->setRealSenderId(real_sender_id);
     msg->setRealReceiverId(real_receiver_id);
     msg->setEdgeId(edge_id);
@@ -133,11 +124,11 @@ void GHSMSTAlg::send_messages_current_round()
         last_communication_round = current_round_id;
     for (GHSMSTMessage *msg : need_to_send_message_queue) {
         int receiver_id = msg->getReceiverId();
-        if (already_sent_neighbors.count(receiver_id))
-            continue;
+        if (already_sent_neighbors.count(receiver_id)) continue;
         msg->setSentRoundId(current_round_id);
         // EV << msg->to_string(1) << '\n';
-        node->sendDelayed(msg->dup(), 0.5, node->neighbor_gates[receiver_id]);
+        node->sendDelayed(msg->dup(), DELAY_SENT,
+                          node->neighbor_gates[receiver_id]);
         sent_messages.push_back(msg);
     }
     for (GHSMSTMessage *msg : sent_messages) {
@@ -160,8 +151,7 @@ void GHSMSTAlg::clear_message_queue()
 
 void GHSMSTAlg::process_round()
 {
-    if (!is_awake())
-        return;
+    if (!is_awake()) return;
     // EV << "GHSMSTAlg::process_round()\n";
     // print_state();
     awake_round_map[current_round_id] = true;
@@ -186,8 +176,7 @@ void GHSMSTAlg::process_async_message_queue()
     std::vector<GHSMSTMessage *> processed_messages;
     for (GHSMSTMessage *msg : async_message_queue) {
         int sender_id = msg->getRealSenderId();
-        if (already_processed_neighbors.count(sender_id) > 0)
-            continue;
+        if (already_processed_neighbors.count(sender_id) > 0) continue;
         // EV << msg->to_string(1) << '\n';
         bool processed = false;
         switch (msg->getGHSMSTMessageType()) {
@@ -246,8 +235,7 @@ bool GHSMSTAlg::handle_connect_message(GHSMSTMessage *msg)
         new_msg->setLevel(level);
         new_msg->setFragmentCore(fragment_core);
         new_msg->setGHSMSTNodeState(GHS_MST_node_state);
-        if (GHS_MST_node_state == GHS_MST_NODE_STATE_FIND)
-            ++find_count;
+        if (GHS_MST_node_state == GHS_MST_NODE_STATE_FIND) ++find_count;
         // EV << "\t\t"
         //    << "Absorb\n";
     } else if (edges_state_map[edge_id] == GHS_MST_EDGE_STATE_BASIC) {
@@ -284,19 +272,16 @@ bool GHSMSTAlg::handle_initiate_message(GHSMSTMessage *msg)
 
     best_edge_id = INF_EDGE_ID;
     for (const std::tuple<int, int, int> edge_id_1 : branch_edges_set) {
-        if (edge_id_1 == edge_id)
-            continue;
+        if (edge_id_1 == edge_id) continue;
         GHSMSTMessage *new_msg =
             create_message(GHS_MST_MESSAGE_INITIATE, edge_id_1);
         new_msg->setLevel(level);
         new_msg->setFragmentCore(fragment_core);
         new_msg->setGHSMSTNodeState(GHS_MST_node_state);
         need_to_send_message_queue.insert(new_msg);
-        if (GHS_MST_node_state == GHS_MST_NODE_STATE_FIND)
-            ++find_count;
+        if (GHS_MST_node_state == GHS_MST_NODE_STATE_FIND) ++find_count;
     }
-    if (GHS_MST_node_state == GHS_MST_NODE_STATE_FIND)
-        test();
+    if (GHS_MST_node_state == GHS_MST_NODE_STATE_FIND) test();
     return true;
 }
 
@@ -374,8 +359,7 @@ bool GHSMSTAlg::handle_accept_message(GHSMSTMessage *msg)
     //    << "GHSMSTAlg::handle_accept_message()\n";
     test_edge_id = INF_EDGE_ID;
     std::tuple<int, int, int> edge_id = msg->getEdgeId();
-    if (edge_id < best_edge_id)
-        best_edge_id = edge_id;
+    if (edge_id < best_edge_id) best_edge_id = edge_id;
     report();
     return true;
 }

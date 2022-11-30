@@ -40,6 +40,15 @@ IAlgNode *AlgFactory::create_alg(Node *node, const char *alg_name,
     } else if (strcmp(alg_name, "CDS-GK96") == 0) {
         EV << "Create GK96CDSAlg instance\n";
         return new GK96CDSAlg(node, starting_round);
+    } else if (strcmp(alg_name, "BFS") == 0) {
+        EV << "Create BFSAlg instance\n";
+        return new BFSAlg(node, starting_round);
+    } else if (strcmp(alg_name, "TwoHopMIS-WAF02") == 0) {
+        EV << "Create WAF02TwoHopMISAlg instance\n";
+        return new WAF02TwoHopMISAlg(node, starting_round);
+    } else if (strcmp(alg_name, "CDS-WAF02") == 0) {
+        EV << "Create WAF02CDSAlg instance\n";
+        return new WAF02CDSAlg(node, starting_round);
     }
     return nullptr;
 }

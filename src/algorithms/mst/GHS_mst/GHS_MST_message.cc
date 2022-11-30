@@ -231,6 +231,7 @@ std::string GHSMSTMessageType_to_string(GHSMSTMessageType GHS_MST_message_type)
         return "";
     }
 }
+
 std::string GHSMSTNodeState_to_string(GHSMSTNodeState GHS_MST_node_state)
 {
     switch (GHS_MST_node_state) {

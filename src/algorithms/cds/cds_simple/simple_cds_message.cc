@@ -61,14 +61,12 @@ std::string SimpleCDSMessage::to_string(int log_level) const
     s += (tab + one_tab + "MIS_info = [\n");
     for (auto it : MIS_info) {
         s += tab + one_tab + one_tab + std::to_string(it.first) + ": (";
-        for (int x : it.second)
-            s += std::to_string(x) + ",";
+        for (int x : it.second) s += std::to_string(x) + ",";
         s += ")\n";
     }
     s += (tab + one_tab + "],\n");
     s += (tab + one_tab + "CDS_nodes = [");
-    for (int x : cds_nodes)
-        s += std::to_string(x) + ",";
+    for (int x : cds_nodes) s += std::to_string(x) + ",";
     s += "]\n";
     return (s += tab + "}");
 }

@@ -13,6 +13,8 @@ void IAlg::set_max_num_rounds(int n_nodes)
         max_num_rounds = 3 * log_2(n_nodes);
     } else if (alg_type == CDS_ALG || alg_type == MST_ALG) {
         max_num_rounds = 3 * n_nodes * log_2(n_nodes);
+    } else if (alg_type == BFS_ALG || alg_type == TWO_HOP_MIS_ALG) {
+        max_num_rounds = 2 * n_nodes;
     } else {
         max_num_rounds = 3;
     }

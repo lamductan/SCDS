@@ -5,8 +5,6 @@
 
 #include "algorithms/ialg_node.h"
 
-using namespace omnetpp;
-
 MSTChecker::MSTChecker(Network *network) : IChecker(network)
 {
     selected_nodes = network->get_selected_nodes();
@@ -17,13 +15,6 @@ MSTChecker::MSTChecker(Network *network) : IChecker(network)
         centralized::Node *centralized_node =
             new centralized::Node(0, 0, node->id);
         selected_nodes_map[selected_node_id] = centralized_node;
-    }
-
-    for (auto it : network->nodes) {
-        Node *node = it.second;
-        centralized::Node *centralized_node =
-            new centralized::Node(0, 0, node->id);
-        all_nodes_map[node->id] = centralized_node;
     }
 
     subgraph_from_original_graph_edges =
@@ -47,8 +38,7 @@ centralized::Graph *MSTChecker::construct_subgraph_from_original_graph()
         centralized::Node *centralized_node = it.second;
         Node *node = network->nodes[nodeid];
         for (int neighbor_id : node->all_neighbors) {
-            if (neighbor_id < nodeid)
-                continue;
+            if (neighbor_id < nodeid) continue;
             if (selected_nodes_set.count(neighbor_id)) {
                 edges_from_original_graph.insert({ nodeid, neighbor_id });
             }
@@ -58,14 +48,11 @@ centralized::Graph *MSTChecker::construct_subgraph_from_original_graph()
     // A dirty trick: We are going to find MST of an MIS, so edges are not
     // actually in the original graph
     if (edges_from_original_graph.empty()) {
-        original_graph = construct_original_graph();
-        original_graph->find_three_hop_neighbors();
         for (int u : selected_nodes) {
-            centralized::Node *node_u = original_graph->nodes[u];
+            centralized::Node *node_u = centralized_graph->nodes[u];
             for (int v : selected_nodes) {
-                if (v <= u)
-                    continue;
-                centralized::Node *node_v = original_graph->nodes[v];
+                if (v <= u) continue;
+                centralized::Node *node_v = centralized_graph->nodes[v];
                 if (node_u->two_hop_neighbors.count(node_v) > 0) {
                     edges_from_original_graph.insert({ u, v, 1 });
                 } else if (node_u->three_hop_neighbors.count(node_v) > 0) {
@@ -86,29 +73,11 @@ centralized::Graph *MSTChecker::construct_subgraph_from_alg()
         Node *node = network->nodes[u];
         for (auto it : node->alg->tree_edges) {
             int v = it.first;
-            if (v < u)
-                continue;
+            if (v < u) continue;
             edges_from_alg.insert(it.second);
         }
     }
     return new centralized::Graph(selected_nodes_map, edges_from_alg,
-                                  centralized::CDS_SIMPLE_NODE_TYPE);
-}
-
-centralized::Graph *MSTChecker::construct_original_graph()
-{
-    std::set<centralized::Edge> edges_from_original_graph;
-    for (auto it : all_nodes_map) {
-        int nodeid = it.first;
-        centralized::Node *centralized_node = it.second;
-        Node *node = network->nodes[nodeid];
-        for (int neighbor_id : node->all_neighbors) {
-            if (neighbor_id < nodeid)
-                continue;
-            edges_from_original_graph.insert({ nodeid, neighbor_id });
-        }
-    }
-    return new centralized::Graph(all_nodes_map, edges_from_original_graph,
                                   centralized::CDS_SIMPLE_NODE_TYPE);
 }
 
@@ -127,8 +96,7 @@ bool MSTChecker::check(bool is_final_check) const
 {
     std::cout << "MSTChecker::check()\n";
     if (!check_all_decided(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed ALL DECIDED check!\n";
+        if (is_final_check) EV_ERROR << "Failed ALL DECIDED check!\n";
         return false;
     }
     if (subgraph_from_alg_edges->edges.size() !=
@@ -139,13 +107,11 @@ bool MSTChecker::check(bool is_final_check) const
     }
     if (minimal_weight_tree_of_subgraph_from_alg !=
         minimal_weight_tree_of_subgraph_from_original_graph) {
-        if (is_final_check)
-            EV_ERROR << "Failed WEIGHT check!\n";
+        if (is_final_check) EV_ERROR << "Failed WEIGHT check!\n";
         return false;
     }
     if (!check_connected(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed CONNECTED check!\n";
+        if (is_final_check) EV_ERROR << "Failed CONNECTED check!\n";
         return false;
     }
     EV << "PASS MST CHECK!\n";
@@ -154,11 +120,7 @@ bool MSTChecker::check(bool is_final_check) const
 
 MSTChecker::~MSTChecker()
 {
-    for (auto it : selected_nodes_map)
-        delete it.second;
-    for (auto it : all_nodes_map)
-        delete it.second;
+    for (auto it : selected_nodes_map) delete it.second;
     delete subgraph_from_original_graph_edges;
     delete subgraph_from_alg_edges;
-    delete original_graph;
 }

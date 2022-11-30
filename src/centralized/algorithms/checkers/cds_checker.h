@@ -12,7 +12,7 @@ class CDSChecker : public IChecker
     Graph *construct_cds_subgraph() const;
 
   public:
-    CDSChecker(CDSSimpleAlg *alg, const std::vector<int> &selected_nodes);
+    CDSChecker(Graph *graph, const std::vector<int> &selected_nodes);
     virtual bool check_connected() const;
     virtual bool check() const;
 }; // class MISChecker

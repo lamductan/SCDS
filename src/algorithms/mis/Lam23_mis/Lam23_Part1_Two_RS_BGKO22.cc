@@ -62,8 +62,7 @@ cMessage *BGKO22TwoRSAlg::process_message_queue()
 
     EV << "BGKO22TwoRSAlg::process_message_queue() -- all_remained_neighbors = "
           "[";
-    for (int x : all_remained_neighbors)
-        EV << x << ",";
+    for (int x : all_remained_neighbors) EV << x << ",";
     EV << "]\n";
 
     return msg;
@@ -143,15 +142,13 @@ cMessage *BGKO22TwoRSAlg::process_message_queue_for_informing_status_1_round()
                 all_remained_neighbors.erase(neighbor_id);
                 continue;
             }
-            if (!neighbor_marked)
-                continue;
+            if (!neighbor_marked) continue;
             if ((neighbor_degree > degree) ||
                 (neighbor_degree == degree && neighbor_id > node->id)) {
                 marked = false;
             }
         }
-        if (!marked)
-            return nullptr;
+        if (!marked) return nullptr;
         EV << "\t"
            << "Join 2RS\n";
         BGKO22_Two_RS_status = LAM_TWO_RS_CLUSTER_CENTER;

@@ -58,8 +58,7 @@ cMessage *LamMISPart3Alg::process_message_queue()
         }
     }
 
-    if (MIS_status == UNDECIDED)
-        return nullptr;
+    if (MIS_status == UNDECIDED) return nullptr;
     if (MIS_status == IN_MIS)
         EV << "\tJoin MIS\n";
     else

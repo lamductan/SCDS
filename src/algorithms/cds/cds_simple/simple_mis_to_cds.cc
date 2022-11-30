@@ -59,8 +59,7 @@ cMessage *SimpleMISToCDSAlg::process_message_queue_exchange_MIS_status()
     EV << "SimpleMISToCDSAlg::process_message_queue_exchange_MIS_status() -- "
           "message_queue.size() = "
        << message_queue.size() << '\n';
-    if (MIS_status == NOT_IN_MIS)
-        return nullptr;
+    if (MIS_status == NOT_IN_MIS) return nullptr;
     CDS_status = IN_CDS;
     SimpleCDSMessage *new_message = new SimpleCDSMessage("exchange_MIS_status");
     new_message->setSenderId(id);
@@ -73,8 +72,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_one_hop_MIS_neighbors()
     EV << "SimpleMISToCDSAlg::process_message_queue_exchange_one_hop_MIS_node()"
           " -- message_queue.size() = "
        << message_queue.size() << '\n';
-    if (message_queue.size() == 0)
-        return nullptr;
+    if (message_queue.size() == 0) return nullptr;
     for (cMessage *msg : message_queue) {
         SimpleCDSMessage *simple_CDS_message =
             dynamic_cast<SimpleCDSMessage *>(msg);
@@ -82,8 +80,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_one_hop_MIS_neighbors()
         MIS_in_one_hop_neighbor[sender_id] = { sender_id, id, -1 };
         nodes_on_path[sender_id] = { id, sender_id, -1, -1 };
     }
-    if (MIS_in_one_hop_neighbor.empty())
-        return nullptr;
+    if (MIS_in_one_hop_neighbor.empty()) return nullptr;
     SimpleCDSMessage *new_message =
         new SimpleCDSMessage("exchange_one_hop_MIS_neighbors");
     new_message->setSenderId(id);
@@ -97,8 +94,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_two_hop_MIS_neighbors()
     EV << "SimpleMISToCDSAlg::process_message_queue_exchange_two_hop_MIS_"
           "neighbors() -- message_queue.size() = "
        << message_queue.size() << '\n';
-    if (message_queue.size() == 0)
-        return nullptr;
+    if (message_queue.size() == 0) return nullptr;
     for (cMessage *msg : message_queue) {
         SimpleCDSMessage *simple_CDS_message =
             dynamic_cast<SimpleCDSMessage *>(msg);
@@ -107,8 +103,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_two_hop_MIS_neighbors()
             simple_CDS_message->getMISInfo();
         for (auto it : candidate_two_hop_MIS_nodes) {
             int candidate_two_hop_MIS_node_id = it.first;
-            if (candidate_two_hop_MIS_node_id == id)
-                continue;
+            if (candidate_two_hop_MIS_node_id == id) continue;
             if (MIS_in_one_hop_neighbor.count(candidate_two_hop_MIS_node_id) >
                 0)
                 continue;
@@ -124,8 +119,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_two_hop_MIS_neighbors()
             };
         }
     }
-    if (MIS_in_two_hop_neighbor.empty())
-        return nullptr;
+    if (MIS_in_two_hop_neighbor.empty()) return nullptr;
     SimpleCDSMessage *new_message =
         new SimpleCDSMessage("exchange_two_hop_MIS_neighbors");
     new_message->setSenderId(id);
@@ -139,8 +133,7 @@ SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_neighbors()
     EV << "SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_"
           "neighbors() -- message_queue.size() = "
        << message_queue.size() << '\n';
-    if (MIS_status == NOT_IN_MIS)
-        return nullptr;
+    if (MIS_status == NOT_IN_MIS) return nullptr;
     for (cMessage *msg : message_queue) {
         SimpleCDSMessage *simple_CDS_message =
             dynamic_cast<SimpleCDSMessage *>(msg);
@@ -149,8 +142,7 @@ SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_neighbors()
             simple_CDS_message->getMISInfo();
         for (auto it : candidate_three_hop_MIS_nodes) {
             int candidate_three_hop_MIS_node_id = it.first;
-            if (candidate_three_hop_MIS_node_id == id)
-                continue;
+            if (candidate_three_hop_MIS_node_id == id) continue;
             if (MIS_in_one_hop_neighbor.count(candidate_three_hop_MIS_node_id) >
                 0)
                 continue;
@@ -174,8 +166,7 @@ SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_neighbors()
     for (auto it : MIS_in_two_three_hop_neighbor) {
         for (int i = 1; i < 3; ++i) {
             int cds_node = it.second[i];
-            if (cds_node == -1)
-                break;
+            if (cds_node == -1) break;
             cds_nodes.insert(cds_node);
         }
     }
@@ -193,8 +184,7 @@ cMessage *SimpleMISToCDSAlg::
     EV << "SimpleMISToCDSAlg::process_message_queue_one_hop_MIS_neighbors_"
           "inform_two_hop_MIS_neighbors() -- message_queue.size() = "
        << message_queue.size() << '\n';
-    if (MIS_status == IN_MIS)
-        return nullptr;
+    if (MIS_status == IN_MIS) return nullptr;
     std::set<int> cds_nodes;
     for (cMessage *msg : message_queue) {
         SimpleCDSMessage *simple_CDS_message =
@@ -218,8 +208,7 @@ cMessage *SimpleMISToCDSAlg::process_message_queue_two_hop_MIS_neighbors()
     EV << "SimpleMISToCDSAlg::process_message_queue_two_hop_MIS_neighbors() -- "
           "message_queue.size() = "
        << message_queue.size() << '\n';
-    if (MIS_status == IN_MIS)
-        return nullptr;
+    if (MIS_status == IN_MIS) return nullptr;
     for (cMessage *msg : message_queue) {
         SimpleCDSMessage *simple_CDS_message =
             dynamic_cast<SimpleCDSMessage *>(msg);

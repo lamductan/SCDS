@@ -6,10 +6,13 @@
 #include <vector>
 
 #include "algorithms/ialg.h"
+#include "centralized/graph/bfs_tree_structure.h"
 #include "centralized/graph/edge.h"
 #include "node/Node.h"
 
 using namespace omnetpp;
+
+const double DELAY_SENT = 0.5;
 
 enum MISNodeStatus
 {
@@ -57,13 +60,16 @@ class IAlgNode : public IAlg
     int n_awake_rounds = 0;
     int n_sleep_rounds = 0;
     int last_communication_round = -1;
-    int decided_round = -1;
     std::map<int, bool> awake_round_map;
 
     int dominator = -1;
     std::map<int, centralized::Edge> tree_edges;
 
     cMessage *synchronized_message_ptr = nullptr;
+
+    int decided_round = -1;
+    bool previous_decided_status = false;
+    bool current_decided_status = false;
 
     virtual bool is_selected(); // should be overriden
 
@@ -79,16 +85,22 @@ class IAlgNode : public IAlg
     virtual void clear_message_queue();        // should NOT be overriden
     virtual void
     send_new_message(cMessage *msg,
-                     double delay = 0.5);           // should NOT be overriden
+                     double delay = DELAY_SENT);    // should NOT be overriden
     virtual void listen_new_message(cMessage *msg); // should NOT be overriden
 
     virtual void record_decided_round();
     virtual void update_previous_status();
 
     virtual void call_handle_message(IAlgNode *alg, cMessage *msg);
+    virtual void handle_synchronized_message(cMessage *msg);
     void delete_synchronized_message();
+
+    virtual centralized::BFSTreeStructure get_bfs_tree_structure() const;
 
     virtual ~IAlgNode();
 };
+
+std::string MIS_status_to_string(MISNodeStatus MIS_status);
+std::string CDS_status_to_string(CDSNodeStatus CDS_status);
 
 #endif // SCDS_ALGORITHMS_IALG_NODE_H_

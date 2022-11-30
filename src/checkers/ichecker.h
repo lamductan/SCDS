@@ -6,9 +6,16 @@
 class IChecker
 {
   public:
+    centralized::Graph *centralized_graph;
+
     std::vector<int> selected_nodes;
     Network *network;
-    IChecker(Network *network) : network(network) {}
+
+    IChecker(Network *network) : network(network)
+    {
+        centralized_graph = network->centralized_graph;
+    }
+
     virtual bool check_all_decided(bool is_final_check) const;
     virtual bool check_cover(bool is_final_check,
                              std::vector<int> need_to_check_nodes = {

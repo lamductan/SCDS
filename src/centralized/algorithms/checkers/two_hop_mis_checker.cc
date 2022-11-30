@@ -3,8 +3,8 @@
 #include <unordered_map>
 
 centralized::TwoHopMISChecker::TwoHopMISChecker(
-    CDSSimpleAlg *alg, const std::vector<int> &selected_nodes)
-    : centralized::MISChecker(alg, selected_nodes)
+    Graph *graph, const std::vector<int> &selected_nodes)
+    : centralized::MISChecker(graph, selected_nodes)
 {
 }
 
@@ -32,8 +32,7 @@ centralized::TwoHopMISChecker::construct_two_hop_mis_graph() const
             node->two_hop_neighbors;
         for (auto it1 : two_hop_neighbors) {
             int two_hop_neighbor_id = it1.first->id;
-            if (two_hop_neighbor_id < nodeid)
-                continue;
+            if (two_hop_neighbor_id < nodeid) continue;
             if (selected_nodes_set.count(two_hop_neighbor_id)) {
                 two_hop_edges.insert({ nodeid, two_hop_neighbor_id });
             }
@@ -49,8 +48,7 @@ bool centralized::TwoHopMISChecker::check() const
         std::cout << "Failed CENTRALIZED TWO-HOP-MIS check!\n";
         return false;
     }
-    if (!MISChecker::check())
-        return false;
+    if (!MISChecker::check()) return false;
     std::cout << "PASS CENTRALIZED TWO-HOP-MIS CHECK!\n";
     return true;
 }

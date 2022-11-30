@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
-#include <queue>
+#include <set>
+#include <tuple>
 
 #include "centralized/algorithms/WAF02_cds/WAF02_CDS.h"
 #include "centralized/algorithms/checkers/cds_checker.h"
@@ -29,31 +30,26 @@ centralized::WAF02CDSAlg::find_bfs_tree_structure_from_root(int root)
     std::map<int, BFSTreeStructure> bfs_tree_structure_all_nodes;
     std::map<int, bool> vis;
     std::map<int, int> level;
-    std::queue<std::pair<int, int>> q;
-    q.push({ root, -1 });
+    std::set<std::tuple<int, int, int>> q;
+    q.insert({ 0, root, -1 });
     while (!q.empty()) {
-        std::pair<int, int> front = q.front();
-        q.pop();
-        int u = front.first;
-        int parent = front.second;
-        if (vis[u])
-            continue;
+        std::tuple<int, int, int> front = *q.begin();
+        q.erase(q.begin());
+        int l = std::get<0>(front);
+        int u = std::get<1>(front);
+        int parent = std::get<2>(front);
+        if (vis[u]) continue;
         vis[u] = true;
-        if (u == root)
-            level[u] = 0;
-        else
-            level[u] = level[parent] + 1;
-        bfs_tree_structure_all_nodes[u] = BFSTreeStructure(u, level[u], parent);
+        level[u] = l;
+        bfs_tree_structure_all_nodes[u] = BFSTreeStructure(u, l, parent);
         if (parent != -1)
             bfs_tree_structure_all_nodes[parent].children.insert(u);
         Node *node_u = graph->nodes[u];
         for (auto it : node_u->neighbors) {
             int v = it.first;
-            if (v == parent)
-                continue;
-            if (vis[v])
-                continue;
-            q.push({ v, u });
+            if (v == parent) continue;
+            if (vis[v]) continue;
+            q.insert({ l + 1, v, u });
         }
     }
     bfs_tree_structures = bfs_tree_structure_all_nodes;
@@ -123,7 +119,7 @@ std::vector<int> centralized::WAF02CDSAlg::find_mis(bool print_undediced_node)
         }
     }
 
-    TwoHopMISChecker *mis_checker = new TwoHopMISChecker(this, mis_nodes);
+    TwoHopMISChecker *mis_checker = new TwoHopMISChecker(graph, mis_nodes);
     assert(mis_checker->check());
     delete mis_checker;
     return mis_nodes;
@@ -138,8 +134,7 @@ std::set<int> centralized::WAF02CDSAlg::find_cds_nodes_from_mis_nodes(
     cds_nodes_set.insert(root_T_star);
     WAF02CDSNode *root_T_star_node = WAF02_cds_nodes[root_T_star];
     for (int mis_node_id : mis_nodes) {
-        if (root_T_star_node->neighbors.count(mis_node_id))
-            continue;
+        if (root_T_star_node->neighbors.count(mis_node_id)) continue;
         WAF02CDSNode *WAF02_mis_node = WAF02_cds_nodes[mis_node_id];
         cds_nodes_set.insert(WAF02_mis_node->bfs_tree_structure.parent);
     }
@@ -171,8 +166,7 @@ int centralized::WAF02CDSAlg::count_mis_neighbor(WAF02CDSNode *node)
     int n_mis_neighbors = 0;
     for (auto it : node->neighbors) {
         Node *neighbor_node = it.second;
-        if (neighbor_node->MIS_status == IN_MIS)
-            ++n_mis_neighbors;
+        if (neighbor_node->MIS_status == IN_MIS) ++n_mis_neighbors;
     }
     return n_mis_neighbors;
 }

@@ -17,14 +17,12 @@ class UnionFind
         size = n;
         parent.assign(n, 0);
         rk.assign(n, 0);
-        for (int i = 0; i < n; ++i)
-            parent[i] = i;
+        for (int i = 0; i < n; ++i) parent[i] = i;
     }
 
     int find(int x)
     {
-        if (x == parent[x])
-            return x;
+        if (x == parent[x]) return x;
         return parent[x] = find(parent[x]);
     }
 
@@ -32,13 +30,10 @@ class UnionFind
     {
         x = find(x);
         y = find(y);
-        if (x == y)
-            return;
-        if (rk[x] < rk[y])
-            std::swap(x, y);
+        if (x == y) return;
+        if (rk[x] < rk[y]) std::swap(x, y);
         parent[y] = x;
-        if (rk[x] == rk[y])
-            ++rk[x];
+        if (rk[x] == rk[y]) ++rk[x];
     }
 };
 

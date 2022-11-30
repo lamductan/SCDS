@@ -10,15 +10,12 @@ class MSTChecker : public IChecker
   private:
     std::set<int> selected_nodes_set;
     std::map<int, centralized::Node *> selected_nodes_map;
-    std::map<int, centralized::Node *> all_nodes_map;
 
     centralized::Graph *subgraph_from_original_graph_edges = nullptr;
     centralized::Graph *subgraph_from_alg_edges = nullptr;
-    centralized::Graph *original_graph = nullptr;
 
     centralized::Graph *construct_subgraph_from_original_graph();
     centralized::Graph *construct_subgraph_from_alg();
-    centralized::Graph *construct_original_graph();
     int minimal_weight_tree_of_subgraph_from_alg = -1;
     int minimal_weight_tree_of_subgraph_from_original_graph = -1;
 

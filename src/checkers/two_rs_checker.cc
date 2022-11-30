@@ -5,8 +5,6 @@
 #include "algorithms/ialg_node.h"
 #include "checkers/two_rs_checker.h"
 
-using namespace omnetpp;
-
 TwoRSChecker::TwoRSChecker(Network *network) : IChecker(network)
 {
     selected_nodes = network->get_selected_nodes();
@@ -51,8 +49,7 @@ bool TwoRSChecker::check_cover(bool is_final_check,
             std::sort(failed_cover_check_nodes.begin(),
                       failed_cover_check_nodes.end());
             EV << "Failed two ruling set cover check nodes: [";
-            for (int node_id : failed_cover_check_nodes)
-                EV << node_id << ",";
+            for (int node_id : failed_cover_check_nodes) EV << node_id << ",";
             EV << "]\n";
         } else {
             EV << "\tPASS\n";
@@ -65,19 +62,16 @@ bool TwoRSChecker::check_cover(bool is_final_check,
 bool TwoRSChecker::check(bool is_final_check) const
 {
     if (!check_all_decided(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed ALL DECIDIED check!\n";
+        if (is_final_check) EV_ERROR << "Failed ALL DECIDIED check!\n";
         return false;
     }
 
     if (!check_cover(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed COVER check!\n";
+        if (is_final_check) EV_ERROR << "Failed COVER check!\n";
         return false;
     }
     if (!check_independent(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed INDEPENDENT check!\n";
+        if (is_final_check) EV_ERROR << "Failed INDEPENDENT check!\n";
         return false;
     }
     EV << "PASS TwoRS CHECK!\n";

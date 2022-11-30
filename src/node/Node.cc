@@ -7,13 +7,13 @@ void Node::initialize()
     id = par("id").intValue();
     n_nodes = par("n_nodes");
     EV << "Node::initialize() -- "
-       << "n_nodes = " << n_nodes << ' ' << "par(\"algorithm\").stringValue()"
+       << "n_nodes = " << n_nodes << ' '
+       << ", par(\"algorithm\").stringValue() = "
        << par("algorithm").stringValue() << '\n';
     threshold_ratio = par("threshold_ratio").doubleValue();
     alg = AlgFactory::create_alg(this, par("algorithm").stringValue(), 1,
                                  threshold_ratio);
-    if (id == 0)
-        network_alg->max_num_rounds = alg->max_num_rounds;
+    if (id == 0) network_alg->max_num_rounds = alg->max_num_rounds;
     networkWirelessIn =
         getParentModule()->getSubmodule("net")->gate("wirelessIn");
 }
@@ -33,8 +33,7 @@ bool Node::is_decided() { return alg->is_decided(); }
 void Node::callFinish()
 {
     // EV << "\nNode::callFinish -- node" << id << '\n';
-    if (!is_finished)
-        return;
+    if (!is_finished) return;
     delete alg->synchronized_message_ptr;
     // alg->delete_synchronized_message();
     IModule::callFinish();

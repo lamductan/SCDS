@@ -47,6 +47,7 @@ void IAlgNode::handle_message(cMessage *msg)
         if (synchronized_message->getSynchronizedMessageType() ==
             SYNCHRONIZED_START_ROUND) {
             start_round(msg);
+            update_previous_status();
             process_round();
             record_decided_round();
         } else {
@@ -59,9 +60,11 @@ void IAlgNode::handle_message(cMessage *msg)
 
 void IAlgNode::record_decided_round()
 {
-    if (previous_MIS_status == UNDECIDED && MIS_status != UNDECIDED) {
+    current_decided_status = is_decided();
+    if (!previous_decided_status && current_decided_status) {
         decided_round = current_round_id;
     }
+    previous_decided_status = current_decided_status;
 }
 
 void IAlgNode::start_round(cMessage *msg)
@@ -71,7 +74,6 @@ void IAlgNode::start_round(cMessage *msg)
     int sender_id = synchronized_message->getSenderId();
     assert(sender_id == -1);
     current_round_id = synchronized_message->getRoundId();
-    EV << "Set synchronized_message_ptr here\n";
     synchronized_message_ptr = msg;
     // EV << "node" << node->id
     //    << " received synchronized message of round " << current_round_id <<
@@ -83,7 +85,6 @@ void IAlgNode::start_round(cMessage *msg)
 void IAlgNode::process_round()
 {
     EV << "IAlgNode::process_round()\n";
-    update_previous_status();
     stage_transition();
     EV << "n_awake_rounds = " << n_awake_rounds << '\n';
     if (!is_awake()) {
@@ -96,8 +97,21 @@ void IAlgNode::process_round()
        << '\n';
     cMessage *new_message = process_message_queue();
     clear_message_queue();
-    if (new_message != nullptr)
-        send_new_message(new_message);
+    if (new_message != nullptr) send_new_message(new_message);
+}
+
+void IAlgNode::handle_synchronized_message(cMessage *msg)
+{
+    if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
+        SynchronizedMessage *synchronized_message =
+            dynamic_cast<SynchronizedMessage *>(msg);
+        if (synchronized_message->getSynchronizedMessageType() ==
+            SYNCHRONIZED_START_ROUND) {
+            synchronized_message_ptr = msg;
+            current_round_id = synchronized_message->getRoundId();
+            stage_transition();
+        }
+    }
 }
 
 void IAlgNode::stage_transition()
@@ -110,8 +124,7 @@ void IAlgNode::stage_transition()
 
 void IAlgNode::clear_message_queue()
 {
-    for (cMessage *msg : message_queue)
-        delete msg;
+    for (cMessage *msg : message_queue) delete msg;
     message_queue.clear();
 }
 
@@ -121,8 +134,7 @@ void IAlgNode::send_new_message(cMessage *msg, double delay)
 {
     EV << "node" << node->id << " : need_to_send = [";
 
-    for (int x : need_to_send)
-        EV << x << ",";
+    for (int x : need_to_send) EV << x << ",";
     EV << "]\n";
     last_communication_round = current_round_id;
     if (need_to_send.size() == 1 && *need_to_send.begin() == -1) {
@@ -171,8 +183,7 @@ void IAlgNode::call_handle_message(IAlgNode *alg, cMessage *msg)
     MIS_status = alg->MIS_status;
     dominator = alg->dominator;
     awake_round_map[current_round_id] = alg->awake_round_map[current_round_id];
-    if (CDS_status != IN_CDS)
-        CDS_status = alg->CDS_status;
+    if (CDS_status != IN_CDS) CDS_status = alg->CDS_status;
     if (is_decided() && alg->decided_round > -1)
         decided_round = alg->decided_round;
     if (alg->last_communication_round > -1)
@@ -184,4 +195,37 @@ void IAlgNode::delete_synchronized_message()
     delete synchronized_message_ptr;
 }
 
+centralized::BFSTreeStructure IAlgNode::get_bfs_tree_structure() const
+{
+    return centralized::BFSTreeStructure();
+}
+
 IAlgNode::~IAlgNode() { clear_message_queue(); }
+
+std::string MIS_status_to_string(MISNodeStatus MIS_status)
+{
+    switch (MIS_status) {
+    case UNDECIDED:
+        return "UNDECIDED";
+    case IN_MIS:
+        return "IN_MIS";
+    case NOT_IN_MIS:
+        return "NOT_IN_MIS";
+    default:
+        break;
+    }
+}
+
+std::string CDS_status_to_string(CDSNodeStatus CDS_status)
+{
+    switch (CDS_status) {
+    case NOT_IN_CDS:
+        return "NOT_IN_CDS";
+    case TENTATIVE_IN_CDS:
+        return "TENTATIVE_IN_CDS";
+    case IN_CDS:
+        return "IN_CDS";
+    default:
+        break;
+    }
+}

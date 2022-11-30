@@ -11,7 +11,9 @@ enum AlgType
     MIS_ALG,
     TWO_RS_ALG,
     CDS_ALG,
-    MST_ALG
+    MST_ALG,
+    BFS_ALG,
+    TWO_HOP_MIS_ALG
 };
 
 class IAlg

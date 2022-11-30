@@ -13,8 +13,7 @@ centralized::Graph::Graph(const char *network_file)
     std::string line;
     std::fstream networkFile(network_file, std::ios::in);
     while (getline(networkFile, line, '\n')) {
-        if (line.empty() || line[0] == '#')
-            continue;
+        if (line.empty() || line[0] == '#') continue;
 
         std::vector<std::string> tokens = splitString(line);
 
@@ -109,23 +108,19 @@ bool centralized::Graph::is_connected()
     std::map<int, bool> visited;
     dfs(nodes.begin()->first, -1, visited);
     for (auto it : nodes)
-        if (!visited[it.first])
-            return false;
+        if (!visited[it.first]) return false;
     return true;
 }
 
 void centralized::Graph::dfs(int u, int parent, std::map<int, bool> &visited)
 {
-    if (visited[u])
-        return;
+    if (visited[u]) return;
     // std::cout << "\tvisit " << u << '\n';
     visited[u] = true;
     for (auto it : nodes[u]->neighbors) {
         int neighbor_id = it.first;
-        if (neighbor_id == parent)
-            continue;
-        if (visited[neighbor_id])
-            continue;
+        if (neighbor_id == parent) continue;
+        if (visited[neighbor_id]) continue;
         dfs(neighbor_id, u, visited);
     }
 }
@@ -146,8 +141,7 @@ void centralized::Graph::print() const
 int centralized::Graph::compute_total_weight() const
 {
     int total_weight = 0;
-    for (Edge edge : edges)
-        total_weight += edge.w;
+    for (Edge edge : edges) total_weight += edge.w;
     return total_weight;
 }
 
@@ -163,8 +157,7 @@ std::vector<centralized::Edge> centralized::Graph::build_mst() const
         if (mst_edges.size() < n - 1) {
             int fr = edge.u;
             int to = edge.v;
-            if (union_find.find(fr) == union_find.find(to))
-                continue;
+            if (union_find.find(fr) == union_find.find(to)) continue;
             union_find.join(fr, to);
             mst_edges.push_back(edge);
         } else {
@@ -180,12 +173,9 @@ void centralized::Graph::find_two_hop_neighbors_of_a_node(Node *node)
         Node *one_hop_neighbor = it.second;
         for (auto it1 : one_hop_neighbor->neighbors) {
             Node *two_hop_neighbor = it1.second;
-            if (two_hop_neighbor->id == node->id)
-                continue;
-            if (node->neighbors.count(two_hop_neighbor->id) > 0)
-                continue;
-            if (node->two_hop_neighbors.count(two_hop_neighbor) > 0)
-                continue;
+            if (two_hop_neighbor->id == node->id) continue;
+            if (node->neighbors.count(two_hop_neighbor->id) > 0) continue;
+            if (node->two_hop_neighbors.count(two_hop_neighbor) > 0) continue;
             node->two_hop_neighbors[two_hop_neighbor] = { one_hop_neighbor,
                                                           nullptr };
         }
@@ -208,12 +198,9 @@ void centralized::Graph::find_three_hop_neighbors_of_a_node(Node *node)
         std::array<Node *, 2> one_hop_path = it.second;
         for (auto it1 : two_hop_neighbor->neighbors) {
             Node *three_hop_neighbor = it1.second;
-            if (three_hop_neighbor->id == node->id)
-                continue;
-            if (node->neighbors.count(three_hop_neighbor->id) > 0)
-                continue;
-            if (node->two_hop_neighbors.count(three_hop_neighbor) > 0)
-                continue;
+            if (three_hop_neighbor->id == node->id) continue;
+            if (node->neighbors.count(three_hop_neighbor->id) > 0) continue;
+            if (node->two_hop_neighbors.count(three_hop_neighbor) > 0) continue;
             if (node->three_hop_neighbors.count(three_hop_neighbor) > 0)
                 continue;
             node->three_hop_neighbors[three_hop_neighbor] = {
@@ -235,6 +222,5 @@ void centralized::Graph::find_three_hop_neighbors()
 
 centralized::Graph::~Graph()
 {
-    for (auto it : nodes)
-        delete it.second;
+    for (auto it : nodes) delete it.second;
 }

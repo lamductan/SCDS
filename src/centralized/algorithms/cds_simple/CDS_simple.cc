@@ -56,8 +56,7 @@ std::vector<int> centralized::CDSSimpleAlg::find_mis(bool print_undediced_node)
         }
         for (auto it : graph->nodes) {
             Node *node = it.second;
-            if (node->is_mis_status_decided())
-                continue;
+            if (node->is_mis_status_decided()) continue;
             if (node->all_remained_neighbors.empty()) {
                 node->MIS_status = IN_MIS;
                 node->dominator = node->id;
@@ -84,12 +83,11 @@ std::vector<int> centralized::CDSSimpleAlg::find_mis(bool print_undediced_node)
 
     for (auto it : graph->nodes) {
         Node *node = it.second;
-        if (node->MIS_status == IN_MIS)
-            mis_nodes.push_back(node->id);
+        if (node->MIS_status == IN_MIS) mis_nodes.push_back(node->id);
     }
     std::sort(mis_nodes.begin(), mis_nodes.end());
 
-    MISChecker *mis_checker = new MISChecker(this, mis_nodes);
+    MISChecker *mis_checker = new MISChecker(graph, mis_nodes);
     assert(mis_checker->check());
     delete mis_checker;
     return mis_nodes;
@@ -106,7 +104,7 @@ std::vector<int> centralized::CDSSimpleAlg::find_cds(bool apply_rule)
     }
 
     std::vector<int> cds_nodes(cds_nodes_set.begin(), cds_nodes_set.end());
-    CDSChecker *cds_checker = new CDSChecker(this, cds_nodes);
+    CDSChecker *cds_checker = new CDSChecker(graph, cds_nodes);
     bool res = cds_checker->check();
     std::cout << "cds_checker->check() = " << res << "\n";
     assert(res);
@@ -141,16 +139,13 @@ std::set<int> centralized::CDSSimpleAlg::find_cds_nodes_from_mis_nodes(
         for (auto it : cds_simple_node->two_three_hop_neighbors) {
             Node *two_three_hop_neighbor = it.first;
             int two_three_hop_neighbor_id = two_three_hop_neighbor->id;
-            if (two_three_hop_neighbor_id > node->id)
-                continue;
-            if (mis_nodes_set.count(two_three_hop_neighbor_id) == 0)
-                continue;
+            if (two_three_hop_neighbor_id > node->id) continue;
+            if (mis_nodes_set.count(two_three_hop_neighbor_id) == 0) continue;
             CDSSimpleNode *cds_simple_two_three_hop_neighbor =
                 dynamic_cast<CDSSimpleNode *>(two_three_hop_neighbor);
             std::array<Node *, 2> path = it.second;
             for (int i = 0; i < 2; ++i) {
-                if (path[i] == nullptr)
-                    continue;
+                if (path[i] == nullptr) continue;
                 // std::cout << "\tAdding " << path[i]->id << " as a node on
                 // path from "
                 //    << two_three_hop_neighbor_id << " to " << v << '\n';
@@ -170,8 +165,7 @@ bool centralized::CDSSimpleAlg::rule1_condition1(int u, int v)
 
 bool centralized::CDSSimpleAlg::rule1_condition2(int u, int v)
 {
-    if (u > v)
-        return false;
+    if (u > v) return false;
     std::set<int> N_u = graph->nodes[u]->neighbors_set;
     std::set<int> N_v = graph->nodes[v]->neighbors_set;
     return N_u == N_v;
@@ -191,8 +185,7 @@ bool centralized::CDSSimpleAlg::rule2_condition1(int u, int v, int w)
 
 bool centralized::CDSSimpleAlg::rule2_condition2(int u, int v, int w)
 {
-    if (u > v || u > w)
-        return false;
+    if (u > v || u > w) return false;
     std::set<int> N_u = graph->nodes[u]->neighbors_set;
     N_u.erase(v);
     N_u.erase(w);
@@ -222,8 +215,7 @@ bool centralized::CDSSimpleAlg::rule3_condition1(int u, int x, int y, int z)
 
 bool centralized::CDSSimpleAlg::rule3_condition2(int u, int x, int y, int z)
 {
-    if (u > x || u > y || u > z)
-        return false;
+    if (u > x || u > y || u > z) return false;
     std::set<int> N_u = graph->nodes[u]->neighbors_set;
     N_u.erase(x);
     N_u.erase(y);
@@ -258,8 +250,7 @@ centralized::CDSSimpleAlg::apply_rule_1(const std::set<int> &cds_nodes)
         // std::cout << "\n";
 
         for (int v : node_u->neighbors_set) {
-            if (cds_nodes_1.count(v) == 0)
-                continue;
+            if (cds_nodes_1.count(v) == 0) continue;
             Node *node_v = graph->nodes[v];
 
             // std::cout << "\t";
@@ -308,12 +299,10 @@ centralized::CDSSimpleAlg::apply_rule_2(const std::set<int> &cds_nodes)
         // std::cout << "\n";
 
         for (int v : node_u->neighbors_set) {
-            if (cds_nodes_1.count(v) == 0)
-                continue;
+            if (cds_nodes_1.count(v) == 0) continue;
             Node *node_v = graph->nodes[v];
             for (int w : node_u->neighbors_set) {
-                if (cds_nodes_1.count(w) == 0)
-                    continue;
+                if (cds_nodes_1.count(w) == 0) continue;
                 Node *node_w = graph->nodes[w];
 
                 // std::cout << "\t";
@@ -341,8 +330,7 @@ centralized::CDSSimpleAlg::apply_rule_2(const std::set<int> &cds_nodes)
                     break;
                 }
             }
-            if (erase_u)
-                break;
+            if (erase_u) break;
         }
 
         // if (erase_u) {

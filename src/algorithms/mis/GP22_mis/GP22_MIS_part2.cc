@@ -34,8 +34,7 @@ int GP22MISPart2Alg::find_first_awake_round_in_iteration()
         int n_rounds = C * pow(log_d - i, 2);
         double p = pow(2, i) / d;
         int first_awake_round = node->geometric(p);
-        if (first_awake_round % 2 == 1)
-            --first_awake_round;
+        if (first_awake_round % 2 == 1) --first_awake_round;
         if (first_awake_round < n_rounds) {
             if (res == -1)
                 res = first_awake_round + total_rounds_until_last_phase;
@@ -44,8 +43,7 @@ int GP22MISPart2Alg::find_first_awake_round_in_iteration()
         EV << '\t' << i << ' ' << total_rounds_until_last_phase << ' ' << res
            << '\n';
     }
-    if (res == -1)
-        res = total_rounds_until_last_phase;
+    if (res == -1) res = total_rounds_until_last_phase;
     return res;
 }
 
@@ -146,11 +144,9 @@ cMessage *GP22MISPart2Alg::process_message_queue_declaring_status_round()
         } else if (neighbor_status == NOT_IN_MIS) {
             all_remained_neighbors.erase(neighbor_id);
         }
-        if (neighbor_marked)
-            has_one_marked_neighbor = true;
+        if (neighbor_marked) has_one_marked_neighbor = true;
     }
-    if (!marked && MIS_status == UNDECIDED)
-        return nullptr;
+    if (!marked && MIS_status == UNDECIDED) return nullptr;
     if (marked && !has_one_marked_neighbor) {
         MIS_status = IN_MIS;
         dominator = node->id;

@@ -17,6 +17,12 @@ IChecker *CheckerFactory::create_checker(Network *network)
     } else if (strncmp(alg_name, "MST", 3) == 0) {
         EV << "Algorithm: " << alg_name << '\n';
         return new MSTChecker(network);
+    } else if (strncmp(alg_name, "BFS", 3) == 0) {
+        EV << "Algorithm: " << alg_name << '\n';
+        return new BFSChecker(network);
+    } else if (strncmp(alg_name, "TwoHopMIS", 9) == 0) {
+        EV << "Algorithm: " << alg_name << '\n';
+        return new TwoHopMISChecker(network);
     }
     return nullptr;
 }

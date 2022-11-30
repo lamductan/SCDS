@@ -166,10 +166,8 @@ bool GK96CDSAlg::is_awake()
 
 bool GK96CDSAlg::is_decided()
 {
-    if (GK96_CDS_stage != GK96CDSStage::CDS_STAGE)
-        return false;
-    if (MIS_status == IN_MIS)
-        return CDS_alg->is_decided();
+    if (GK96_CDS_stage != GK96CDSStage::CDS_STAGE) return false;
+    if (MIS_status == IN_MIS) return CDS_alg->is_decided();
     return true;
 }
 

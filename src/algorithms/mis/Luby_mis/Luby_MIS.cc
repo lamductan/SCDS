@@ -63,8 +63,7 @@ cMessage *LubyMISAlg::process_message_queue_for_generate_mark_round()
         LubyMISMessage *Luby_MIS_message = dynamic_cast<LubyMISMessage *>(msg);
         int neighbor_id = Luby_MIS_message->getSenderId();
         MISNodeStatus neighbor_status = Luby_MIS_message->getStatus();
-        if (neighbor_status != UNDECIDED)
-            need_to_send.erase(neighbor_id);
+        if (neighbor_status != UNDECIDED) need_to_send.erase(neighbor_id);
         if (neighbor_status == IN_MIS) {
             MIS_status = NOT_IN_MIS;
             dominator = neighbor_id;
@@ -114,8 +113,7 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round()
                << "neighbor_id = " << neighbor_id
                << ", neighbor_marked = " << neighbor_marked
                << ", neighbor_degree = " << neighbor_degree << '\n';
-            if (!neighbor_marked)
-                continue;
+            if (!neighbor_marked) continue;
             if ((neighbor_degree > degree) ||
                 (neighbor_degree == degree && neighbor_id > node->id)) {
                 marked = false;
@@ -123,8 +121,7 @@ cMessage *LubyMISAlg::process_message_queue_for_processing_mark_round()
         }
         EV << "\t"
            << "marked = " << marked << "\n";
-        if (!marked)
-            return nullptr;
+        if (!marked) return nullptr;
         EV << "\tJoin MIS\n";
         MIS_status = IN_MIS;
         dominator = node->id;

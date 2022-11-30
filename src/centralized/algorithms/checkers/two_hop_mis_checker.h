@@ -11,7 +11,7 @@ class TwoHopMISChecker : public MISChecker
     Graph *construct_two_hop_mis_graph() const;
 
   public:
-    TwoHopMISChecker(CDSSimpleAlg *alg, const std::vector<int> &selected_nodes);
+    TwoHopMISChecker(Graph *graph, const std::vector<int> &selected_nodes);
     virtual bool check_two_hop_mis() const;
     virtual bool check() const;
 }; // class TwoHopMISChecker

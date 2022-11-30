@@ -121,4 +121,5 @@ class GHSMSTMessage : public cMessage
 std::string GHSMSTMessageType_to_string(GHSMSTMessageType GHS_MST_message_type);
 std::string GHSMSTNodeState_to_string(GHSMSTNodeState GHS_MST_node_state);
 std::string GHSMSTEdgeState_to_string(GHSMSTEdgeState GHS_MST_edge_state);
+
 #endif

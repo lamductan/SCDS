@@ -23,3 +23,10 @@ BraceWrapping:
   BeforeElse: false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: true
+PenaltyBreakFirstLessLess: 80

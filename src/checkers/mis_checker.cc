@@ -4,8 +4,6 @@
 #include "algorithms/ialg_node.h"
 #include "checkers/mis_checker.h"
 
-using namespace omnetpp;
-
 MISChecker::MISChecker(Network *network) : IChecker(network)
 {
     selected_nodes = network->get_selected_nodes();

@@ -79,8 +79,7 @@ void LamTwoRSAlg::handle_message(cMessage *msg)
         break;
     }
 
-    if (Lam_Two_RS_stage == LamTwoRSStage::END_STAGE)
-        return;
+    if (Lam_Two_RS_stage == LamTwoRSStage::END_STAGE) return;
     n_awake_rounds = Lam_Two_RS_part1_alg->n_awake_rounds +
                      Lam_Two_RS_part1_2_alg->n_awake_rounds +
                      Lam_Two_RS_part2_alg->n_awake_rounds;
@@ -117,8 +116,7 @@ void LamTwoRSAlg::stage_transition()
                 Lam_Two_RS_part1_2_alg->all_remained_neighbors.end());
             std::sort(node->all_neighbors.begin(), node->all_neighbors.end());
             EV << "LamTwoRSAlg::node->all_neighbors = [";
-            for (int x : node->all_neighbors)
-                EV << x << ',';
+            for (int x : node->all_neighbors) EV << x << ',';
             EV << "]\n";
         }
     }

@@ -7,6 +7,7 @@
 
 # ./run.sh run/20/sparse/omnetpp_000.ini CDS-Lam > results/a4.txt
 # ./run.sh run/20/sparse/omnetpp_000.ini MST-GHS > results/a4.txt
+# ./run.sh run/20/sparse/omnetpp_000.ini BFS > results/a4.txt
 
 omnetpp=${1:-"run/20/sparse/omnetpp_000.ini"}
 config=${2:-"MIS-KW08"}

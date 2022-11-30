@@ -26,8 +26,7 @@ void ThreeHopMSTAlg::process_async_message_queue()
     std::vector<GHSMSTMessage *> processed_messages;
     for (GHSMSTMessage *msg : async_message_queue) {
         int sender_id = msg->getSenderId();
-        if (already_processed_neighbors.count(sender_id) > 0)
-            continue;
+        if (already_processed_neighbors.count(sender_id) > 0) continue;
         GHSMSTMessage *new_msg = msg->dup();
         new_msg->setSenderId(id);
         new_msg->setReceiverId(
@@ -48,7 +47,6 @@ void ThreeHopMSTAlg::process_async_message_queue()
 
 bool ThreeHopMSTAlg::is_awake()
 {
-    if (CDS_status == NOT_IN_CDS)
-        return false;
+    if (CDS_status == NOT_IN_CDS) return false;
     return GHSMSTAlg::is_awake();
 }

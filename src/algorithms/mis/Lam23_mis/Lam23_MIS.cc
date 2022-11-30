@@ -65,12 +65,17 @@ void LamMISAlg::handle_message(cMessage *msg)
     EV << "LamMISAlg::Lam_MIS_stage = " << Lam_MIS_stage << '\n';
 
     switch (Lam_MIS_stage) {
-    case LamMISStage::PART1: call_handle_message(Lam_MIS_part1_alg, msg); break;
+    case LamMISStage::PART1:
+        call_handle_message(Lam_MIS_part1_alg, msg);
+        break;
     case LamMISStage::PART1_2:
         call_handle_message(Lam_MIS_part1_2_alg, msg);
         break;
-    case LamMISStage::PART3: call_handle_message(Lam_MIS_part3_alg, msg); break;
-    default: break;
+    case LamMISStage::PART3:
+        call_handle_message(Lam_MIS_part3_alg, msg);
+        break;
+    default:
+        break;
     }
 
     n_awake_rounds = Lam_MIS_part1_alg->n_awake_rounds +

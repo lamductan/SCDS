@@ -62,20 +62,6 @@ void SimpleCDSAlg::handle_message(cMessage *msg)
     EV << "last_communication_round : " << last_communication_round << '\n';
 }
 
-void SimpleCDSAlg::handle_synchronized_message(cMessage *msg)
-{
-    if (msg->getKind() == SYNCHRONIZED_MESSAGE) {
-        SynchronizedMessage *synchronized_message =
-            dynamic_cast<SynchronizedMessage *>(msg);
-        if (synchronized_message->getSynchronizedMessageType() ==
-            SYNCHRONIZED_START_ROUND) {
-            synchronized_message_ptr = msg;
-            current_round_id = synchronized_message->getRoundId();
-            stage_transition();
-        }
-    }
-}
-
 void SimpleCDSAlg::stage_transition()
 {
     if (Simple_CDS_stage == SimpleCDSStage::INITIAL_STAGE) {
@@ -83,8 +69,7 @@ void SimpleCDSAlg::stage_transition()
     } else if (current_round_id == CDS_stage_starting_round) {
         Simple_CDS_stage = SimpleCDSStage::CDS_STAGE;
         CDS_alg->MIS_status = SW08_MIS_alg->MIS_status;
-        if (CDS_alg->MIS_status == IN_MIS)
-            CDS_alg->CDS_status = IN_CDS;
+        if (CDS_alg->MIS_status == IN_MIS) CDS_alg->CDS_status = IN_CDS;
     }
 }
 

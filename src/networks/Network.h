@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "centralized/graph/graph.h"
 #include "common.h"
 #include "node/Node.h"
 
@@ -41,7 +42,12 @@ class Network : public IModule
     int get_total_awake_rounds();
     int get_finished_round();
     void log_result();
+
+    std::map<int, centralized::Node *> centralized_nodes_map;
+    centralized::Graph *centralized_graph;
+    centralized::Graph *construct_graph();
     bool check(bool is_final_check = true);
+
     virtual void finish() override;
     virtual ~Network();
 };

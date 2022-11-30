@@ -59,8 +59,7 @@ bool SW08MISAlg::is_new_stage()
     bool res = true;
     for (auto it : neighbors_status) {
         SW08NodeStatus neighbor_status = it.second;
-        if (is_decided_status(neighbor_status))
-            continue;
+        if (is_decided_status(neighbor_status)) continue;
         if (neighbor_status == SW08_RULER ||
             neighbor_status == SW08_COMPETITOR) {
             res = false;
@@ -69,8 +68,7 @@ bool SW08MISAlg::is_new_stage()
             break;
         }
     }
-    if (res)
-        return true;
+    if (res) return true;
     return ((current_round_id - starting_round) % n_rounds_per_stage) == 0;
 }
 
@@ -84,8 +82,7 @@ bool SW08MISAlg::is_new_phase()
     bool res = true;
     for (auto it : neighbors_status) {
         SW08NodeStatus neighbor_status = it.second;
-        if (is_decided_status(neighbor_status))
-            continue;
+        if (is_decided_status(neighbor_status)) continue;
         if (neighbor_status == SW08_COMPETITOR) {
             EV << "Can't start new phase. Neighbor " << it.first
                << " is SW08_COMPETITOR\n";
@@ -93,15 +90,13 @@ bool SW08MISAlg::is_new_phase()
             break;
         }
     }
-    if (res)
-        return true;
+    if (res) return true;
     return ((current_round_id - starting_round) % n_rounds_per_phase) == 0;
 }
 
 bool SW08MISAlg::reset_stage_if_needed()
 {
-    if (is_decided())
-        return false;
+    if (is_decided()) return false;
     if (is_new_stage()) {
         if (SW08_status == SW08_COMPETITOR || SW08_status == SW08_RULER) {
             EV_ERROR << "New stage but node" << node->id << " has status "
@@ -127,16 +122,14 @@ bool SW08MISAlg::reset_stage_if_needed()
 
 bool SW08MISAlg::reset_phase_if_needed()
 {
-    if (is_decided())
-        return false;
+    if (is_decided()) return false;
     if (!is_new_stage() && is_new_phase()) {
         if (SW08_status == SW08_COMPETITOR) {
             EV_ERROR << "New phase but node" << node->id << " has status "
                      << SW08_status << '\n';
         }
 
-        if (SW08_status == SW08_RULER)
-            SW08_status = SW08_COMPETITOR;
+        if (SW08_status == SW08_RULER) SW08_status = SW08_COMPETITOR;
         r = node->id;
         for (int neighbor_id : node->all_neighbors) {
             if (neighbors_status[neighbor_id] == SW08_RULER) {
@@ -146,16 +139,14 @@ bool SW08MISAlg::reset_phase_if_needed()
         }
 
         std::vector<int> competitors;
-        if (SW08_status == SW08_COMPETITOR)
-            competitors.push_back(node->id);
+        if (SW08_status == SW08_COMPETITOR) competitors.push_back(node->id);
         for (int neighbor_id : node->all_neighbors) {
             if (neighbors_status[neighbor_id] == SW08_COMPETITOR) {
                 competitors.push_back(neighbor_id);
             }
         }
         EV << "New phase. Competitors = [";
-        for (int competitor : competitors)
-            EV << competitor << ",";
+        for (int competitor : competitors) EV << competitor << ",";
         EV << "]\n";
         return true;
     }
@@ -185,14 +176,12 @@ int SW08MISAlg::find_smallest_r()
         }
         // EV << "(" << neighbor_id << "," << neighbors_r[neighbor_id] << "," <<
         // neighbors_status[neighbor_id] << "), ";
-        if (neighbors_status[neighbor_id] != SW08_COMPETITOR)
-            continue;
+        if (neighbors_status[neighbor_id] != SW08_COMPETITOR) continue;
         smallest_r = std::min(smallest_r, neighbors_r[neighbor_id]);
         EV << "(" << neighbor_id << "," << neighbors_r[neighbor_id] << ","
            << neighbors_status[neighbor_id] << "), ";
     }
-    if (smallest_r == INT_MAX)
-        smallest_r = 0;
+    if (smallest_r == INT_MAX) smallest_r = 0;
     EV << '\n';
     EV << "smallest_r = " << smallest_r << '\n';
     return smallest_r;
@@ -255,8 +244,7 @@ cMessage *SW08MISAlg::process_message_queue_for_exchange_r_round()
         init_alg_variables();
     } else {
         new_stage = reset_stage_if_needed();
-        if (!new_stage)
-            new_phase = reset_phase_if_needed();
+        if (!new_stage) new_phase = reset_phase_if_needed();
     }
 
     EV << "\t"
@@ -308,10 +296,8 @@ cMessage *SW08MISAlg::process_message_queue_for_exchange_state_1_round()
             EV << "\t"
                << "neighbor_id = " << neighbor_id << ' '
                << "neighbor_r = " << neighbor_r << '\n';
-            if (neighbor_r <= r)
-                can_be_dominator = false;
-            if (neighbor_r < r)
-                can_be_ruler = false;
+            if (neighbor_r <= r) can_be_dominator = false;
+            if (neighbor_r < r) can_be_ruler = false;
         }
         if (can_be_dominator) {
             SW08_status = SW08_DOMINATOR;
@@ -372,12 +358,4 @@ bool SW08MISAlg::is_awake()
         return true;
     }
     return IAlgNode::is_awake();
-}
-
-void SW08MISAlg::record_decided_round()
-{
-    if (!is_decided_status(SW08_previous_status) &&
-        is_decided_status(SW08_status)) {
-        decided_round = current_round_id;
-    }
 }

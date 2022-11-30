@@ -26,8 +26,7 @@ centralized::Graph *CDSChecker::construct_cds_subgraph() const
         centralized::Node *centralized_node = it.second;
         Node *node = network->nodes[nodeid];
         for (int neighbor_id : node->all_neighbors) {
-            if (neighbor_id < nodeid)
-                continue;
+            if (neighbor_id < nodeid) continue;
             if (selected_nodes_set.count(neighbor_id)) {
                 cds_edges.insert({ nodeid, neighbor_id });
             }
@@ -53,13 +52,11 @@ bool CDSChecker::check_connected(bool is_final_check) const
 bool CDSChecker::check(bool is_final_check) const
 {
     if (!check_cover(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed COVER check!\n";
+        if (is_final_check) EV_ERROR << "Failed COVER check!\n";
         return false;
     }
     if (!check_connected(is_final_check)) {
-        if (is_final_check)
-            EV_ERROR << "Failed CONNECTED check!\n";
+        if (is_final_check) EV_ERROR << "Failed CONNECTED check!\n";
         return false;
     }
     EV << "PASS CDS CHECK!\n";
@@ -68,6 +65,5 @@ bool CDSChecker::check(bool is_final_check) const
 
 CDSChecker::~CDSChecker()
 {
-    for (auto it : selected_nodes_map)
-        delete it.second;
+    for (auto it : selected_nodes_map) delete it.second;
 }

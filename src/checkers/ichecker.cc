@@ -65,8 +65,7 @@ bool IChecker::check_cover(bool is_final_check,
             std::sort(failed_cover_check_nodes.begin(),
                       failed_cover_check_nodes.end());
             EV << "Failed cover check nodes: [";
-            for (int node_id : failed_cover_check_nodes)
-                EV << node_id << ",";
+            for (int node_id : failed_cover_check_nodes) EV << node_id << ",";
             EV << "]\n";
         } else {
             EV << "\tPASS\n";

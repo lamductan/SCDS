@@ -19,8 +19,7 @@ class GHSMSTAlg : public IAlgNode
     {
         bool operator()(GHSMSTMessage *lhs, GHSMSTMessage *rhs) const
         {
-            if (lhs->sent_round_id < rhs->sent_round_id)
-                return true;
+            if (lhs->sent_round_id < rhs->sent_round_id) return true;
             if (lhs->sent_round_id == rhs->sent_round_id &&
                 lhs->sender_id < rhs->sender_id)
                 return true;
@@ -78,7 +77,6 @@ class GHSMSTAlg : public IAlgNode
     virtual void clear_message_queue() override;
     virtual bool is_decided() override;
     virtual bool is_awake() override;
-    virtual void record_decided_round() override;
 
     int get_neighbor_id(const std::tuple<int, int, int> &edge_id) const;
     bool is_endpoint_of_edge(const std::tuple<int, int, int> &edge_id) const;

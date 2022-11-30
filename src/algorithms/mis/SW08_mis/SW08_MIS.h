@@ -57,7 +57,6 @@ class SW08MISAlg : public IAlgNode
     int find_smallest_r();
     bool is_new_stage();
     bool is_new_phase();
-    virtual void record_decided_round() override;
 
     cMessage *process_message_queue_for_exchange_r_round();
     cMessage *process_message_queue_for_exchange_state_1_round();

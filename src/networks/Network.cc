@@ -49,8 +49,7 @@ void Network::buildNetwork(cModule *parent)
     int n, m;
     std::fstream networkFile(network_file, std::ios::in);
     while (getline(networkFile, line, '\n')) {
-        if (line.empty() || line[0] == '#')
-            continue;
+        if (line.empty() || line[0] == '#') continue;
 
         std::vector<std::string> tokens =
             cStringTokenizer(line.c_str()).asVector();
@@ -151,6 +150,8 @@ void Network::buildNetwork(cModule *parent)
         Node *node = it.second;
         node->network_alg = alg;
     }
+    centralized_graph = construct_graph();
+    centralized_graph->find_three_hop_neighbors();
     parent->callInitialize();
 }
 
@@ -159,8 +160,7 @@ std::vector<int> Network::get_selected_nodes()
     std::vector<int> selected_nodes;
     for (auto it : nodes) {
         Node *node = it.second;
-        if (node->alg->is_selected())
-            selected_nodes.push_back(node->id);
+        if (node->alg->is_selected()) selected_nodes.push_back(node->id);
     }
     std::sort(selected_nodes.begin(), selected_nodes.end());
     return selected_nodes;
@@ -186,6 +186,31 @@ int Network::get_finished_round()
                                            node->alg->decided_round));
     }
     return finished_round;
+}
+
+centralized::Graph *Network::construct_graph()
+{
+    for (auto it : nodes) {
+        int nodeid = it.first;
+        Node *node = it.second;
+        centralized::Node *centralized_node =
+            new centralized::Node(0, 0, nodeid);
+        centralized_nodes_map[nodeid] = centralized_node;
+    }
+    std::set<centralized::Edge> edges_from_original_graph;
+    for (auto it : centralized_nodes_map) {
+        int nodeid = it.first;
+        centralized::Node *centralized_node = it.second;
+        Node *node = nodes[nodeid];
+        for (int neighbor_id : node->all_neighbors) {
+            if (neighbor_id < nodeid) continue;
+            edges_from_original_graph.insert({ nodeid, neighbor_id });
+        }
+    }
+    centralized::Graph *centralized_graph =
+        new centralized::Graph(centralized_nodes_map, edges_from_original_graph,
+                               centralized::CDS_SIMPLE_NODE_TYPE);
+    return centralized_graph;
 }
 
 bool Network::check(bool is_final_check)
@@ -229,8 +254,7 @@ void Network::log_result()
 
     std::vector<int> idle_rounds;
     for (int i = 1; i < finished_round; ++i) {
-        if (is_idle_round(all_awake_round_vec, i))
-            idle_rounds.push_back(i);
+        if (is_idle_round(all_awake_round_vec, i)) idle_rounds.push_back(i);
     }
 
     f << "#n n_selected_nodes total_awake_rounds average_awake_rounds "
@@ -241,8 +265,7 @@ void Network::log_result()
       << (finished_round - idle_rounds.size()) << "\n";
 
     f << "#idle rounds:\n";
-    for (int x : idle_rounds)
-        f << x << ' ';
+    for (int x : idle_rounds) f << x << ' ';
     f << '\n';
 
     f << "\n#node_id node_n_awake_rounds node_decided_round "
@@ -263,8 +286,7 @@ void Network::log_result()
     }
 
     f << "\n#selected nodes:\n";
-    for (int selected_node : selected_nodes)
-        f << selected_node << '\n';
+    for (int selected_node : selected_nodes) f << selected_node << '\n';
     IChecker *checker = CheckerFactory::create_checker(this);
     f << "Check result = " << checker->check() << '\n';
     delete checker;
@@ -279,4 +301,9 @@ void Network::finish()
     delete checker;
 }
 
-Network::~Network() { delete alg; }
+Network::~Network()
+{
+    delete alg;
+    delete centralized_graph;
+    for (auto it : centralized_nodes_map) delete it.second;
+}

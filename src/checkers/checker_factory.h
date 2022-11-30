@@ -1,10 +1,12 @@
 #ifndef SCDS_CHECKERS_CHECKER_H_
 #define SCDS_CHECKERS_CHECKER_H_
 
+#include "bfs_checker.h"
 #include "cds_checker.h"
 #include "dummy_checker.h"
 #include "mis_checker.h"
 #include "mst_checker.h"
+#include "two_hop_mis_checker.h"
 #include "two_rs_checker.h"
 
 class CheckerFactory
