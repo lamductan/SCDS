@@ -19,4 +19,8 @@
 #include "algorithms/cds/WAF02_cds/WAF02_CDS.h"
 #include "algorithms/cds/WAF02_cds/WAF02_TwoHopMIS.h"
 
+#include "algorithms/cds/Lam23_cds_congest/Lam23_CDS_congest.h"
+#include "algorithms/cds/Lam23_cds_local/Lam23_BFS.h"
+#include "algorithms/mst/AMP22_mst/AMP22_mst.h"
+
 #endif // SCDS_ALGORITHMS_ALGS_H_

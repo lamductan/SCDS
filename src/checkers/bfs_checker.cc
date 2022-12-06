@@ -14,10 +14,11 @@ bool BFSChecker::check_bfs_structure(bool is_final_check) const
     std::cout << "BFSChecker::check_bfs_structure()\n";
     centralized::WAF02CDSAlg *WAF02_cds_alg = new centralized::WAF02CDSAlg(
         centralized_graph->nodes, centralized_graph->edges);
-    std::map<int, centralized::BFSTreeStructure> bfs_structures_centralized =
-        WAF02_cds_alg->find_bfs_tree_structure_from_root(0);
     std::map<int, centralized::BFSTreeStructure> bfs_structures_distributed =
         get_bfs_structure_from_network();
+    int distributed_bfs_root = bfs_structures_distributed[0].root;
+    std::map<int, centralized::BFSTreeStructure> bfs_structures_centralized =
+        WAF02_cds_alg->find_bfs_tree_structure_from_root(distributed_bfs_root);
 
     bool res = is_equal_bfs_structure(bfs_structures_centralized,
                                       bfs_structures_distributed);

@@ -15,10 +15,14 @@ class SimpleCDSMessage : public cMessage
     int sender_id;
     std::map<int, std::array<int, 3>> MIS_info;
     std::set<int> cds_nodes;
+    std::map<std::tuple<int, int, int>, std::array<int, 4>>
+        nodes_on_directed_paths;
 
-    void copyInformation(int sender_id,
-                         const std::map<int, std::array<int, 3>> &MIS_info,
-                         const std::set<int> &cds_nodes);
+    void copyInformation(
+        int sender_id, const std::map<int, std::array<int, 3>> &MIS_info,
+        const std::set<int> &cds_nodes,
+        const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+            &nodes_on_directed_paths);
 
     std::string to_string(int log_level = 0) const;
 
@@ -39,6 +43,13 @@ class SimpleCDSMessage : public cMessage
     void setMISInfo(const std::map<int, std::array<int, 3>> &MIS_info);
     std::set<int> getCDSNodes() const;
     void setCDSNodes(const std::set<int> &cds_nodes);
+
+    std::map<std::tuple<int, int, int>, std::array<int, 4>>
+    getNodesOnDirectedPaths() const;
+
+    void setNodesOnDirectedPaths(
+        const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+            &nodes_on_directed_paths);
 };
 
 #endif // SCDS_ALGORITHMS_CDS_SIMPLE_CDS_SIMPLE_CDS_MESSAGE_H_

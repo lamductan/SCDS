@@ -1,3 +1,11 @@
 run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=false -c MST-GHS -r 1
+
 run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=false -c TwoHopMIS-WAF02 -r 1
+
 run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=false -c CDS-WAF02 -r 1
+
+run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=false -c BFS-Lam-Local -r 1
+
+run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=false -c MST-AMP22 -r 1
+
+run -f run/20/sparse/omnetpp_000.ini -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=false -c CDS-Lam-Congest -r 1

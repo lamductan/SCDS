@@ -7,23 +7,28 @@ SimpleCDSMessage::SimpleCDSMessage(const char *name, short kind)
 
 void SimpleCDSMessage::copyInformation(
     int sender_id, const std::map<int, std::array<int, 3>> &MIS_info,
-    const std::set<int> &cds_nodes)
+    const std::set<int> &cds_nodes,
+    const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+        &nodes_on_directed_paths)
 {
     this->sender_id = sender_id;
     this->MIS_info = MIS_info;
     this->cds_nodes = cds_nodes;
+    this->nodes_on_directed_paths = nodes_on_directed_paths;
 }
 
 SimpleCDSMessage::SimpleCDSMessage(const SimpleCDSMessage &other)
     : cMessage((cMessage)other)
 {
-    copyInformation(other.sender_id, other.MIS_info, other.cds_nodes);
+    copyInformation(other.sender_id, other.MIS_info, other.cds_nodes,
+                    other.nodes_on_directed_paths);
 }
 
 SimpleCDSMessage &SimpleCDSMessage::operator=(const SimpleCDSMessage &other)
 {
     cMessage::operator=(other);
-    copyInformation(other.sender_id, other.MIS_info, other.cds_nodes);
+    copyInformation(other.sender_id, other.MIS_info, other.cds_nodes,
+                    other.nodes_on_directed_paths);
     return *this;
 }
 
@@ -43,6 +48,19 @@ void SimpleCDSMessage::setMISInfo(
     const std::map<int, std::array<int, 3>> &MIS_info)
 {
     this->MIS_info = MIS_info;
+}
+
+std::map<std::tuple<int, int, int>, std::array<int, 4>>
+SimpleCDSMessage::getNodesOnDirectedPaths() const
+{
+    return nodes_on_directed_paths;
+}
+
+void SimpleCDSMessage::setNodesOnDirectedPaths(
+    const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+        &nodes_on_directed_paths)
+{
+    this->nodes_on_directed_paths = nodes_on_directed_paths;
 }
 
 std::set<int> SimpleCDSMessage::getCDSNodes() const { return cds_nodes; }

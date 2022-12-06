@@ -37,8 +37,6 @@ enum GHSMSTEdgeState
     GHS_MST_EDGE_STATE_REJECTED
 };
 
-const std::tuple<int, int, int> INF_EDGE_ID = { INT_MAX, -1, -1 };
-
 class GHSMSTMessage : public cMessage
 {
   public:
@@ -122,4 +120,4 @@ std::string GHSMSTMessageType_to_string(GHSMSTMessageType GHS_MST_message_type);
 std::string GHSMSTNodeState_to_string(GHSMSTNodeState GHS_MST_node_state);
 std::string GHSMSTEdgeState_to_string(GHSMSTEdgeState GHS_MST_edge_state);
 
-#endif
+#endif // SCDS_ALGORITHMS_MST_GHS_MST_MESSAGE_H_

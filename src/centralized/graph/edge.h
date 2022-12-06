@@ -24,7 +24,8 @@ class Edge
     std::tuple<int, int, int> get_id() const;
     int get_other_endpoint(int endpoint) const;
 
-    std::string to_string();
+    std::string to_string(int log_level = 0,
+                          bool log_level_on_first_line = true) const;
 }; // class Edge
 
 }; // namespace centralized

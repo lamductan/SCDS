@@ -9,8 +9,7 @@ void LamMISPart3Alg::set_alg_type()
 LamMISPart3Alg::LamMISPart3Alg(Node *node, int starting_round)
 {
     init(node, starting_round);
-    all_remained_neighbors =
-        std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+    all_remained_neighbors = neighbors_set;
 }
 
 cMessage *LamMISPart3Alg::process_message_queue()

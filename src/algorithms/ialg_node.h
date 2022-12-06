@@ -50,6 +50,7 @@ class IAlgNode : public IAlg
     CDSNodeStatus previous_CDS_status = NOT_IN_CDS;
     std::vector<cMessage *> message_queue;
     std::set<int> need_to_send;
+    std::set<int> neighbors_set;
     int current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
     int previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
 
@@ -96,6 +97,7 @@ class IAlgNode : public IAlg
     void delete_synchronized_message();
 
     virtual centralized::BFSTreeStructure get_bfs_tree_structure() const;
+    virtual void print_state(int log_level = 0);
 
     virtual ~IAlgNode();
 };

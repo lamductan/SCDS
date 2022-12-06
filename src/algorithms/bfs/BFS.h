@@ -10,6 +10,7 @@ class BFSAlg : public IAlgNode
     bool marked = false;
     int parent_id = INT_MAX;
     int level = INT_MAX;
+    int root = -1;
 
     std::set<int> children;
     std::set<int> all_remained_neighbors;
@@ -47,7 +48,7 @@ class BFSAlg : public IAlgNode
     virtual centralized::BFSTreeStructure
     get_bfs_tree_structure() const override;
 
-    void print_state(int log_level = 0);
+    virtual void print_state(int log_level = 0) override;
 };
 
 #endif // SCDS_ALGORITHMS_BFS_BFS_H_

@@ -25,12 +25,14 @@ class GK96CDSAlg : public SimpleCDSAlg
     int GK96_CDS_stage = GK96CDSStage::INITIAL_STAGE;
 
   public:
+    GK96CDSAlg();
     GK96CDSAlg(Node *node, int starting_round = 1);
+    virtual void init(Node *node, int starting_round = 1) override;
     virtual void init_three_hop_path_construction_alg();
     virtual void init_CDS() override;
     virtual void handle_message(cMessage *msg) override;
     virtual void stage_transition() override;
-    void init_three_hop_mst();
+    virtual void init_three_hop_mst();
     virtual bool is_awake() override;
     virtual bool is_decided() override;
     virtual bool is_selected() override;

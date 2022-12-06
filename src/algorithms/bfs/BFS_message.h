@@ -23,9 +23,10 @@ class BFSMessage : public cMessage
     BFSMessageType bfs_message_type;
     int level = -1;
     int parent_id = -1;
+    int root = -1;
 
     void copyInformation(int sender_id, BFSMessageType bfs_message_type,
-                         int level, int parent_id);
+                         int level, int parent_id, int root);
 
   public:
     BFSMessage(const char *name = nullptr, short kind = BFS_MESSAGE);
@@ -42,6 +43,8 @@ class BFSMessage : public cMessage
     void setLevel(int level);
     int getParentId() const;
     void setParentId(int parent_id);
+    int getRoot() const;
+    void setRoot(int root);
     std::string to_string(int log_level = 0) const;
 };
 

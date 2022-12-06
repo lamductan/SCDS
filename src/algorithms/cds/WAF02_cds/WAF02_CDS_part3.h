@@ -42,7 +42,7 @@ class WAF02CDSPart3Alg : public IAlgNode
     virtual bool is_decided() override;
     WAF02CDSMessage *create_WAF02_CDS_message();
 
-    void print_state(int log_level = 0);
+    virtual void print_state(int log_level = 0) override;
 };
 
 #endif // SCDS_ALGORITHMS_WAF02_CDS_WAF02_CDS_PART3_H_

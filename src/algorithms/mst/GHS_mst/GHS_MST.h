@@ -100,7 +100,7 @@ class GHSMSTAlg : public IAlgNode
     void test();
     void report();
     void change_root(int core_node_id);
-    void print_state(int log_level = 0) const;
+    virtual void print_state(int log_level = 0) override;
     virtual ~GHSMSTAlg();
 };
 

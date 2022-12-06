@@ -61,10 +61,12 @@ bool centralized::Node::is_cds_status_decided() const
     return (CDS_status != CDS_UNDECIDED);
 }
 
-std::string centralized::Node::to_string() const
+std::string centralized::Node::to_string(int log_level,
+                                         bool log_level_on_first_line) const
 {
     char buffer[1000];
-    snprintf(buffer, 1000, "node(%04d, %p)", id, this);
+    std::string tab = std::string(log_level * 4, ' ');
+    snprintf(buffer, 1000, "%snode(%04d, %p)", tab.c_str(), id, this);
     return std::string(buffer);
 }
 

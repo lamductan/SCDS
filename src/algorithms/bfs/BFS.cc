@@ -10,11 +10,11 @@ void BFSAlg::set_alg_type()
 BFSAlg::BFSAlg(Node *node, int starting_round)
 {
     init(node, starting_round);
-    all_remained_neighbors =
-        std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+    all_remained_neighbors = neighbors_set;
     if (id == 0) {
         level = 0;
         parent_id = -1;
+        root = id;
     }
 }
 
@@ -85,6 +85,7 @@ void BFSAlg::process_search_message(BFSMessage *bfs_message)
 {
     int sender_id = bfs_message->getSenderId();
     int received_level = bfs_message->getLevel();
+    int received_root = bfs_message->getRoot();
     received_search_from_this_round.insert(sender_id);
     if (!marked) {
         marked = true;
@@ -95,6 +96,7 @@ void BFSAlg::process_search_message(BFSMessage *bfs_message)
         (possible_new_level == level && sender_id < parent_id)) {
         level = possible_new_level;
         parent_id = sender_id;
+        root = received_root;
     }
     all_remained_neighbors.erase(sender_id);
 }
@@ -129,6 +131,7 @@ BFSMessage *BFSAlg::create_bfs_message()
     msg->setSenderId(id);
     msg->setParentId(parent_id);
     msg->setLevel(level);
+    msg->setRoot(root);
     return msg;
 }
 
@@ -206,7 +209,7 @@ void BFSAlg::send_new_messages(
 
 centralized::BFSTreeStructure BFSAlg::get_bfs_tree_structure() const
 {
-    return centralized::BFSTreeStructure(id, level, parent_id, children);
+    return centralized::BFSTreeStructure(id, level, parent_id, root, children);
 }
 
 void BFSAlg::print_state(int log_level)

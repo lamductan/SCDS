@@ -19,8 +19,7 @@ void WAF02CDSPart3Alg::init_from_two_hop_MIS_alg(
     IAlgNode::init(WAF02_two_hop_MIS_part2_alg->node, starting_round);
     x1 = node->all_neighbors.size();
     mis_neighbors = WAF02_two_hop_MIS_part2_alg->mis_neighbors;
-    waiting_message_from =
-        std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+    waiting_message_from = neighbors_set;
     is_MIS_root = (WAF02_two_hop_MIS_part2_alg->level == 0);
     MIS_status = WAF02_two_hop_MIS_part2_alg->MIS_status;
 }

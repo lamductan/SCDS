@@ -153,3 +153,28 @@ std::string tuple_to_string(const std::tuple<int, int, int> &tup)
     s += ']';
     return s;
 }
+
+std::string set_tuple_to_string(const std::set<std::tuple<int, int, int>> &st,
+                                int log_level, bool log_level_on_first_line)
+{
+    std::string one_tab = std::string(4, ' ');
+    std::string tab = std::string(log_level * 4, ' ');
+
+    std::string s = (log_level_on_first_line) ? tab + "[\n" : "[\n";
+
+    for (const auto &it : st) {
+        s += (tab + one_tab) + tuple_to_string(it) + ",\n";
+    }
+    s += tab + "]";
+    return s;
+}
+
+bool is_endpoint_of_edge(const std::tuple<int, int, int> &edge_id, int id)
+{
+    return std::get<1>(edge_id) == id || std::get<2>(edge_id) == id;
+}
+
+int get_neighbor_id_of_edge(const std::tuple<int, int, int> &edge_id, int id)
+{
+    return std::get<1>(edge_id) + std::get<2>(edge_id) - id;
+}

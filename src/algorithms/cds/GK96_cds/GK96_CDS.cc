@@ -5,6 +5,34 @@
 #include "messages/synchronized_message.h"
 #include "utils/utils.h"
 
+GK96CDSAlg::GK96CDSAlg() {}
+
+GK96CDSAlg::GK96CDSAlg(Node *node, int starting_round)
+{
+    init(node, starting_round);
+}
+
+void GK96CDSAlg::init(Node *node, int starting_round)
+{
+    IAlgNode::init(node, starting_round);
+    init_MIS();
+    init_three_hop_path_construction_alg();
+    init_CDS();
+    max_num_rounds = MIS_stage_max_num_rounds +
+                     three_hop_path_construction_stage_max_num_rounds +
+                     CDS_stage_max_num_rounds;
+    CDS_status = NOT_IN_CDS;
+
+    EV << "MIS_stage_starting_round = " << MIS_stage_starting_round << ' '
+       << SW08_MIS_alg->starting_round << '\n';
+    EV << "three_hop_path_construction_stage_starting_round = "
+       << three_hop_path_construction_stage_starting_round << ' '
+       << three_hop_path_construction_alg->starting_round << '\n';
+    EV << "CDS_stage_starting_round = " << CDS_stage_starting_round << ' '
+       << CDS_alg->starting_round << '\n';
+    EV << "total max_num_rounds = " << max_num_rounds << '\n';
+}
+
 void GK96CDSAlg::init_three_hop_path_construction_alg()
 {
     three_hop_path_construction_stage_starting_round =
@@ -25,28 +53,6 @@ void GK96CDSAlg::init_CDS()
     CDS_stage_max_num_rounds = CDS_alg->max_num_rounds;
 }
 
-GK96CDSAlg::GK96CDSAlg(Node *node, int starting_round)
-{
-    init(node, starting_round);
-    init_MIS();
-    init_three_hop_path_construction_alg();
-    init_CDS();
-    max_num_rounds = MIS_stage_max_num_rounds +
-                     three_hop_path_construction_stage_max_num_rounds +
-                     CDS_stage_max_num_rounds;
-    // max_num_rounds = 60; // TODO: for debug purpose only
-    CDS_status = NOT_IN_CDS;
-
-    EV << "MIS_stage_starting_round = " << MIS_stage_starting_round << ' '
-       << SW08_MIS_alg->starting_round << '\n';
-    EV << "three_hop_path_construction_stage_starting_round = "
-       << three_hop_path_construction_stage_starting_round << ' '
-       << three_hop_path_construction_alg->starting_round << '\n';
-    EV << "CDS_stage_starting_round = " << CDS_stage_starting_round << ' '
-       << CDS_alg->starting_round << '\n';
-    EV << "total max_num_rounds = " << max_num_rounds << '\n';
-}
-
 void GK96CDSAlg::handle_message(cMessage *msg)
 {
     handle_synchronized_message(msg);
@@ -57,15 +63,17 @@ void GK96CDSAlg::handle_message(cMessage *msg)
         break;
     case GK96CDSStage::THREE_HOP_PATH_CONSTRUCTION_STAGE:
         call_handle_message(three_hop_path_construction_alg, msg);
-        if (SW08_MIS_alg->MIS_status == IN_MIS)
+        if (SW08_MIS_alg->MIS_status == IN_MIS) {
+            // A trick: temporarily mark MIS nodes out of CDS
             CDS_status = TENTATIVE_IN_CDS;
-        else if (three_hop_path_construction_alg->CDS_status == IN_CDS) {
+        } else if (three_hop_path_construction_alg->CDS_status == IN_CDS) {
             CDS_status = TENTATIVE_IN_CDS;
         }
         break;
     case GK96CDSStage::CDS_STAGE:
         call_handle_message(CDS_alg, msg);
         if (CDS_alg->MIS_status == IN_MIS && CDS_alg->is_decided()) {
+            // MST algorithm is done. Add MIS nodes back to CDS
             CDS_status = CDS_alg->CDS_status = IN_CDS;
         }
         break;
@@ -94,6 +102,7 @@ void GK96CDSAlg::stage_transition()
     } else if (current_round_id == CDS_stage_starting_round) {
         if (CDS_status != TENTATIVE_IN_CDS) {
             GK96_CDS_stage = GK96CDSStage::END_STAGE;
+            decided_round = current_round_id - 1;
             node->is_finished = true;
         } else {
             GK96_CDS_stage = GK96CDSStage::CDS_STAGE;

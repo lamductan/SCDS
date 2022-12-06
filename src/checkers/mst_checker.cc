@@ -1,4 +1,5 @@
 #include "checkers/mst_checker.h"
+#include "utils/utils.h"
 
 #include <set>
 #include <unordered_map>
@@ -101,8 +102,12 @@ bool MSTChecker::check(bool is_final_check) const
     }
     if (subgraph_from_alg_edges->edges.size() !=
         subgraph_from_alg_edges->nodes.size() - 1) {
-        if (is_final_check)
+        if (is_final_check) {
             EV_ERROR << "Failed NUMBER OF SPANNING TREE EDGES check!\n";
+            EV_ERROR << set_to_string_custom<centralized::Edge>(
+                            subgraph_from_alg_edges->edges)
+                     << '\n';
+        }
         return false;
     }
     if (minimal_weight_tree_of_subgraph_from_alg !=

@@ -27,38 +27,12 @@ centralized::WAF02CDSAlg::find_bfs_tree_structure_from_root(int root)
 {
     std::cout
         << "centralized::WAF02CDSAlg::find_bfs_tree_structure_from_root()\n";
-    std::map<int, BFSTreeStructure> bfs_tree_structure_all_nodes;
-    std::map<int, bool> vis;
-    std::map<int, int> level;
-    std::set<std::tuple<int, int, int>> q;
-    q.insert({ 0, root, -1 });
-    while (!q.empty()) {
-        std::tuple<int, int, int> front = *q.begin();
-        q.erase(q.begin());
-        int l = std::get<0>(front);
-        int u = std::get<1>(front);
-        int parent = std::get<2>(front);
-        if (vis[u]) continue;
-        vis[u] = true;
-        level[u] = l;
-        bfs_tree_structure_all_nodes[u] = BFSTreeStructure(u, l, parent);
-        if (parent != -1)
-            bfs_tree_structure_all_nodes[parent].children.insert(u);
-        Node *node_u = graph->nodes[u];
-        for (auto it : node_u->neighbors) {
-            int v = it.first;
-            if (v == parent) continue;
-            if (vis[v]) continue;
-            q.insert({ l + 1, v, u });
-        }
-    }
-    bfs_tree_structures = bfs_tree_structure_all_nodes;
+    bfs_tree_structures = graph->find_bfs_tree_structure_from_root(root);
 
     for (auto it : WAF02_cds_nodes) {
         int nodeid = it.first;
         WAF02CDSNode *WAF02_cds_node = it.second;
-        WAF02_cds_node->bfs_tree_structure =
-            bfs_tree_structure_all_nodes[nodeid];
+        WAF02_cds_node->bfs_tree_structure = bfs_tree_structures[nodeid];
     }
 
     for (auto it : WAF02_cds_nodes) {
@@ -82,8 +56,7 @@ centralized::WAF02CDSAlg::find_bfs_tree_structure_from_root(int root)
         }
     }
     WAF02_cds_nodes[root]->x2 = WAF02_cds_nodes[root]->neighbors.size();
-
-    return bfs_tree_structure_all_nodes;
+    return bfs_tree_structures;
 }
 
 std::vector<int> centralized::WAF02CDSAlg::find_mis(bool print_undediced_node)

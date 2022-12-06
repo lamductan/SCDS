@@ -3,25 +3,26 @@
 BFSMessage::BFSMessage(const char *name, short kind) : cMessage(name, kind) {}
 
 void BFSMessage::copyInformation(int sender_id, BFSMessageType bfs_message_type,
-                                 int level, int parent_id)
+                                 int level, int parent_id, int root)
 {
     this->sender_id = sender_id;
     this->bfs_message_type = bfs_message_type;
     this->level = level;
     this->parent_id = parent_id;
+    this->root = root;
 }
 
 BFSMessage::BFSMessage(const BFSMessage &other) : cMessage((cMessage)other)
 {
     copyInformation(other.sender_id, other.bfs_message_type, other.level,
-                    other.parent_id);
+                    other.parent_id, other.root);
 }
 
 BFSMessage &BFSMessage::operator=(const BFSMessage &other)
 {
     cMessage::operator=(other);
     copyInformation(other.sender_id, other.bfs_message_type, other.level,
-                    other.parent_id);
+                    other.parent_id, other.root);
     return *this;
 }
 
@@ -47,6 +48,10 @@ int BFSMessage::getParentId() const { return parent_id; }
 
 void BFSMessage::setParentId(int parent_id) { this->parent_id = parent_id; }
 
+int BFSMessage::getRoot() const { return root; }
+
+void BFSMessage::setRoot(int root) { this->root = root; }
+
 std::string BFSMessage::to_string(int log_level) const
 {
     std::string one_tab = std::string(4, ' ');
@@ -60,6 +65,7 @@ std::string BFSMessage::to_string(int log_level) const
         (tab + one_tab + "level            = " + std::to_string(level) + ",\n");
     s += (tab + one_tab + "parent_id        = " + std::to_string(parent_id) +
           ",\n");
+    s += (tab + one_tab + "root             = " + std::to_string(root) + ",\n");
     return (s += tab + "}");
 }
 

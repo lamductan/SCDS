@@ -47,7 +47,7 @@ class WAF02TwoHopMISPart2Alg : public IAlgNode
     virtual bool is_decided() override;
     WAF02TwoHopMISMessage *create_WAF02_two_hop_MIS_message();
 
-    void print_state(int log_level = 0);
+    virtual void print_state(int log_level = 0) override;
 };
 
 #endif // SCDS_ALGORITHMS_WAF02_CDS_WAF02_TWO_HOP_MIS_PART2_H_

@@ -55,12 +55,18 @@ int centralized::Edge::get_other_endpoint(int endpoint) const
     return u + v - endpoint;
 }
 
-std::string centralized::Edge::to_string()
+std::string centralized::Edge::to_string(int log_level,
+                                         bool log_level_on_first_line) const
 {
-    std::string s = "Edge[" + std::to_string(u) + "," + std::to_string(v) +
-                    "," + std::to_string(w);
-    s += ",nodes_on_edges=(";
-    for (int id : nodes_on_edge) s += std::to_string(id) + ",";
-    s += ")]";
+    std::string one_tab = std::string(4, ' ');
+    std::string tab = std::string(log_level * 4, ' ');
+    std::string s = (tab + one_tab) + "Edge[" + std::to_string(u) + "," +
+                    std::to_string(v) + "," + std::to_string(w);
+    if (!nodes_on_edge.empty()) {
+        s += ",nodes_on_edges=(";
+        for (int id : nodes_on_edge) s += std::to_string(id) + ",";
+        s += ")";
+    }
+    s += "]";
     return s;
 }

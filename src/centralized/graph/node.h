@@ -61,7 +61,8 @@ class Node
     bool is_mis_status_decided() const;
     bool is_cds_status_decided() const;
 
-    std::string to_string() const;
+    std::string to_string(int log_level = 0,
+                          bool log_level_on_first_line = true) const;
     virtual ~Node();
 }; // class Node
 

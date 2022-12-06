@@ -2,6 +2,7 @@
 #define SCDS_COMMON_H_
 
 #include <omnetpp.h>
+#include <tuple>
 
 using namespace omnetpp;
 
@@ -17,5 +18,7 @@ class IModule : public cSimpleModule
     virtual ModuleType getModuleType() const = 0;
     int current_round_id = 0;
 };
+
+const std::tuple<int, int, int> INF_EDGE_ID = { INT_MAX, -1, -1 };
 
 #endif // SCDS_COMMON_H_

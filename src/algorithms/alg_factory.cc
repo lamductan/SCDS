@@ -49,6 +49,15 @@ IAlgNode *AlgFactory::create_alg(Node *node, const char *alg_name,
     } else if (strcmp(alg_name, "CDS-WAF02") == 0) {
         EV << "Create WAF02CDSAlg instance\n";
         return new WAF02CDSAlg(node, starting_round);
+    } else if (strcmp(alg_name, "BFS-Lam-Local") == 0) {
+        EV << "Create LamBFSPart2Alg instance\n";
+        return new LamBFSPart2Alg(node, starting_round);
+    } else if (strcmp(alg_name, "MST-AMP22") == 0) {
+        EV << "Create AMP22MSTAlg instance\n";
+        return new AMP22MSTAlg(node, starting_round);
+    } else if (strcmp(alg_name, "CDS-Lam-Congest") == 0) {
+        EV << "Create LamCDSCongestAlg instance\n";
+        return new LamCDSCongestAlg(node, starting_round);
     }
     return nullptr;
 }

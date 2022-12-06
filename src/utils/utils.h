@@ -47,6 +47,31 @@ std::set<T> combine_set(const std::set<T> &s1, const std::set<T> &s2)
 }
 
 template<typename T>
+std::set<T> combine_set(const std::set<T> &s1, const std::vector<T> &s2)
+{
+    std::set<T> s = s1;
+    for (auto it : s2) s.insert(it);
+    return s;
+}
+
+template<typename T>
+std::multiset<T> combine_set(const std::multiset<T> &s1, const std::set<T> &s2)
+{
+    std::multiset<T> s = s1;
+    for (auto it : s2) s.insert(it);
+    return s;
+}
+
+template<typename T>
+std::multiset<T> combine_set(const std::multiset<T> &s1,
+                             const std::multiset<T> &s2)
+{
+    std::multiset<T> s = s1;
+    for (auto it : s2) s.insert(it);
+    return s;
+}
+
+template<typename T>
 std::set<T> diff_set(const std::set<T> &s1, const std::set<T> &s2)
 {
     std::set<T> s = s1;
@@ -55,10 +80,19 @@ std::set<T> diff_set(const std::set<T> &s1, const std::set<T> &s2)
 }
 
 template<typename T>
-std::set<T> combine_set(const std::set<T> &s1, const std::vector<T> &s2)
+std::multiset<T> diff_set(const std::multiset<T> &s1, const std::set<T> &s2)
 {
-    std::set<T> s = s1;
-    for (auto it : s2) s.insert(it);
+    std::multiset<T> s = s1;
+    for (auto it : s2) s.erase(it);
+    return s;
+}
+
+template<typename T>
+std::multiset<T> diff_set(const std::multiset<T> &s1,
+                          const std::multiset<T> &s2)
+{
+    std::multiset<T> s = s1;
+    for (auto it : s2) s.erase(it);
     return s;
 }
 
@@ -88,6 +122,7 @@ std::vector<T> combine_vector(const std::vector<T> &a, const std::vector<T> &b)
 
 std::vector<bool> map_to_vector(std::map<int, bool> &awake_round_map,
                                 int finished_round);
+
 bool is_idle_round(std::vector<std::vector<bool>> &all_awake_round_vec,
                    int round_id);
 
@@ -106,9 +141,21 @@ void print(const T &a, const char *name = "")
 }
 
 std::string tuple_to_string(const std::tuple<int, int, int> &tup);
+std::string set_tuple_to_string(const std::set<std::tuple<int, int, int>> &st,
+                                int log_level = 0,
+                                bool log_level_on_first_line = true);
 
 template<typename T>
 std::string set_to_string(const std::set<T> &st)
+{
+    std::string s = "[";
+    for (const T &a : st) s += std::to_string(a) + ",";
+    s += "]";
+    return s;
+}
+
+template<typename T>
+std::string set_to_string(const std::multiset<T> &st)
 {
     std::string s = "[";
     for (const T &a : st) s += std::to_string(a) + ",";
@@ -139,5 +186,43 @@ std::string set_pair_to_string(const std::set<std::pair<T1, T2>> &st)
     s += "]";
     return s;
 }
+
+template<typename T>
+std::string map_to_string_custom(const std::map<int, T> &m, int log_level = 0,
+                                 bool log_level_on_first_line = true)
+{
+    std::string one_tab = std::string(4, ' ');
+    std::string tab = std::string(log_level * 4, ' ');
+
+    std::string s = (log_level_on_first_line) ? tab + "[\n" : "[\n";
+
+    for (const auto &it : m) {
+        s += (tab + one_tab) + std::to_string(it.first) + ": " +
+             it.second.to_string(log_level + 1, false);
+        s += ",\n";
+    }
+    s += tab + "]";
+    return s;
+}
+
+template<typename T>
+std::string set_to_string_custom(const std::set<T> &m, int log_level = 0,
+                                 bool log_level_on_first_line = true)
+{
+    std::string one_tab = std::string(4, ' ');
+    std::string tab = std::string(log_level * 4, ' ');
+
+    std::string s = (log_level_on_first_line) ? tab + "[\n" : "[\n";
+
+    for (const auto &it : m) {
+        s += (tab + one_tab) + it.to_string(log_level + 1, false);
+        s += ",\n";
+    }
+    s += tab + "]";
+    return s;
+}
+
+bool is_endpoint_of_edge(const std::tuple<int, int, int> &edge_id, int id);
+int get_neighbor_id_of_edge(const std::tuple<int, int, int> &edge_id, int id);
 
 #endif // UTILS_UTILS_H_

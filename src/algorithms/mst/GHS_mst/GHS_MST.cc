@@ -32,7 +32,7 @@ void GHSMSTAlg::init(Node *node, int starting_round)
 
 int GHSMSTAlg::get_neighbor_id(const std::tuple<int, int, int> &edge_id) const
 {
-    return std::get<1>(edge_id) + std::get<2>(edge_id) - id;
+    return get_neighbor_id_of_edge(edge_id, id);
 }
 
 bool GHSMSTAlg::is_endpoint_of_edge(
@@ -457,7 +457,7 @@ bool GHSMSTAlg::handle_done_message(GHSMSTMessage *msg)
     return true;
 }
 
-void GHSMSTAlg::print_state(int log_level) const
+void GHSMSTAlg::print_state(int log_level)
 {
     std::string one_tab = std::string(4, ' ');
     std::string tab = std::string(log_level * 4, ' ');

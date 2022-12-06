@@ -53,7 +53,8 @@ centralized::Graph::Graph(const char *network_file)
     networkFile.close();
 }
 
-centralized::Graph::Graph(std::map<int, Node *> nodes, std::set<Edge> edges,
+centralized::Graph::Graph(const std::map<int, Node *> &nodes,
+                          const std::set<Edge> &edges,
                           centralized::NodeType node_type)
 {
     n = nodes.size();
@@ -65,6 +66,21 @@ centralized::Graph::Graph(std::map<int, Node *> nodes, std::set<Edge> edges,
         max_node_id = std::max(max_node_id, nodeid);
     }
     for (Edge edge : edges) {
+        add_edge(edge);
+    }
+}
+
+centralized::Graph::Graph(const std::set<int> &nodes,
+                          const std::set<std::tuple<int, int, int>> &edges)
+{
+    n = nodes.size();
+    m = edges.size();
+    this->nodes = std::map<int, Node *>();
+    for (int nodeid : nodes) {
+        this->nodes[nodeid] = new Node(0, 0, nodeid);
+        max_node_id = std::max(max_node_id, nodeid);
+    }
+    for (const std::tuple<int, int, int> &edge : edges) {
         add_edge(edge);
     }
 }
@@ -83,11 +99,24 @@ centralized::Graph::operator=(const centralized::Graph &other)
 
 void centralized::Graph::add_edge(Edge edge)
 {
+    if (!nodes.count(edge.u)) return;
+    if (!nodes.count(edge.v)) return;
     edges.insert(edge);
     Node *srcnode = nodes[edge.u];
     Node *destnode = nodes[edge.v];
     srcnode->add_neighbor(destnode);
     destnode->add_neighbor(srcnode);
+}
+
+void centralized::Graph::add_edge(const std::tuple<int, int, int> &edge_id)
+{
+    int u = std::get<1>(edge_id);
+    int v = std::get<2>(edge_id);
+    int w = std::get<0>(edge_id);
+    if (!nodes.count(u)) return;
+    if (!nodes.count(v)) return;
+    Edge edge = Edge(u, v, w);
+    return add_edge(edge);
 }
 
 void centralized::Graph::copyInformation(int n, int m,
@@ -218,6 +247,48 @@ void centralized::Graph::find_three_hop_neighbors()
         // std::cout << "\tnode" << node->id << '\n';
         find_three_hop_neighbors_of_a_node(node);
     }
+}
+
+std::map<int, centralized::BFSTreeStructure>
+centralized::Graph::find_bfs_tree_structure_from_root(int root)
+{
+    std::map<int, BFSTreeStructure> bfs_tree_structure_all_nodes;
+    std::map<int, bool> vis;
+    std::map<int, int> level;
+    std::set<std::tuple<int, int, int>> q;
+    q.insert({ 0, root, -1 });
+    while (!q.empty()) {
+        std::tuple<int, int, int> front = *q.begin();
+        q.erase(q.begin());
+        int l = std::get<0>(front);
+        int u = std::get<1>(front);
+        int parent = std::get<2>(front);
+        if (vis[u]) continue;
+        vis[u] = true;
+        level[u] = l;
+        bfs_tree_structure_all_nodes[u] = BFSTreeStructure(u, l, parent, root);
+        if (parent != -1)
+            bfs_tree_structure_all_nodes[parent].children.insert(u);
+        Node *node_u = nodes[u];
+        for (auto it : node_u->neighbors) {
+            int v = it.first;
+            if (v == parent) continue;
+            if (vis[v]) continue;
+            q.insert({ l + 1, v, u });
+        }
+    }
+    return bfs_tree_structure_all_nodes;
+}
+
+int centralized::Graph::get_max_level(
+    const std::map<int, centralized::BFSTreeStructure> &bfs_tree_structures)
+{
+    int max_level = 0;
+    for (auto it : bfs_tree_structures) {
+        BFSTreeStructure bfs_tree_structure = it.second;
+        max_level = std::max(max_level, bfs_tree_structure.level);
+    }
+    return max_level;
 }
 
 centralized::Graph::~Graph()

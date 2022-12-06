@@ -13,7 +13,7 @@ void IAlgNode::init(Node *node, int starting_round)
     set_max_num_rounds(this->n_nodes);
     current_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
     previous_round_alg_stage = BaseAlgStage::INITIAL_STAGE;
-    need_to_send =
+    neighbors_set = need_to_send =
         std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
 }
 
@@ -92,10 +92,12 @@ void IAlgNode::process_round()
         return;
     }
     ++n_awake_rounds;
+    awake_round_map[current_round_id] = true;
     EV << "Is awake: n_awake_rounds = " << n_awake_rounds << '\n';
     EV << "pre_process: message_queue.size() = " << message_queue.size()
        << '\n';
     cMessage *new_message = process_message_queue();
+    print_state();
     clear_message_queue();
     if (new_message != nullptr) send_new_message(new_message);
 }
@@ -133,9 +135,9 @@ cMessage *IAlgNode::process_message_queue() { return nullptr; }
 void IAlgNode::send_new_message(cMessage *msg, double delay)
 {
     EV << "node" << node->id << " : need_to_send = [";
-
     for (int x : need_to_send) EV << x << ",";
     EV << "]\n";
+
     last_communication_round = current_round_id;
     if (need_to_send.size() == 1 && *need_to_send.begin() == -1) {
         /*
@@ -194,6 +196,8 @@ void IAlgNode::delete_synchronized_message()
 {
     delete synchronized_message_ptr;
 }
+
+void IAlgNode::print_state(int log_level) {}
 
 centralized::BFSTreeStructure IAlgNode::get_bfs_tree_structure() const
 {

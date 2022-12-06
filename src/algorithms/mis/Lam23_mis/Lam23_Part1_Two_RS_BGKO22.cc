@@ -9,8 +9,7 @@ void BGKO22TwoRSAlg::set_alg_type()
 BGKO22TwoRSAlg::BGKO22TwoRSAlg(Node *node, int starting_round)
 {
     init(node, starting_round);
-    all_remained_neighbors =
-        std::set<int>(node->all_neighbors.begin(), node->all_neighbors.end());
+    all_remained_neighbors = neighbors_set;
 }
 
 void BGKO22TwoRSAlg::stage_transition()

@@ -114,9 +114,10 @@ SimpleMISToCDSAlg::process_message_queue_exchange_two_hop_MIS_neighbors()
             MIS_in_two_hop_neighbor[candidate_two_hop_MIS_node_id] = {
                 candidate_two_hop_MIS_node_id, intermedidate_node, id
             };
-            nodes_on_path[candidate_two_hop_MIS_node_id] = {
-                id, intermedidate_node, candidate_two_hop_MIS_node_id, -1
-            };
+            nodes_on_directed_paths[{ 1, id, candidate_two_hop_MIS_node_id }] =
+                nodes_on_path[candidate_two_hop_MIS_node_id] = {
+                    id, intermedidate_node, candidate_two_hop_MIS_node_id, -1
+                };
         }
     }
     if (MIS_in_two_hop_neighbor.empty()) return nullptr;
@@ -154,9 +155,12 @@ SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_neighbors()
                 continue;
             MIS_in_three_hop_neighbor[candidate_three_hop_MIS_node_id] =
                 it.second;
-            nodes_on_path[candidate_three_hop_MIS_node_id] = {
-                id, it.second[2], it.second[1], candidate_three_hop_MIS_node_id
-            };
+            nodes_on_directed_paths[{ 2, id,
+                                      candidate_three_hop_MIS_node_id }] =
+                nodes_on_path[candidate_three_hop_MIS_node_id] = {
+                    id, it.second[2], it.second[1],
+                    candidate_three_hop_MIS_node_id
+                };
         }
     }
 
@@ -175,6 +179,7 @@ SimpleMISToCDSAlg::process_message_queue_MIS_nodes_inform_one_hop_neighbors()
         new SimpleCDSMessage("nodes_inform_one_hop_neighbors");
     new_message->setSenderId(id);
     new_message->setCDSNodes(cds_nodes);
+    new_message->setNodesOnDirectedPaths(nodes_on_directed_paths);
     return new_message;
 }
 
@@ -194,12 +199,22 @@ cMessage *SimpleMISToCDSAlg::
         if (CDS_status == NOT_IN_CDS && received_cds_nodes.count(id) > 0)
             CDS_status = IN_CDS;
         cds_nodes = combine_set<int>(cds_nodes, received_cds_nodes);
+        pos_of_relay_on_directed_paths =
+            combine_map<std::tuple<int, int, int>, int>(
+                pos_of_relay_on_directed_paths,
+                extract_pos_of_relay_on_directed_paths(
+                    simple_CDS_message->getNodesOnDirectedPaths()));
+        nodes_on_directed_paths =
+            combine_map<std::tuple<int, int, int>, std::array<int, 4>>(
+                nodes_on_directed_paths,
+                simple_CDS_message->getNodesOnDirectedPaths());
     }
 
     SimpleCDSMessage *new_message =
         new SimpleCDSMessage("nodes_inform_two_hop_neighbors");
     new_message->setSenderId(id);
     new_message->setCDSNodes(cds_nodes);
+    new_message->setNodesOnDirectedPaths(nodes_on_directed_paths);
     return new_message;
 }
 
@@ -216,7 +231,38 @@ cMessage *SimpleMISToCDSAlg::process_message_queue_two_hop_MIS_neighbors()
         std::set<int> received_cds_nodes = simple_CDS_message->getCDSNodes();
         if (CDS_status == NOT_IN_CDS && received_cds_nodes.count(id) > 0)
             CDS_status = IN_CDS;
+        pos_of_relay_on_directed_paths =
+            combine_map<std::tuple<int, int, int>, int>(
+                pos_of_relay_on_directed_paths,
+                extract_pos_of_relay_on_directed_paths(
+                    simple_CDS_message->getNodesOnDirectedPaths()));
     }
 
     return nullptr;
+}
+
+std::map<std::tuple<int, int, int>, int>
+SimpleMISToCDSAlg::extract_pos_of_relay_on_directed_paths(
+    const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+        &nodes_on_directed_paths) const
+{
+    EV << "SimpleMISToCDSAlg::extract_pos_of_relay_on_directed_paths()\n";
+    std::map<std::tuple<int, int, int>, int> pos_of_relay_on_directed_paths_1;
+    for (const auto &it : nodes_on_directed_paths) {
+        std::tuple<int, int, int> edge = it.first;
+        std::array<int, 4> path = it.second;
+        EV << tuple_to_string(edge) << '\n';
+        int pos = extract_pos_of_relay_on_directed_path(path);
+        EV << '\t' << pos << '\n';
+        if (pos > 0) pos_of_relay_on_directed_paths_1[edge] = pos;
+    }
+    return pos_of_relay_on_directed_paths_1;
+}
+
+int SimpleMISToCDSAlg::extract_pos_of_relay_on_directed_path(
+    const std::array<int, 4> &path) const
+{
+    if (std::get<1>(path) == id) return 1;
+    if (std::get<2>(path) == id) return 2;
+    return -1;
 }

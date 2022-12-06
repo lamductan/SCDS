@@ -13,7 +13,9 @@ enum AlgType
     CDS_ALG,
     MST_ALG,
     BFS_ALG,
-    TWO_HOP_MIS_ALG
+    TWO_HOP_MIS_ALG,
+    SLEEPING_MST,
+    SLEEPING_CDS
 };
 
 class IAlg

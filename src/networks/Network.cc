@@ -264,6 +264,18 @@ void Network::log_result()
       << ' ' << idle_rounds.size() << ' '
       << (finished_round - idle_rounds.size()) << "\n";
 
+    IChecker *checker = CheckerFactory::create_checker(this);
+    bool check_result = checker->check();
+    f << "Check result = " << check_result << '\n';
+
+    for (int node_id : node_ids) {
+        Node *node = nodes[node_id];
+        f << std::setfill('0') << std::setw(4) << node_id << ' '
+          << node->alg->n_awake_rounds << ' ' << node->alg->decided_round << ' '
+          << node->alg->last_communication_round << '\n';
+    }
+
+    /*
     f << "#idle rounds:\n";
     for (int x : idle_rounds) f << x << ' ';
     f << '\n';
@@ -284,11 +296,11 @@ void Network::log_result()
             f << all_awake_round_vec[node_id][i] << ' ';
         f << '\n';
     }
+    */
 
     f << "\n#selected nodes:\n";
     for (int selected_node : selected_nodes) f << selected_node << '\n';
-    IChecker *checker = CheckerFactory::create_checker(this);
-    f << "Check result = " << checker->check() << '\n';
+    f << "Check result = " << check_result << '\n';
     delete checker;
     f.close();
 }
