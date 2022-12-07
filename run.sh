@@ -14,9 +14,10 @@
 
 omnetpp=${1:-"run/20/sparse/omnetpp_000.ini"}
 config=${2:-"MIS-KW08"}
-mode=${3:-"false"}
+mode="false"
+r=${3:-"1"}
 
 echo "omnetpp.ini = ${omnetpp}"
 echo "config = ${config}"
 
-./scds -f ${omnetpp} -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=${mode} -c ${config} -r 1
+./scds -f ${omnetpp} -n src -u Cmdenv --allow-object-stealing-on-deletion=true --cmdenv-express-mode=${mode} -c ${config} -r ${r}

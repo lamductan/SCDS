@@ -127,6 +127,13 @@ void GHSMSTAlg::send_messages_current_round()
         if (already_sent_neighbors.count(receiver_id)) continue;
         msg->setSentRoundId(current_round_id);
         // EV << msg->to_string(1) << '\n';
+        if (!node->neighbor_gates.count(receiver_id)) {
+            EV_ERROR << "Not found neighbor " << receiver_id << " of node" << id
+                     << '\n';
+            EV_ERROR << "node" << id << "'s neighbors: "
+                     << vector_to_string<int>(node->all_neighbors) << '\n';
+            EV_ERROR << msg->to_string() << '\n';
+        }
         node->sendDelayed(msg->dup(), DELAY_SENT,
                           node->neighbor_gates[receiver_id]);
         sent_messages.push_back(msg);

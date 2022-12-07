@@ -34,6 +34,9 @@ IAlgNode *AlgFactory::create_alg(Node *node, const char *alg_name,
     } else if (strcmp(alg_name, "CDS-Simple") == 0) {
         EV << "Create SimpleCDSAlg instance\n";
         return new SimpleCDSAlg(node, starting_round);
+    } else if (strcmp(alg_name, "CDS-Simple-Lam") == 0) {
+        EV << "Create SimpleCDS2Alg instance\n";
+        return new SimpleCDS2Alg(node, starting_round);
     } else if (strcmp(alg_name, "MST-GHS") == 0) {
         EV << "Create GHSMSTAlg instance\n";
         return new GHSMSTAlg(node, starting_round);

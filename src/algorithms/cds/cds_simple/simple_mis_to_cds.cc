@@ -55,7 +55,7 @@ cMessage *SimpleMISToCDSAlg::process_message_queue_exchange_MIS_status()
     EV << "SimpleMISToCDSAlg::process_message_queue_exchange_MIS_status() -- "
           "message_queue.size() = "
        << message_queue.size() << '\n';
-    if (MIS_status == NOT_IN_MIS) return nullptr;
+    if (MIS_status != IN_MIS) return nullptr;
     // CDS_status = IN_CDS;
     SimpleCDSMessage *new_message = new SimpleCDSMessage("exchange_MIS_status");
     new_message->setSenderId(id);
@@ -72,6 +72,7 @@ SimpleMISToCDSAlg::process_message_queue_exchange_one_hop_MIS_neighbors()
     for (cMessage *msg : message_queue) {
         SimpleCDSMessage *simple_CDS_message =
             dynamic_cast<SimpleCDSMessage *>(msg);
+        if (MIS_status == UNDECIDED) MIS_status = NOT_IN_MIS;
         int sender_id = simple_CDS_message->getSenderId();
         MIS_in_one_hop_neighbor[sender_id] = { sender_id, id, -1 };
         nodes_on_path[sender_id] = { id, sender_id, -1, -1 };
@@ -273,6 +274,11 @@ cMessage *SimpleMISToCDSAlg::process_message_queue_MIS_nodes()
     EV << "SimpleMISToCDSAlg::process_message_queue_MIS_nodes -- "
           "message_queue.size() = "
        << message_queue.size() << '\n';
+
+    // Only do local computation in this round
+    --n_awake_rounds;
+    awake_round_map[current_round_id] = false;
+
     if (MIS_status == NOT_IN_MIS) return nullptr;
     // TODO: computer path from greater id to smaller id
 

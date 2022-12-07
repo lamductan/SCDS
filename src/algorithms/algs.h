@@ -14,6 +14,7 @@
 #include "algorithms/bfs/BFS.h"
 #include "algorithms/cds/GK96_cds/GK96_CDS.h"
 #include "algorithms/cds/cds_simple/simple_cds.h"
+#include "algorithms/cds/cds_simple/simple_cds_2.h"
 #include "algorithms/mst/GHS_mst/GHS_MST.h"
 
 #include "algorithms/cds/WAF02_cds/WAF02_CDS.h"

@@ -158,7 +158,7 @@ void AMP22MSTAlg::reset_phase_rounds_information()
 {
     // d = (d == -1) ? 1 : std::min(d * 3, n_nodes - 1);
     d = (d == -1) ? 1
-                  : std::min(n_nodes - 1, 100); // It works for CDS algorithms
+                  : std::min(n_nodes - 1, 200); // It works for CDS algorithms
     // because the number of nodes in an MIS is around 400.
     // However, for general problem, it should be n_nodes - 1.
     // Maybe 200 because MST algorithm for CDS is 3-hop MST.

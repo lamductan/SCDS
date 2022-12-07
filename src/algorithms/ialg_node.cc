@@ -1,5 +1,6 @@
 #include "algorithms/ialg_node.h"
 #include "messages/messages.h"
+#include "utils/utils.h"
 
 using namespace omnetpp;
 
@@ -152,6 +153,12 @@ void IAlgNode::send_new_message(cMessage *msg, double delay)
         }
     } else {
         for (int neighbor_id : need_to_send) {
+            if (!node->neighbor_gates.count(neighbor_id)) {
+                EV_ERROR << "Not found neighbor " << neighbor_id << " of node"
+                         << id << '\n';
+                EV_ERROR << "node" << id << "'s neighbors: "
+                         << vector_to_string<int>(node->all_neighbors) << '\n';
+            }
             node->sendDelayed(msg->dup(), delay,
                               node->neighbor_gates[neighbor_id]);
         }
