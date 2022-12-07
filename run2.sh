@@ -34,6 +34,6 @@ do
       fi
       f $n $denseness $j &
     done
+    wait
   done
-  wait
 done

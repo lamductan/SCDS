@@ -69,7 +69,8 @@ void SimpleCDSAlg::stage_transition()
     } else if (current_round_id == CDS_stage_starting_round) {
         Simple_CDS_stage = SimpleCDSStage::CDS_STAGE;
         CDS_alg->MIS_status = SW08_MIS_alg->MIS_status;
-        if (CDS_alg->MIS_status == IN_MIS) CDS_alg->CDS_status = IN_CDS;
+        if (CDS_alg->MIS_status == IN_MIS)
+            CDS_alg->CDS_status = TENTATIVE_IN_CDS;
     }
 }
 

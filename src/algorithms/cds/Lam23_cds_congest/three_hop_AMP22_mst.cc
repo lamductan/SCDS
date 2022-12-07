@@ -30,6 +30,9 @@ void ThreeHopAMP22MSTAlg::reset_phase()
         std::tuple<int, int, int> directed_edge = it.first;
         int u = std::get<1>(directed_edge);
         int v = std::get<2>(directed_edge);
+        EV << '\t' << u << ' ' << fragment_informations.at(u).fragment_id;
+        EV << '\t' << v << ' ' << fragment_informations.at(v).fragment_id
+           << '\n';
         if (fragment_informations.at(u).fragment_id ==
             fragment_informations.at(v).fragment_id) {
             inter_fragment_directed_edges.erase(directed_edge);
@@ -40,9 +43,6 @@ void ThreeHopAMP22MSTAlg::reset_phase()
     awake_rounds_in_phase_set = calculate_awake_rounds_in_phase();
     EV << "\tawake_rounds_in_phase_set = "
        << set_to_string<int>(awake_rounds_in_phase_set) << '\n';
-    EV << "\ton_w_2_path = " << on_w_2_path << ' '
-       << tuple_to_string(pos_of_relay_on_directed_paths.rbegin()->first)
-       << '\n';
 }
 
 int ThreeHopAMP22MSTAlg::find_next_relay_node_id_on_path_to(

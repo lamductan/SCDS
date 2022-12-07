@@ -21,10 +21,27 @@ class SimpleMISToCDSAlg : public IAlgNode
     cMessage *process_message_queue_MIS_nodes_inform_one_hop_neighbors();
     cMessage *
     process_message_queue_one_hop_MIS_neighbors_inform_two_hop_MIS_neighbors();
-    cMessage *process_message_queue_two_hop_MIS_neighbors();
+    cMessage *process_message_queue_two_hop_MIS_neighbors_inform_MIS_nodes();
+    cMessage *process_message_queue_MIS_nodes();
 
     std::map<std::tuple<int, int, int>, int>
     extract_pos_of_relay_on_directed_paths(
+        const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+            &nodes_on_directed_paths) const;
+
+    std::map<std::tuple<int, int, int>, std::array<int, 4>>
+    reverse_directed_path(
+        const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+            &nodes_on_directed_paths);
+
+    static std::tuple<int, int, int>
+    reverse_edge(const std::tuple<int, int, int> &t);
+    static std::array<int, 4> reverse_path(const std::array<int, 4> &arr);
+    std::map<int, std::array<int, 4>> compute_nodes_on_path(
+        const std::map<std::tuple<int, int, int>, std::array<int, 4>>
+            &nodes_on_directed_paths);
+
+    std::map<std::tuple<int, int, int>, std::array<int, 4>> get_relevant_paths(
         const std::map<std::tuple<int, int, int>, std::array<int, 4>>
             &nodes_on_directed_paths) const;
 
@@ -37,6 +54,7 @@ class SimpleMISToCDSAlg : public IAlgNode
     virtual cMessage *process_message_queue() override;
     virtual bool is_selected() override;
     virtual bool is_awake() override;
+    virtual void print_state(int log_level = 0) override;
 };
 
 #endif // SCDS_ALGORITHMS_CDS_SIMPLE_MIS_TO_CDS_H_

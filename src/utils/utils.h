@@ -172,6 +172,24 @@ std::string vector_to_string(const std::vector<T> &v)
     return s;
 }
 
+template<typename T>
+std::string array_to_string(const std::array<T, 3> &v)
+{
+    std::string s = "[";
+    for (const T &a : v) s += std::to_string(a) + ",";
+    s += "]";
+    return s;
+}
+
+template<typename T>
+std::string array_to_string(const std::array<T, 4> &v)
+{
+    std::string s = "[";
+    for (const T &a : v) s += std::to_string(a) + ",";
+    s += "]";
+    return s;
+}
+
 template<typename T1, typename T2>
 std::string pair_to_string(const std::pair<T1, T2> &p)
 {

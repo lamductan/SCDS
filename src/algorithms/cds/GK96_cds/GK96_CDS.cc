@@ -39,9 +39,8 @@ void GK96CDSAlg::init_three_hop_path_construction_alg()
         MIS_stage_starting_round + MIS_stage_max_num_rounds;
     three_hop_path_construction_alg = new SimpleMISToCDSAlg(
         node, three_hop_path_construction_stage_starting_round);
-    three_hop_path_construction_stage_max_num_rounds = 6;
-    three_hop_path_construction_alg->max_num_rounds =
-        three_hop_path_construction_stage_max_num_rounds;
+    three_hop_path_construction_stage_max_num_rounds =
+        three_hop_path_construction_alg->max_num_rounds;
 }
 
 void GK96CDSAlg::init_CDS()
