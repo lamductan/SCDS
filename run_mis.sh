@@ -36,3 +36,5 @@ do
     wait
   done
 done
+
+cp -R results results_mis
