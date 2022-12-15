@@ -22,6 +22,8 @@ f() {
   done
 }
 
+rm -rf results
+
 for n in {200..2000..200}
 do
   denseness=sparse

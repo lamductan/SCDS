@@ -15,7 +15,7 @@ f() {
   j=`printf %03d $i`
   omnetpp="run/${n}/${denseness}/omnetpp_${j}.ini"
   #for config in 'MIS-Luby' 'MIS-SW08' 'MIS-GP22' 'MIS-Lam'
-  for config in 'CDS-Simple-Lam'
+  for config in 'CDS-Simple-Lam' 'CDS-Lam-Congest' 'CDS-GK96' 'CDS-WAF02'
   do
     command="./scds -f ${omnetpp} -n src -u Cmdenv --cmdenv-express-mode=${mode} -c ${config} -r 1 > /dev/null"
     echo ${command}
@@ -23,8 +23,8 @@ f() {
   done
 }
 
+rm -rf results
 
-#for n in {100..2000..100}
 for n in {200..2000..200}
 do
   denseness=sparse
