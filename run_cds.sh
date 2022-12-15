@@ -41,3 +41,4 @@ do
 done
 
 cp -R results results_cds
+zip -r results_cds.zip results_cds

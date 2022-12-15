@@ -38,3 +38,4 @@ do
 done
 
 cp -R results results_mis
+zip -r results_mis.zip results_mis
