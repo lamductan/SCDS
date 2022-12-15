@@ -176,6 +176,17 @@ int Network::get_total_awake_rounds()
     return total_awake_rounds;
 }
 
+int Network::get_max_awake_rounds()
+{
+    int max_awake_rounds = 0;
+    for (auto it : nodes) {
+        Node *node = it.second;
+        max_awake_rounds =
+            std::max(max_awake_rounds, node->alg->n_awake_rounds);
+    }
+    return max_awake_rounds;
+}
+
 int Network::get_finished_round()
 {
     int finished_round = -1;
@@ -224,6 +235,7 @@ bool Network::check(bool is_final_check)
 void Network::log_result()
 {
     int total_awake_rounds = get_total_awake_rounds();
+    int max_awake_rounds = get_max_awake_rounds();
     int finished_round = get_finished_round();
     std::vector<int> selected_nodes = get_selected_nodes();
 
@@ -258,10 +270,10 @@ void Network::log_result()
     }
 
     f << "#n n_selected_nodes total_awake_rounds average_awake_rounds "
-         "finished_round n_idle_rounds n_active_rounds\n";
+         "max_awake_rounds finished_round n_idle_rounds n_active_rounds\n";
     f << n_nodes << ' ' << selected_nodes.size() << ' ' << total_awake_rounds
-      << ' ' << 1.0 * total_awake_rounds / n_nodes << ' ' << finished_round
-      << ' ' << idle_rounds.size() << ' '
+      << ' ' << 1.0 * total_awake_rounds / n_nodes << ' ' << max_awake_rounds
+      << ' ' << finished_round << ' ' << idle_rounds.size() << ' '
       << (finished_round - idle_rounds.size()) << "\n";
 
     IChecker *checker = CheckerFactory::create_checker(this);

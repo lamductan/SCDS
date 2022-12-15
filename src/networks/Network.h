@@ -40,6 +40,7 @@ class Network : public IModule
 
     std::vector<int> get_selected_nodes();
     int get_total_awake_rounds();
+    int get_max_awake_rounds();
     int get_finished_round();
     void log_result();
 
