@@ -25,7 +25,7 @@ f() {
 
 
 #for n in {100..2000..100}
-for n in {100..2000..100}
+for n in {200..2000..200}
 do
   denseness=sparse
   for ((i=0; i<${n_tests}; i+=${n_cores})); do
