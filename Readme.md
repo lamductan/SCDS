@@ -1,4 +1,4 @@
-# Implementation of the paper "Minimum Dominating Set and Minimum Connected Dominating Set Construction in Wireless Sensor Networks under Sleeping Model"
+# Implementation of the paper "Minimum Connected Dominating Set Construction in Wireless Sensor Networks under Sleeping Model"
 
 ## Requirement:
 ```
